@@ -8,7 +8,7 @@ Module CommonModule
 
     Function DecodePasswordStructure(bytes_Input As Byte(), ByRef KeySize As Integer, ByRef KeyData As Byte()) As String
 
-        Dim Base = Convert.ToInt16(bytes_Input(0), 10)
+        Dim Base = Convert.ToInt16(bytes_Input.GetValue(0), 10)
 
         KeySize = Base
         KeyData = New Byte(Base - 1) {}
@@ -27,11 +27,11 @@ Module CommonModule
                 j = 1
             End If
 
-            Dim AA = Convert.ToInt16(bytes_Input(i), 10)
-            Dim BB = Convert.ToInt16(bytes_Input(j), 10)
-            Dim CC = AA Xor BB ' 239 for first
+            Dim AA = Convert.ToInt16(bytes_Input.GetValue(i), 10)
+            Dim BB = Convert.ToInt16(bytes_Input.GetValue(j), 10)
+            Dim CC = Convert.ToByte(AA Xor BB) ' 239 for first
 
-            BytesResult(i - Base - 1) = CC
+            BytesResult.SetValue(CC, i - Base - 1)
 
             i = i + 1
             j = j + 1
@@ -50,9 +50,9 @@ Module CommonModule
         Dim Base = KeySize
 
         Dim BytesResult() As Byte = New Byte(bytes_Input.Length + Base - 1) {}
-        BytesResult(0) = Base
+        BytesResult.SetValue(Convert.ToByte(Base), 0)
         For ii = 1 To Base
-            BytesResult(ii) = KeyData(ii - 1)
+            BytesResult.SetValue(KeyData.GetValue(ii - 1), ii)
         Next
 
         Dim MaxI = bytes_Input.Length - 1
@@ -64,10 +64,11 @@ Module CommonModule
                 j = 1
             End If
 
-            Dim AA = Convert.ToInt16(bytes_Input(i - 1), 10)
-            Dim BB = Convert.ToInt16(BytesResult(j), 10)
+            Dim AA = Convert.ToInt16(bytes_Input.GetValue(i - 1), 10)
+            Dim BB = Convert.ToInt16(BytesResult.GetValue(j), 10)
+            Dim CC = Convert.ToByte(AA Xor BB)
 
-            BytesResult(i + Base) = AA Xor BB
+            BytesResult.SetValue(CC, i + Base)
 
             i = i + 1
             j = j + 1
@@ -107,21 +108,21 @@ Module CommonModule
 
         Dim RowSize = 1
 
-        Dim TableName = ParsedString(0)(0).ToString.Replace("""", "").ToUpper
+        Dim TableName = ParsedString.Item(0).Item(0).ToString.Replace("""", "").ToUpper
 
         PageHeader.TableName = TableName
 
-        For Each a In ParsedString(0)(2)
+        For Each a In ParsedString.Item(0).Item(2)
             If TypeOf a Is String Then
                 Continue For
             End If
 
             Dim Field = New TableFields
-            Field.Name = a(0).ToString.Replace("""", "")
-            Field.Type = a(1).ToString.Replace("""", "")
-            Field.CouldBeNull = a(2)
-            Field.Length = a(3)
-            Field.Precision = a(4)
+            Field.Name = a.Item(0).ToString.Replace("""", "")
+            Field.Type = a.Item(1).ToString.Replace("""", "")
+            Field.CouldBeNull = a.Item(2)
+            Field.Length = a.Item(3)
+            Field.Precision = a.Item(4)
 
 
             Dim FieldSize = Field.CouldBeNull
@@ -162,8 +163,8 @@ Module CommonModule
         '{"Files",118,119,96}
         'Данные, BLOB, индексы
 
-        Dim BlockData = Convert.ToInt32(ParsedString(0)(5)(1))
-        Dim BlockBlob = Convert.ToInt32(ParsedString(0)(5)(2))
+        Dim BlockData = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(1))
+        Dim BlockBlob = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(2))
 
         PageHeader.BlockData = BlockData
         PageHeader.BlockBlob = BlockBlob

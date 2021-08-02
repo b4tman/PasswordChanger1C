@@ -118,25 +118,25 @@ Public Class MainForm
                 Continue For
             End If
 
-            Dim AuthStructure = ParserServices.ParsesClass.ParseString(Row("DATA"))
+            Dim AuthStructure = ParserServices.ParsesClass.ParseString(Row("DATA")).Item(0)
 
-            Dim PassHash = AuthStructure(0)(11)
+            Dim PassHash = AuthStructure.Item(0).Item(11)
 
             Dim G = New Guid(DirectCast(Row("ID"), Byte()))
 
             Row.Add("UserGuidStr", G.ToString)
 
             'pretty crapy code here..
-            If AuthStructure(0)(7) = "0" Then
+            If AuthStructure.Item(0).Item(7) = "0" Then
                 Row.Add("UserPassHash", "")
                 Row.Add("UserPassHash2", "")
             Else
-                If AuthStructure(0).Count = 17 Or TableParams.DatabaseVersion = "8.3.8" Then
-                    Row.Add("UserPassHash", AuthStructure(0)(11))
-                    Row.Add("UserPassHash2", AuthStructure(0)(12))
+                If AuthStructure.Item(0).Count = 17 Or TableParams.DatabaseVersion = "8.3.8" Then
+                    Row.Add("UserPassHash", AuthStructure.Item(0).Item(11))
+                    Row.Add("UserPassHash2", AuthStructure.Item(0).Item(12))
                 Else
-                    Row.Add("UserPassHash", AuthStructure(0)(12))
-                    Row.Add("UserPassHash2", AuthStructure(0)(13))
+                    Row.Add("UserPassHash", AuthStructure.Item(0).Item(12))
+                    Row.Add("UserPassHash2", AuthStructure.Item(0).Item(13))
                 End If
             End If
 
@@ -195,24 +195,24 @@ Public Class MainForm
 
                     Dim AuthStructure As List(Of Object)
 
-                    If Not SQLUser.DataStr(0) = "{"c Then
+                    If Not SQLUser.DataStr.Chars(0) = "{"c Then
                         'postgres in my test has weird first symbol
                         AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
                     Else
                         AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
                     End If
 
-                    If AuthStructure(0)(7).ToString = "0" Then
+                    If AuthStructure.Item(0).Item(7).ToString = "0" Then
                         'нет авторизации 1С
                         SQLUser.PassHash = "нет авторизации 1С"
                     Else
                         'ugh.. need to handle it properly
-                        If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Or AuthStructure(0).Count = 21 Then
-                            SQLUser.PassHash = AuthStructure(0)(11).ToString
-                            SQLUser.PassHash2 = AuthStructure(0)(12).ToString
+                        If AuthStructure.Item(0).Count = 17 Or AuthStructure.Item(0).Count = 19 Or AuthStructure.Item(0).Count = 21 Then
+                            SQLUser.PassHash = AuthStructure.Item(0).Item(11).ToString
+                            SQLUser.PassHash2 = AuthStructure.Item(0).Item(12).ToString
                         Else
-                            SQLUser.PassHash = AuthStructure(0)(12).ToString
-                            SQLUser.PassHash2 = AuthStructure(0)(13).ToString
+                            SQLUser.PassHash = AuthStructure.Item(0).Item(12).ToString
+                            SQLUser.PassHash2 = AuthStructure.Item(0).Item(13).ToString
                         End If
                     End If
 
@@ -285,37 +285,37 @@ Public Class MainForm
                 Try
 
                     Dim SQLUser = New SQLUser
-                    SQLUser.ID = reader(0)
+                    SQLUser.ID = reader.Item(0)
                     SQLUser.IDStr = reader.GetString(1)
 
                     SQLUser.Name = reader.GetString(2)
                     SQLUser.Descr = reader.GetString(3)
 
-                    SQLUser.Data = reader(4)
+                    SQLUser.Data = reader.Item(4)
                     SQLUser.AdmRole = IIf(reader.GetBoolean(5), "Да", "")
 
                     SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
                     Dim AuthStructure As List(Of Object)
 
-                    If Not SQLUser.DataStr(0) = "{"c Then
+                    If Not SQLUser.DataStr.Chars(0) = "{"c Then
                         'postgres in my test has weird first symbol
                         AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1))
                     Else
                         AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr)
                     End If
 
-                    If AuthStructure(0)(7).ToString = "0" Then
+                    If AuthStructure.Item(0).Item(7).ToString = "0" Then
                         'нет авторизации 1С
                         SQLUser.PassHash = "нет авторизации 1С"
                     Else
                         Try
-                            If AuthStructure(0).Count = 17 Or AuthStructure(0).Count = 19 Or AuthStructure(0).Count = 21 Then
-                                SQLUser.PassHash = AuthStructure(0)(11).ToString
-                                SQLUser.PassHash2 = AuthStructure(0)(12).ToString
+                            If AuthStructure.Item(0).Count = 17 Or AuthStructure.Item(0).Count = 19 Or AuthStructure.Item(0).Count = 21 Then
+                                SQLUser.PassHash = AuthStructure.Item(0).Item(11).ToString
+                                SQLUser.PassHash2 = AuthStructure.Item(0).Item(12).ToString
                             Else
-                                SQLUser.PassHash = AuthStructure(0)(12).ToString
-                                SQLUser.PassHash2 = AuthStructure(0)(13).ToString
+                                SQLUser.PassHash = AuthStructure.Item(0).Item(12).ToString
+                                SQLUser.PassHash2 = AuthStructure.Item(0).Item(13).ToString
                             End If
                         Catch
                         End Try

@@ -30,7 +30,7 @@ Module DatabaseAccess8214
                 reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin)
                 reader.Read(TempBlock, 0, 4096)
                 For Each ElemByte In TempBlock
-                    bytesStorageTables(i) = ElemByte
+                    bytesStorageTables.SetValue(ElemByte, i)
                     i = i + 1
                 Next
             Next
@@ -151,7 +151,7 @@ Module DatabaseAccess8214
 
         Dim RowSize = 1
 
-        Dim TableName = ParsedString(0)(0).ToString.Replace("""", "").ToUpper
+        Dim TableName = ParsedString.Item(0).Item(0).ToString.Replace("""", "").ToUpper
 
         PageHeader.TableName = TableName
 
@@ -159,17 +159,17 @@ Module DatabaseAccess8214
             Exit Sub
         End If
 
-        For Each a In ParsedString(0)(2)
+        For Each a In ParsedString.Item(0).Item(2)
             If TypeOf a Is String Then
                 Continue For
             End If
 
             Dim Field = New TableFields
-            Field.Name = a(0).ToString.Replace("""", "")
-            Field.Type = a(1).ToString.Replace("""", "")
-            Field.CouldBeNull = a(2)
-            Field.Length = a(3)
-            Field.Precision = a(4)
+            Field.Name = a.Item(0).ToString.Replace("""", "")
+            Field.Type = a.Item(1).ToString.Replace("""", "")
+            Field.CouldBeNull = a.Item(2)
+            Field.Length = a.Item(3)
+            Field.Precision = a.Item(4)
 
 
             Dim FieldSize = Field.CouldBeNull
@@ -212,8 +212,8 @@ Module DatabaseAccess8214
         '{"Files",118,119,96}
         'Данные, BLOB, индексы
 
-        Dim BlockData = Convert.ToInt32(ParsedString(0)(5)(1))
-        Dim BlockBlob = Convert.ToInt32(ParsedString(0)(5)(2))
+        Dim BlockData = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(1))
+        Dim BlockBlob = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(2))
 
         PageHeader.BlockData = BlockData
         PageHeader.BlockBlob = BlockBlob
@@ -247,7 +247,7 @@ Module DatabaseAccess8214
                 reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin)
                 reader.Read(TempBlock, 0, 4096)
                 For Each ElemByte In TempBlock
-                    bytesBlock(i) = ElemByte
+                    bytesBlock.SetValue(ElemByte, i)
                     i = i + 1
                 Next
             Next
@@ -265,7 +265,7 @@ Module DatabaseAccess8214
             'Dim ByteTemp() As Byte = New Byte(BlockSize - 1) {}
 
             For j = 0 To BlockSize - 1
-                ByteBlock(i) = bytesBlock(Pos + 6 + j)
+                ByteBlock.SetValue(bytesBlock.GetValue(Pos + 6 + j), i)
                 i = i + 1
             Next
 
@@ -304,13 +304,13 @@ Module DatabaseAccess8214
                 reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin)
                 reader.Read(TempBlock, 0, 4096)
                 For Each ElemByte In TempBlock
-                    bytesBlock(i) = ElemByte
+                    bytesBlock.SetValue(ElemByte, i)
                     i = i + 1
                 Next
             Next
         Next
 
-        Dim Size = DataPage.length / PageHeader.RowSize
+        Dim Size As Integer = DataPage.Length / PageHeader.RowSize
 
         For i = 1 To Size - 1
 
@@ -353,16 +353,16 @@ Module DatabaseAccess8214
 
                     Dim BytesDate(6) As Byte ' 7 байт
                     For AA = 0 To 6
-                        BytesDate(AA) = Convert.ToString(bytesBlock(Pos1 + AA), 16)
+                        BytesDate.SetValue(Convert.ToByte(Convert.ToString(bytesBlock.GetValue(Pos1 + AA), 16)), AA)
                     Next
 
                     Try
-                        BytesVal = New DateTime(BytesDate(0) * 100 + BytesDate(1),
-                                                                          BytesDate(2),
-                                                                          BytesDate(3),
-                                                                          BytesDate(4),
-                                                                          BytesDate(5),
-                                                                          BytesDate(6))
+                        BytesVal = New DateTime(BytesDate.GetValue(0) * 100 + BytesDate.GetValue(1),
+                                                                          BytesDate.GetValue(2),
+                                                                          BytesDate.GetValue(3),
+                                                                          BytesDate.GetValue(4),
+                                                                          BytesDate.GetValue(5),
+                                                                          BytesDate.GetValue(6))
                     Catch ex As Exception
                         BytesVal = ""
                     End Try
@@ -419,10 +419,10 @@ Module DatabaseAccess8214
                     'Строка переменной длины
                     Dim BytesStr(1) As Byte
                     For AA = 0 To 1
-                        BytesStr(AA) = bytesBlock(Pos1 + AA + Field.CouldBeNull)
+                        BytesStr.SetValue(bytesBlock.GetValue(Pos1 + AA + Field.CouldBeNull), AA)
                     Next
 
-                    Dim L = Math.Min(Field.Size, (BytesStr(0) + BytesStr(1) * 256) * 2)
+                    Dim L = Math.Min(Field.Size, (BytesStr.GetValue(0) + BytesStr.GetValue(1) * 256) * 2)
 
                     BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, L).Trim ' was L- 2
 

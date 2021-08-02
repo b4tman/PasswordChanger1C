@@ -49,9 +49,9 @@ Module AccessFunctions
         reader.Read(bytesBlock, 0, 24)
 
         Dim Str = Encoding.UTF8.GetString(bytesBlock, 0, 8)
-        Dim V1 = bytesBlock(8).ToString
-        Dim V2 = bytesBlock(9).ToString
-        Dim V3 = bytesBlock(10).ToString
+        Dim V1 = bytesBlock.GetValue(8).ToString
+        Dim V2 = bytesBlock.GetValue(9).ToString
+        Dim V3 = bytesBlock.GetValue(10).ToString
 
         Dim DatabaseVersion = V1 + "." + V2 + "." + V3
 
@@ -115,7 +115,7 @@ Module AccessFunctions
                 reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin)
                 reader.Read(TempBlock, 0, 4096)
                 For Each ElemByte In TempBlock
-                    bytesBlock(i) = ElemByte
+                    bytesBlock.SetValue(ElemByte, i)
                     i = i + 1
                 Next
             Next
@@ -126,7 +126,7 @@ Module AccessFunctions
         Dim Pass = Encoding.Unicode.GetBytes(NewPass)
 
         For i = 0 To Pass.Length - 1
-            bytesBlock(i + Offset) = Pass(i)
+            bytesBlock.SetValue(Pass.GetValue(i), i + Offset)
         Next
 
         fs = New FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write)
@@ -137,7 +137,7 @@ Module AccessFunctions
             For Each DB In ST.DataBlocks
                 Dim TempBlock() As Byte = New Byte(4095) {}
                 For j = 0 To 4095
-                    TempBlock(j) = bytesBlock(i)
+                    TempBlock.SetValue(bytesBlock.GetValue(i), j)
                     i = i + 1
                 Next
 
@@ -188,7 +188,7 @@ Module AccessFunctions
                 reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin)
                 reader.Read(TempBlock, 0, PageSize)
                 For Each ElemByte In TempBlock
-                    bytesBlock(i) = ElemByte
+                    bytesBlock.SetValue(ElemByte, i)
                     i = i + 1
                 Next
             Next
@@ -209,7 +209,7 @@ Module AccessFunctions
             Dim BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4)
 
             For j = 0 To BlockSize - 1
-                bytesBlock(Pos + 6 + j) = NewData(ii)
+                bytesBlock.SetValue(NewData.GetValue(ii), Pos + 6 + j)
                 ii = ii + 1
             Next
             Pos = NextBlock * 256
@@ -223,7 +223,7 @@ Module AccessFunctions
         'Dim Pass = Encoding.Unicode.GetBytes(NewPass)
 
         'For i = 0 To Pass.Length - 1
-        '    bytesBlock(i + Offset) = Pass(i)
+        '    bytesBlock.SetValue(Pass.GetValue(i), i + Offset)
         'Next
 
         fs = New FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write)
@@ -234,7 +234,7 @@ Module AccessFunctions
             For Each DB In ST.DataBlocks
                 Dim TempBlock() As Byte = New Byte(PageSize - 1) {}
                 For j = 0 To PageSize - 1
-                    TempBlock(j) = bytesBlock(ii)
+                    TempBlock.SetValue(bytesBlock.GetValue(ii), j)
                     ii = ii + 1
                 Next
 
