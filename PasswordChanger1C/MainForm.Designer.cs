@@ -3,11 +3,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace PasswordChanger1C
 {
-    [DesignerGenerated()]
     public partial class MainForm : Form
     {
 

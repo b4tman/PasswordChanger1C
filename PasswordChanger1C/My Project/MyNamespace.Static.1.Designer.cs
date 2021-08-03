@@ -6,7 +6,6 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
 
 /* TODO ERROR: Skipped IfDirectiveTrivia
 #If TARGET = "module" AndAlso _MYTYPE = "" Then
@@ -169,7 +168,6 @@ namespace PasswordChanger1C.My
     /* TODO ERROR: Skipped EndIfDirectiveTrivia
     #End If
     */
-    [HideModuleName()]
     [System.CodeDom.Compiler.GeneratedCode("MyTemplate", "11.0.0.0")]
     internal static partial class MyProject
     {
@@ -252,8 +250,7 @@ namespace PasswordChanger1C.My
             }
         }
 
-        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        [MyGroupCollection("System.Windows.Forms.Form", "Create__Instance__", "Dispose__Instance__", "My.MyProject.Forms")]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]        
         internal sealed partial class MyForms
         {
             [DebuggerHidden()]
@@ -354,7 +351,6 @@ namespace PasswordChanger1C.My
         }
 
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
-        [MyGroupCollection("System.Web.Services.Protocols.SoapHttpClientProtocol", "Create__Instance__", "Dispose__Instance__", "")]
         internal sealed class MyWebServices
         {
             [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

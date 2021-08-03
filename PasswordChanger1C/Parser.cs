@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace PasswordChanger1C.ParserServices
 {
