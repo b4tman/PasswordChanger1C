@@ -4,8 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 using Npgsql;
 
 namespace PasswordChanger1C
@@ -68,8 +66,14 @@ namespace PasswordChanger1C
             // TEMP
             // Return True
 
-            var Rez = Interaction.MsgBox("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine + "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine + "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine + "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + Environment.NewLine + "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Environment.NewLine + "Продолжить?", MsgBoxStyle.YesNo, "Правила использования");
-            if (Rez == MsgBoxResult.Yes)
+            var Rez = MessageBox.Show("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine + 
+                                      "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine + 
+                                      "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine + 
+                                      "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + Environment.NewLine + 
+                                      "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Environment.NewLine + 
+                                      "Продолжить?", 
+                                      "Правила использования", MessageBoxButtons.YesNo);
+            if (Rez == DialogResult.Yes)
             {
                 return true;
             }
@@ -103,7 +107,10 @@ namespace PasswordChanger1C
             catch (Exception ex)
             {
                 TableParams = default;
-                Interaction.MsgBox("Ошибка при попытке чтения данных из файла информационной базы:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                MessageBox.Show("Ошибка при попытке чтения данных из файла информационной базы:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с файлом", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 return;
             }
 
@@ -227,7 +234,10 @@ namespace PasswordChanger1C
                     }
                     catch (Exception ex)
                     {
-                        Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                        MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
+                                        ex.Message,
+                                        "Ошибка работы с базой данных", MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
                         return;
                     }
                 }
@@ -236,7 +246,10 @@ namespace PasswordChanger1C
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
+                                 ex.Message,
+                                 "Ошибка работы с базой данных", MessageBoxButtons.OK,
+                                 MessageBoxIcon.Error);
                 return;
             }
 
@@ -330,7 +343,10 @@ namespace PasswordChanger1C
                     }
                     catch (Exception ex)
                     {
-                        Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                        MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
+                                        ex.Message,
+                                        "Ошибка работы с базой данных", MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);                        
                         return;
                     }
                 }
@@ -339,7 +355,10 @@ namespace PasswordChanger1C
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с базой данных", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 return;
             }
 
@@ -367,12 +386,17 @@ namespace PasswordChanger1C
         {
             if (SQLUserList.SelectedItems.Count == 0)
             {
-                Interaction.MsgBox("Не выделены строки с пользователями для установки нового пароля!", MsgBoxStyle.Information, "Не выделены строки с пользователями");
+                MessageBox.Show("Не выделены строки с пользователями для установки нового пароля!",
+                                "Не выделены строки с пользователями", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
                 return;
             }
 
-            var Rez = Interaction.MsgBox("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine + "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!");
-            if (!(Rez == MsgBoxResult.Yes))
+            var Rez = MessageBox.Show("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine +
+                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
+                            "Установить новый пароль выбранным пользователям?",
+                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);
+            if (Rez != DialogResult.Yes)
             {
                 return;
             }
@@ -422,11 +446,17 @@ namespace PasswordChanger1C
                 }
 
                 GetUsersMSSQL();
-                Interaction.MsgBox("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена");
+                
+                MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
+                                "Операция успешно выполнена", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                MessageBox.Show("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine + 
+                                ex.Message,
+                                "Ошибка работы с базой данных", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
             }
         }
 
@@ -463,12 +493,17 @@ namespace PasswordChanger1C
                 GetUsersPostgreSQL();
                 if (a > 0)
                 {
-                    Interaction.MsgBox("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена");
+                    MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
+                                "Операция успешно выполнена", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                MessageBox.Show("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с базой данных", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
             }
         }
 
@@ -496,7 +531,10 @@ namespace PasswordChanger1C
             catch (Exception ex)
             {
                 TableParams = default;
-                Interaction.MsgBox("Ошибка при попытке чтения данных из файла хранилища:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                MessageBox.Show("Ошибка при попытке чтения данных из файла хранилища:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с файлом", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 return;
             }
 
@@ -539,12 +577,17 @@ namespace PasswordChanger1C
         {
             if (RepoUserList.SelectedItems.Count == 0)
             {
-                Interaction.MsgBox("Не выделены строки с пользователями для сброса пароля!", MsgBoxStyle.Information, "Не выделены строки с пользователями");
+                MessageBox.Show("Не выделены строки с пользователями для установки нового пароля!",
+                                "Не выделены строки с пользователями", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
             }
             else
             {
-                var Rez = Interaction.MsgBox("Внесение изменений в файл хранилища конфигурации может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine + "Установить пустой пароль выбранным пользователям?", MsgBoxStyle.YesNo, "Уверены?");
-                if (!(Rez == MsgBoxResult.Yes))
+                var Rez = MessageBox.Show("Внесение изменений в файл хранилища конфигурации может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine +
+                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
+                            "Установить пустой пароль выбранным пользователям?",
+                            "Уверены?", MessageBoxButtons.YesNo);
+                if (Rez != DialogResult.Yes)
                 {
                     return;
                 }
@@ -565,11 +608,16 @@ namespace PasswordChanger1C
                     }
 
                     GetUsersRepoUsers();
-                    Interaction.MsgBox("Успешно установлены пустые пароли для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена");
+                    MessageBox.Show("Успешно установлены пустые пароли для пользователей:" + Str,
+                                "Операция успешно выполнена", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
-                    Interaction.MsgBox("Ошибка при попытке записи данных в файл хранилища:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                    MessageBox.Show("Ошибка при попытке записи данных в файл хранилища:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с файлом", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 }
             }
         }
@@ -578,12 +626,17 @@ namespace PasswordChanger1C
         {
             if (ListViewUsers.SelectedItems.Count == 0)
             {
-                Interaction.MsgBox("Не выделены строки с пользователями для сброса пароля!", MsgBoxStyle.Information, "Не выделены строки с пользователями");
+                MessageBox.Show("Не выделены строки с пользователями для сброса пароля!",
+                                "Не выделены строки с пользователями", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
             }
             else
             {
-                var Rez = Interaction.MsgBox("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Environment.NewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine + "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!");
-                if (!(Rez == MsgBoxResult.Yes))
+                var Rez = MessageBox.Show("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Environment.NewLine +
+                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
+                            "Установить новый пароль выбранным пользователям?",
+                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);              
+                if (Rez != DialogResult.Yes)
                 {
                     return;
                 }
@@ -611,11 +664,16 @@ namespace PasswordChanger1C
                     }
 
                     GetUsers();
-                    Interaction.MsgBox("Успешно установлен пароль '" + NewPassword.Text.Trim() + "' для пользователей:" + Str, MsgBoxStyle.Information, "Операция успешно выполнена");
+                    MessageBox.Show("Успешно установлен пароль '" + NewPassword.Text.Trim() + "' для пользователей:" + Str,
+                                "Операция успешно выполнена", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
-                    Interaction.MsgBox("Ошибка при попытке записи данных в файл информационной базы:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                    MessageBox.Show("Ошибка при попытке записи данных в файл информационной базы:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с файлом", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 }
             }
         }
