@@ -152,7 +152,7 @@ namespace PasswordChanger1C
 
             foreach (var a in ParsedString[0][2])
             {
-                if (Conversions.ToBoolean(!a.IsList))
+                if (!a.IsList)
                 {
                     continue;
                 }
@@ -160,9 +160,9 @@ namespace PasswordChanger1C
                 var Field = new AccessFunctions.TableFields();
                 Field.Name = a[0].ToString().Replace("\"", "");
                 Field.Type = a[1].ToString().Replace("\"", "");
-                Field.CouldBeNull = Conversions.ToInteger(a[2].ToString());
-                Field.Length = Conversions.ToInteger(a[3].ToString());
-                Field.Precision = Conversions.ToInteger(a[4].ToString());
+                Field.CouldBeNull = Convert.ToInt32(a[2].ToString());
+                Field.Length = Convert.ToInt32(a[3].ToString());
+                Field.Precision = Convert.ToInt32(a[4].ToString());
                 int FieldSize = Field.CouldBeNull;
                 if (Field.Type == "B")
                 {
@@ -342,12 +342,12 @@ namespace PasswordChanger1C
                             BytesDate.SetValue(Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16)), AA);
                         try
                         {
-                            BytesVal = new DateTime(Conversions.ToInteger((BytesDate[0] * 100) + BytesDate[1]),
-                                                    Conversions.ToInteger(BytesDate[2]),
-                                                    Conversions.ToInteger(BytesDate[3]),
-                                                    Conversions.ToInteger(BytesDate[4]),
-                                                    Conversions.ToInteger(BytesDate[5]),
-                                                    Conversions.ToInteger(BytesDate[6]));
+                            BytesVal = new DateTime(BytesDate[0] * 100 + BytesDate[1],
+                                                    BytesDate[2],
+                                                    BytesDate[3],
+                                                    BytesDate[4],
+                                                    BytesDate[5],
+                                                    BytesDate[6]);
                         }
                         catch (Exception ex)
                         {
@@ -383,7 +383,7 @@ namespace PasswordChanger1C
                         for (int AA = 0, loopTo1 = Field.Size - 1; AA <= loopTo1; AA++)
                         {
                             string character = Convert.ToString(bytesBlock[Pos1 + AA], 16);
-                            StrNumber = Conversions.ToString(Operators.AddObject(Operators.AddObject(StrNumber, Interaction.IIf(character.Length == 1, "0", "")), character));
+                            StrNumber = StrNumber + (character.Length == 1 ? "0" : "") + character;
                         }
 
                         string FirstSimbol = StrNumber.Substring(0, 1);
@@ -394,10 +394,10 @@ namespace PasswordChanger1C
                         }
                         else
                         {
-                            BytesVal = Operators.DivideObject(Convert.ToInt32(StrNumber), Interaction.IIf(Field.Precision > 0, Field.Precision * 10, 1));
+                            BytesVal = Convert.ToInt32(StrNumber) / (Field.Precision > 0 ? Field.Precision * 10 : 1);
                             if (FirstSimbol == "0")
                             {
-                                BytesVal = Operators.MultiplyObject(BytesVal, -1);
+                                BytesVal = (int)BytesVal * -1;
                             }
                         }
                     }
@@ -408,7 +408,7 @@ namespace PasswordChanger1C
                         for (int AA = 0; AA <= 1; AA++)
                             BytesStr.SetValue(bytesBlock[Pos1 + AA + Field.CouldBeNull], AA);
                         var L = Math.Min(Field.Size, (BytesStr[0] + (BytesStr[1] * 256)) * 2);
-                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Conversions.ToInteger(L)).Trim(); // was L- 2
+                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Convert.ToInt32(L)).Trim(); // was L- 2
                     }
                     else if (Field.Type == "NC")
                     {

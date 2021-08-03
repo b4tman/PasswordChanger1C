@@ -182,7 +182,7 @@ namespace PasswordChanger1C
             // ConnectionString
             // 
             ConnectionString.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            ConnectionString.Font = new Font("Microsoft Sans Serif", 12.0f, FontStyle.Regular, GraphicsUnit.Point, Conversions.ToByte(0));
+            ConnectionString.Font = new Font("Microsoft Sans Serif", 12.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
             ConnectionString.Location = new Point(9, 48);
             ConnectionString.Name = "ConnectionString";
             ConnectionString.Size = new Size(734, 26);
@@ -202,7 +202,7 @@ namespace PasswordChanger1C
             // Label4
             // 
             Label4.AutoSize = true;
-            Label4.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            Label4.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             Label4.Location = new Point(12, 6);
             Label4.Name = "Label4";
             Label4.Size = new Size(265, 16);
@@ -246,8 +246,8 @@ namespace PasswordChanger1C
             // ButtonSetRepoPassword
             // 
             _ButtonSetRepoPassword.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _ButtonSetRepoPassword.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
-            _ButtonSetRepoPassword.ForeColor = Color.FromArgb(Conversions.ToInteger(Conversions.ToByte(0)), Conversions.ToInteger(Conversions.ToByte(64)), Conversions.ToInteger(Conversions.ToByte(0)));
+            _ButtonSetRepoPassword.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
+            _ButtonSetRepoPassword.ForeColor = Color.FromArgb(0, 64, 0);
             _ButtonSetRepoPassword.Location = new Point(625, 413);
             _ButtonSetRepoPassword.Name = "_ButtonSetRepoPassword";
             _ButtonSetRepoPassword.Size = new Size(289, 51);
@@ -301,7 +301,7 @@ namespace PasswordChanger1C
             // NewPassword
             // 
             NewPassword.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            NewPassword.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            NewPassword.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             NewPassword.Location = new Point(128, 443);
             NewPassword.Name = "NewPassword";
             NewPassword.Size = new Size(144, 22);
@@ -312,7 +312,7 @@ namespace PasswordChanger1C
             // 
             Label2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             Label2.AutoSize = true;
-            Label2.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            Label2.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             Label2.Location = new Point(9, 445);
             Label2.Name = "Label2";
             Label2.Size = new Size(113, 16);
@@ -323,7 +323,7 @@ namespace PasswordChanger1C
             // 
             TextBox3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             TextBox3.BorderStyle = BorderStyle.None;
-            TextBox3.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            TextBox3.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0);
             TextBox3.Location = new Point(9, 413);
             TextBox3.Multiline = true;
             TextBox3.Name = "TextBox3";
@@ -334,8 +334,8 @@ namespace PasswordChanger1C
             // ButtonChangePwdFileDB
             // 
             _ButtonChangePwdFileDB.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _ButtonChangePwdFileDB.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
-            _ButtonChangePwdFileDB.ForeColor = Color.FromArgb(Conversions.ToInteger(Conversions.ToByte(0)), Conversions.ToInteger(Conversions.ToByte(64)), Conversions.ToInteger(Conversions.ToByte(0)));
+            _ButtonChangePwdFileDB.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
+            _ButtonChangePwdFileDB.ForeColor = Color.FromArgb(0, 64, 0);
             _ButtonChangePwdFileDB.Location = new Point(625, 414);
             _ButtonChangePwdFileDB.Name = "_ButtonChangePwdFileDB";
             _ButtonChangePwdFileDB.Size = new Size(289, 51);
@@ -346,7 +346,7 @@ namespace PasswordChanger1C
             // Label1
             // 
             Label1.AutoSize = true;
-            Label1.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            Label1.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             Label1.Location = new Point(10, 6);
             Label1.Name = "Label1";
             Label1.Size = new Size(244, 16);
@@ -375,7 +375,7 @@ namespace PasswordChanger1C
             // 
             // Label7
             // 
-            Label7.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            Label7.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             Label7.Location = new Point(9, 9);
             Label7.Name = "Label7";
             Label7.Size = new Size(166, 17);
@@ -396,7 +396,7 @@ namespace PasswordChanger1C
             // 
             TextBox2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             TextBox2.BorderStyle = BorderStyle.None;
-            TextBox2.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            TextBox2.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0);
             TextBox2.Location = new Point(9, 413);
             TextBox2.Multiline = true;
             TextBox2.Name = "TextBox2";
@@ -407,8 +407,8 @@ namespace PasswordChanger1C
             // ButtonChangePassSQL
             // 
             _ButtonChangePassSQL.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _ButtonChangePassSQL.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
-            _ButtonChangePassSQL.ForeColor = Color.FromArgb(Conversions.ToInteger(Conversions.ToByte(0)), Conversions.ToInteger(Conversions.ToByte(64)), Conversions.ToInteger(Conversions.ToByte(0)));
+            _ButtonChangePassSQL.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
+            _ButtonChangePassSQL.ForeColor = Color.FromArgb(0, 64, 0);
             _ButtonChangePassSQL.Location = new Point(625, 414);
             _ButtonChangePassSQL.Name = "_ButtonChangePassSQL";
             _ButtonChangePassSQL.Size = new Size(289, 51);
@@ -419,7 +419,7 @@ namespace PasswordChanger1C
             // Label6
             // 
             Label6.AutoSize = true;
-            Label6.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            Label6.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             Label6.Location = new Point(9, 29);
             Label6.Name = "Label6";
             Label6.Size = new Size(297, 16);
@@ -429,7 +429,7 @@ namespace PasswordChanger1C
             // NewPassSQL
             // 
             NewPassSQL.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            NewPassSQL.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            NewPassSQL.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             NewPassSQL.Location = new Point(128, 443);
             NewPassSQL.Name = "NewPassSQL";
             NewPassSQL.Size = new Size(144, 22);
@@ -440,7 +440,7 @@ namespace PasswordChanger1C
             // 
             Label5.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             Label5.AutoSize = true;
-            Label5.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            Label5.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
             Label5.Location = new Point(9, 445);
             Label5.Name = "Label5";
             Label5.Size = new Size(113, 16);
@@ -518,7 +518,7 @@ namespace PasswordChanger1C
             // 
             TextBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             TextBox1.BorderStyle = BorderStyle.None;
-            TextBox1.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, Conversions.ToByte(0));
+            TextBox1.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0);
             TextBox1.Location = new Point(6, 413);
             TextBox1.Multiline = true;
             TextBox1.Name = "TextBox1";

@@ -116,12 +116,12 @@ namespace PasswordChanger1C
                             BytesDate.SetValue(Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16)), AA);
                         try
                         {
-                            BytesVal = new DateTime(Conversions.ToInteger((BytesDate[0] * 100) + BytesDate[1]), 
-                                                    Conversions.ToInteger(BytesDate[2]), 
-                                                    Conversions.ToInteger(BytesDate[3]), 
-                                                    Conversions.ToInteger(BytesDate[4]), 
-                                                    Conversions.ToInteger(BytesDate[5]), 
-                                                    Conversions.ToInteger(BytesDate[6]));
+                            BytesVal = new DateTime((BytesDate[0] * 100) + BytesDate[1], 
+                                                    BytesDate[2], 
+                                                    BytesDate[3], 
+                                                    BytesDate[4], 
+                                                    BytesDate[5], 
+                                                    BytesDate[6]);
                         }
                         catch (Exception ex)
                         {
@@ -184,10 +184,10 @@ namespace PasswordChanger1C
                         }
                         else
                         {
-                            BytesVal = Operators.DivideObject(Convert.ToInt32(StrNumber), Interaction.IIf(Field.Precision > 0, Field.Precision * 10, 1));
+                            BytesVal = Convert.ToInt32(StrNumber) / (Field.Precision > 0 ? Field.Precision * 10 : 1);
                             if (FirstSimbol == "0")
                             {
-                                BytesVal = Operators.MultiplyObject(BytesVal, -1);
+                                BytesVal = (int)BytesVal * -1;
                             }
                         }
                     }
@@ -198,7 +198,7 @@ namespace PasswordChanger1C
                         for (int AA = 0; AA <= 1; AA++)
                             BytesStr.SetValue(bytesBlock[Pos1 + AA + Field.CouldBeNull], AA);
                         int L = Math.Min(Field.Size, (BytesStr[0] + BytesStr[1] * 256) * 2);
-                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Conversions.ToInteger(L)).Trim(); // was L- 2
+                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Convert.ToInt32(L)).Trim(); // was L- 2
                     }
                     else if (Field.Type == "NC")
                     {
@@ -366,7 +366,7 @@ namespace PasswordChanger1C
                 }
                 else
                 {
-                    throw new Exception("Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины)." + Constants.vbNewLine + "Сообщите пожалуйста об этой ошибке!");
+                    throw new Exception("Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины)." + Environment.NewLine + "Сообщите пожалуйста об этой ошибке!");
                 }
             }
             else

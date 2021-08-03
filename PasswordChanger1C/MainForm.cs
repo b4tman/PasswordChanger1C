@@ -68,7 +68,7 @@ namespace PasswordChanger1C
             // TEMP
             // Return True
 
-            var Rez = Interaction.MsgBox("Запрещается использование приложения для несанкционированного доступа к данным!" + Constants.vbNewLine + "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Constants.vbNewLine + "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Constants.vbNewLine + "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + Constants.vbNewLine + "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Constants.vbNewLine + "Продолжить?", MsgBoxStyle.YesNo, "Правила использования");
+            var Rez = Interaction.MsgBox("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine + "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine + "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine + "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + Environment.NewLine + "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Environment.NewLine + "Продолжить?", MsgBoxStyle.YesNo, "Правила использования");
             if (Rez == MsgBoxResult.Yes)
             {
                 return true;
@@ -103,7 +103,7 @@ namespace PasswordChanger1C
             catch (Exception ex)
             {
                 TableParams = default;
-                Interaction.MsgBox("Ошибка при попытке чтения данных из файла информационной базы:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                Interaction.MsgBox("Ошибка при попытке чтения данных из файла информационной базы:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
                 return;
             }
 
@@ -122,7 +122,7 @@ namespace PasswordChanger1C
                     continue;
                 }
 
-                var AuthStructure = ParserServices.ParsesClass.ParseString(Conversions.ToString(Row["DATA"]))[0];
+                var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
                 string PassHash = AuthStructure[0][11].ToString();
                 var G = new Guid((byte[])Row["ID"]);
                 Row.Add("UserGuidStr", G.ToString());
@@ -148,7 +148,7 @@ namespace PasswordChanger1C
                 itemUserList.SubItems.Add(Row["NAME"].ToString());
                 itemUserList.SubItems.Add(Row["DESCR"].ToString());
                 itemUserList.SubItems.Add(PassHash);
-                itemUserList.SubItems.Add(Conversions.ToBoolean(Row["ADMROLE"]) ? "Да" : "");
+                itemUserList.SubItems.Add(Convert.ToBoolean(Row["ADMROLE"]) ? "Да" : "");
                 ListViewUsers.Items.Add(itemUserList);
             }
         }
@@ -192,7 +192,7 @@ namespace PasswordChanger1C
                         SQLUser.Name = reader.GetString(1);
                         SQLUser.Descr = reader.GetString(2);
                         SQLUser.Data = (byte[])reader.GetSqlBinary(3);
-                        SQLUser.AdmRole = Conversions.ToString(Interaction.IIf(BitConverter.ToBoolean((byte[])reader.GetSqlBinary(4), 0), "Да", ""));
+                        SQLUser.AdmRole = BitConverter.ToBoolean((byte[])reader.GetSqlBinary(4), 0) ? "Да" : "";
                         SQLUser.IDStr = new Guid(SQLUser.ID).ToString();
                         SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
                         ParserServices.ParserList AuthStructure;
@@ -227,7 +227,7 @@ namespace PasswordChanger1C
                     }
                     catch (Exception ex)
                     {
-                        Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                        Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
                         return;
                     }
                 }
@@ -236,7 +236,7 @@ namespace PasswordChanger1C
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
                 return;
             }
 
@@ -288,7 +288,7 @@ namespace PasswordChanger1C
                         SQLUser.Name = reader.GetString(2);
                         SQLUser.Descr = reader.GetString(3);
                         SQLUser.Data = (byte[])reader[4];
-                        SQLUser.AdmRole = Conversions.ToString(Interaction.IIf(reader.GetBoolean(5), "Да", ""));
+                        SQLUser.AdmRole = reader.GetBoolean(5) ? "Да" : "";
                         SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
                         ParserServices.ParserList AuthStructure;
                         if (!(SQLUser.DataStr[0] == '{'))
@@ -330,7 +330,7 @@ namespace PasswordChanger1C
                     }
                     catch (Exception ex)
                     {
-                        Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                        Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
                         return;
                     }
                 }
@@ -339,7 +339,7 @@ namespace PasswordChanger1C
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                Interaction.MsgBox("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
                 return;
             }
 
@@ -371,7 +371,7 @@ namespace PasswordChanger1C
                 return;
             }
 
-            var Rez = Interaction.MsgBox("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Constants.vbNewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Constants.vbNewLine + "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!");
+            var Rez = Interaction.MsgBox("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine + "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!");
             if (!(Rez == MsgBoxResult.Yes))
             {
                 return;
@@ -405,10 +405,10 @@ namespace PasswordChanger1C
                 {
                     foreach (var SQLUser in SQLUsers)
                     {
-                        if (Conversions.ToBoolean(Operators.AndObject(SQLUser.IDStr == item.Text, !(SQLUser.PassHash == "\"\""))))
+                        if (SQLUser.IDStr == item.Text && !(SQLUser.PassHash == "\"\""))
                         {
                             int a = 0;
-                            Str = Str + Constants.vbNewLine + SQLUser.Name;
+                            Str = Str + Environment.NewLine + SQLUser.Name;
                             string NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim());
                             string NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, "\"" + NewHash + "\"");
                             NewData = NewData.Replace(SQLUser.PassHash2, "\"" + NewHash + "\"");
@@ -426,7 +426,7 @@ namespace PasswordChanger1C
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                Interaction.MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
             }
         }
 
@@ -445,9 +445,9 @@ namespace PasswordChanger1C
                 {
                     foreach (var SQLUser in SQLUsers)
                     {
-                        if (Conversions.ToBoolean(Operators.AndObject(Operators.ConditionalCompareObjectEqual(SQLUser.IDStr, item.Text, false), !(SQLUser.PassHash == "\"\""))))
+                        if (SQLUser.IDStr == item.Text && !(SQLUser.PassHash == "\"\""))
                         {
-                            Str = Str + Constants.vbNewLine + SQLUser.Name;
+                            Str = Str + Environment.NewLine + SQLUser.Name;
                             string NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim());
                             string NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, "\"" + NewHash + "\"");
                             NewData = NewData.Replace(SQLUser.PassHash2, "\"" + NewHash + "\"");
@@ -468,7 +468,7 @@ namespace PasswordChanger1C
             }
             catch (Exception ex)
             {
-                Interaction.MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
+                Interaction.MsgBox("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с базой данных");
             }
         }
 
@@ -496,7 +496,7 @@ namespace PasswordChanger1C
             catch (Exception ex)
             {
                 TableParams = default;
-                Interaction.MsgBox("Ошибка при попытке чтения данных из файла хранилища:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                Interaction.MsgBox("Ошибка при попытке чтения данных из файла хранилища:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
                 return;
             }
 
@@ -543,7 +543,7 @@ namespace PasswordChanger1C
             }
             else
             {
-                var Rez = Interaction.MsgBox("Внесение изменений в файл хранилища конфигурации может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Constants.vbNewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Constants.vbNewLine + "Установить пустой пароль выбранным пользователям?", MsgBoxStyle.YesNo, "Уверены?");
+                var Rez = Interaction.MsgBox("Внесение изменений в файл хранилища конфигурации может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine + "Установить пустой пароль выбранным пользователям?", MsgBoxStyle.YesNo, "Уверены?");
                 if (!(Rez == MsgBoxResult.Yes))
                 {
                     return;
@@ -556,10 +556,10 @@ namespace PasswordChanger1C
                     {
                         foreach (var Row in TableParams.Records)
                         {
-                            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(Row["UserGuidStr"], item.Text, false)))
+                            if (Row["UserGuidStr"].ToString() == item.Text)
                             {
-                                Str = Str + Constants.vbNewLine + Row["NAME"].ToString();
-                                AccessFunctions.WritePasswordIntoInfoBaseRepo(Repo1C.Text, TableParams, (byte[])Row["USERID"], "d41d8cd98f00b204e9800998ecf8427e", Conversions.ToInteger(Row["OFFSET_PASSWORD"]));
+                                Str = Str + Environment.NewLine + Row["NAME"].ToString();
+                                AccessFunctions.WritePasswordIntoInfoBaseRepo(Repo1C.Text, TableParams, (byte[])Row["USERID"], "d41d8cd98f00b204e9800998ecf8427e", Convert.ToInt32(Row["OFFSET_PASSWORD"]));
                             }
                         }
                     }
@@ -569,7 +569,7 @@ namespace PasswordChanger1C
                 }
                 catch (Exception ex)
                 {
-                    Interaction.MsgBox("Ошибка при попытке записи данных в файл хранилища:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                    Interaction.MsgBox("Ошибка при попытке записи данных в файл хранилища:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
                 }
             }
         }
@@ -582,7 +582,7 @@ namespace PasswordChanger1C
             }
             else
             {
-                var Rez = Interaction.MsgBox("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Constants.vbNewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Constants.vbNewLine + "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!");
+                var Rez = Interaction.MsgBox("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Environment.NewLine + "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine + "Установить новый пароль выбранным пользователям?", MsgBoxStyle.YesNo, "ВНИМАНИЕ!");
                 if (!(Rez == MsgBoxResult.Yes))
                 {
                     return;
@@ -595,17 +595,17 @@ namespace PasswordChanger1C
                     {
                         foreach (var Row in TableParams.Records)
                         {
-                            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(Row["UserGuidStr"], item.Text, false)))
+                            if (Row["UserGuidStr"].ToString() == item.Text)
                             {
-                                Str = Str + Constants.vbNewLine + Row["NAME"].ToString();
+                                Str = Str + Environment.NewLine + Row["NAME"].ToString();
                                 string NewHash = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim());
                                 string NewHash2 = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim().ToUpper());
                                 var OldDataBinary = Row["DATA_BINARY"];
                                 string OldData = Row["DATA"].ToString();
-                                string NewData = OldData.Replace(Conversions.ToString(Row["UserPassHash"]), "\"" + NewHash2 + "\"");
-                                NewData = NewData.Replace(Conversions.ToString(Row["UserPassHash2"]), "\"" + NewHash2 + "\"");
-                                var NewBytes = CommonModule.EncodePasswordStructure(NewData, Conversions.ToInteger(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
-                                AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])Row["ID"], (byte[])OldDataBinary, NewBytes, Conversions.ToInteger(Row["DATA_POS"]), Conversions.ToInteger(Row["DATA_SIZE"]));
+                                string NewData = OldData.Replace(Row["UserPassHash"].ToString(), "\"" + NewHash2 + "\"");
+                                NewData = NewData.Replace(Row["UserPassHash2"].ToString(), "\"" + NewHash2 + "\"");
+                                var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
+                                AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])Row["ID"], (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
                             }
                         }
                     }
@@ -615,7 +615,7 @@ namespace PasswordChanger1C
                 }
                 catch (Exception ex)
                 {
-                    Interaction.MsgBox("Ошибка при попытке записи данных в файл информационной базы:" + Constants.vbNewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
+                    Interaction.MsgBox("Ошибка при попытке записи данных в файл информационной базы:" + Environment.NewLine + ex.Message, MsgBoxStyle.Critical, "Ошибка работы с файлом");
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace PasswordChanger1C
     {
         public static string DecodePasswordStructure(byte[] bytes_Input, ref int KeySize, ref byte[] KeyData)
         {
-            short Base = Convert.ToInt16(Conversions.ToString(bytes_Input[0]), 10);
+            short Base = Convert.ToInt16(bytes_Input[0].ToString(), 10);
             KeySize = Base;
             KeyData = new byte[Base];
             for (int a = 1, loopTo = Base; a <= loopTo; a++)
@@ -26,8 +26,8 @@ namespace PasswordChanger1C
                     j = 1;
                 }
 
-                short AA = Convert.ToInt16(Conversions.ToString(bytes_Input[i]), 10);
-                short BB = Convert.ToInt16(Conversions.ToString(bytes_Input[j]), 10);
+                short AA = Convert.ToInt16(bytes_Input[i].ToString(), 10);
+                short BB = Convert.ToInt16(bytes_Input[j].ToString(), 10);
                 byte CC = Convert.ToByte(AA ^ BB); // 239 for first
                 BytesResult.SetValue(CC, i - Base - 1);
                 i = i + 1;
@@ -55,8 +55,8 @@ namespace PasswordChanger1C
                     j = 1;
                 }
 
-                short AA = Convert.ToInt16(Conversions.ToString(bytes_Input[i - 1]), 10);
-                short BB = Convert.ToInt16(Conversions.ToString(BytesResult[j]), 10);
+                short AA = Convert.ToInt16(bytes_Input[i - 1].ToString(), 10);
+                short BB = Convert.ToInt16(BytesResult[j].ToString(), 10);
                 byte CC = Convert.ToByte(AA ^ BB);
                 BytesResult.SetValue(CC, i + Base);
                 i = i + 1;
@@ -88,7 +88,7 @@ namespace PasswordChanger1C
             PageHeader.TableName = TableName;
             foreach (var a in ParsedString[0][2])
             {
-                if (Conversions.ToBoolean(!a.IsList))
+                if (!a.IsList)
                 {
                     continue;
                 }
@@ -96,9 +96,9 @@ namespace PasswordChanger1C
                 var Field = new AccessFunctions.TableFields();
                 Field.Name = a[0].ToString().Replace("\"", "");
                 Field.Type = a[1].ToString().Replace("\"", "");
-                Field.CouldBeNull = Conversions.ToInteger(a[2].ToString());
-                Field.Length = Conversions.ToInteger(a[3].ToString());
-                Field.Precision = Conversions.ToInteger(a[4].ToString());
+                Field.CouldBeNull = Convert.ToInt32(a[2].ToString());
+                Field.Length = Convert.ToInt32(a[3].ToString());
+                Field.Precision = Convert.ToInt32(a[4].ToString());
                 int FieldSize = Field.CouldBeNull;
                 if (Field.Type == "B")
                 {
