@@ -9,15 +9,17 @@ namespace PasswordChanger1C
     {
         public static string DecodePasswordStructure(byte[] bytes_Input, ref int KeySize, ref byte[] KeyData)
         {
-            short Base = Convert.ToInt16(bytes_Input[0].ToString(), 10);
+            short Base = bytes_Input[0];
             KeySize = Base;
             KeyData = new byte[Base];
-            for (int a = 1, loopTo = Base; a <= loopTo; a++)
-                KeyData[a - 1] = bytes_Input[a];
+
+            bytes_Input.AsMemory(1, Base).CopyTo(KeyData.AsMemory(0, Base));
+
             int i = Base + 1;
             int j = 1;
             int MaxI = bytes_Input.Length;
-            var BytesResult = new byte[(MaxI - Base)];
+            
+            var BytesResult = new byte[MaxI - Base];
             while (i < MaxI)
             {
                 if (j > Base)
@@ -25,12 +27,10 @@ namespace PasswordChanger1C
                     j = 1;
                 }
 
-                short AA = Convert.ToInt16(bytes_Input[i].ToString(), 10);
-                short BB = Convert.ToInt16(bytes_Input[j].ToString(), 10);
-                byte CC = Convert.ToByte(AA ^ BB); // 239 for first
-                BytesResult.SetValue(CC, i - Base - 1);
-                i = i + 1;
-                j = j + 1;
+                BytesResult[i - Base - 1] = Convert.ToByte(bytes_Input[i] ^ bytes_Input[j]); // 239 for first
+                
+                i++;
+                j++;
             }
 
             return Encoding.UTF8.GetString(BytesResult);
@@ -40,13 +40,15 @@ namespace PasswordChanger1C
         {
             var bytes_Input = Encoding.UTF8.GetBytes(Str);
             int Base = KeySize;
-            var BytesResult = new byte[(bytes_Input.Length + Base)];
-            BytesResult.SetValue(Convert.ToByte(Base), 0);
-            for (int ii = 1, loopTo = Base; ii <= loopTo; ii++)
-                BytesResult.SetValue(KeyData[ii - 1], ii);
+            var BytesResult = new byte[bytes_Input.Length + Base];
+            BytesResult[0] = Convert.ToByte(Base);
+
+            KeyData.AsMemory(0, Base).CopyTo(BytesResult.AsMemory(1, Base));
+            
             int MaxI = bytes_Input.Length - 1;
             int i = 1;
             int j = 1;
+            
             while (i <= MaxI)
             {
                 if (j > Base)
@@ -54,12 +56,10 @@ namespace PasswordChanger1C
                     j = 1;
                 }
 
-                short AA = Convert.ToInt16(bytes_Input[i - 1].ToString(), 10);
-                short BB = Convert.ToInt16(BytesResult[j].ToString(), 10);
-                byte CC = Convert.ToByte(AA ^ BB);
-                BytesResult.SetValue(CC, i + Base);
-                i = i + 1;
-                j = j + 1;
+                BytesResult[i + Base] = Convert.ToByte(bytes_Input[i - 1] ^ BytesResult[j]);
+
+                i++;
+                j++;
             }
 
             return BytesResult;
@@ -72,10 +72,6 @@ namespace PasswordChanger1C
             bytesToHash = Encoding.UTF8.GetBytes(Str); // covert the password into ASCII code
             bytesToHash = sha.ComputeHash(bytesToHash); // this is where the magic starts and the encryption begins
             return Convert.ToBase64String(bytesToHash);
-            string result = "";
-            foreach (byte b in bytesToHash)
-                result += b.ToString("x2");
-            return result;
         }
 
         public static void ParseTableDefinition(ref AccessFunctions.PageParams PageHeader)
@@ -105,7 +101,7 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "L")
                 {
-                    FieldSize = FieldSize + 1;
+                    FieldSize++;
                 }
                 else if (Field.Type == "N")
                 {
