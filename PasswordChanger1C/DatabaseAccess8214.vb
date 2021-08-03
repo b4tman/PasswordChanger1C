@@ -160,16 +160,16 @@ Module DatabaseAccess8214
         End If
 
         For Each a In ParsedString.Item(0).Item(2)
-            If TypeOf a Is String Then
+            If Not a.IsList Then
                 Continue For
             End If
 
             Dim Field = New TableFields
             Field.Name = a.Item(0).ToString.Replace("""", "")
             Field.Type = a.Item(1).ToString.Replace("""", "")
-            Field.CouldBeNull = a.Item(2)
-            Field.Length = a.Item(3)
-            Field.Precision = a.Item(4)
+            Field.CouldBeNull = a.Item(2).ToString
+            Field.Length = a.Item(3).ToString
+            Field.Precision = a.Item(4).ToString
 
 
             Dim FieldSize = Field.CouldBeNull
@@ -212,8 +212,8 @@ Module DatabaseAccess8214
         '{"Files",118,119,96}
         'Данные, BLOB, индексы
 
-        Dim BlockData = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(1))
-        Dim BlockBlob = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(2))
+        Dim BlockData = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(1).ToString)
+        Dim BlockBlob = Convert.ToInt32(ParsedString.Item(0).Item(5).Item(2).ToString)
 
         PageHeader.BlockData = BlockData
         PageHeader.BlockBlob = BlockBlob

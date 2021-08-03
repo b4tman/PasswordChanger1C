@@ -120,23 +120,23 @@ Public Class MainForm
 
             Dim AuthStructure = ParserServices.ParsesClass.ParseString(Row("DATA")).Item(0)
 
-            Dim PassHash = AuthStructure.Item(0).Item(11)
+            Dim PassHash = AuthStructure.Item(0).Item(11).ToString
 
             Dim G = New Guid(DirectCast(Row("ID"), Byte()))
 
             Row.Add("UserGuidStr", G.ToString)
 
             'pretty crapy code here..
-            If AuthStructure.Item(0).Item(7) = "0" Then
+            If AuthStructure.Item(0).Item(7).ToString = "0" Then
                 Row.Add("UserPassHash", "")
                 Row.Add("UserPassHash2", "")
             Else
                 If AuthStructure.Item(0).Count = 17 Or TableParams.DatabaseVersion = "8.3.8" Then
-                    Row.Add("UserPassHash", AuthStructure.Item(0).Item(11))
-                    Row.Add("UserPassHash2", AuthStructure.Item(0).Item(12))
+                    Row.Add("UserPassHash", AuthStructure.Item(0).Item(11).ToString)
+                    Row.Add("UserPassHash2", AuthStructure.Item(0).Item(12).ToString)
                 Else
-                    Row.Add("UserPassHash", AuthStructure.Item(0).Item(12))
-                    Row.Add("UserPassHash2", AuthStructure.Item(0).Item(13))
+                    Row.Add("UserPassHash", AuthStructure.Item(0).Item(12).ToString)
+                    Row.Add("UserPassHash2", AuthStructure.Item(0).Item(13).ToString)
                 End If
             End If
 
@@ -193,7 +193,7 @@ Public Class MainForm
                     SQLUser.IDStr = New Guid(SQLUser.ID).ToString
                     SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
-                    Dim AuthStructure As List(Of Object)
+                    Dim AuthStructure As ParserServices.ParserList
 
                     If Not SQLUser.DataStr.Chars(0) = "{"c Then
                         'postgres in my test has weird first symbol
@@ -296,7 +296,7 @@ Public Class MainForm
 
                     SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, SQLUser.KeySize, SQLUser.KeyData)
 
-                    Dim AuthStructure As List(Of Object)
+                    Dim AuthStructure As ParserServices.ParserList
 
                     If Not SQLUser.DataStr.Chars(0) = "{"c Then
                         'postgres in my test has weird first symbol
