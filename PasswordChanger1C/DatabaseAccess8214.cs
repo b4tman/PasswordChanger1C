@@ -1,0 +1,427 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+
+namespace PasswordChanger1C
+{
+    static class DatabaseAccess8214
+    {
+        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, string TableNameUsers)
+        {
+            var bytesBlock = new byte[4096];
+
+            // второй блок пропускаем
+            reader.Read(bytesBlock, 0, 4096);
+
+            // корневой блок
+            reader.Read(bytesBlock, 0, 4096);
+            var Param = ReadPage(reader, bytesBlock);
+            Param.PageSize = 4096;
+            string Language = "";
+            int NumberOfTables = 0;
+            var HeaderTables = new List<int>();
+            int i = 0;
+            foreach (var ST in Param.StorageTables)
+            {
+                var bytesStorageTables = new byte[(4096 * ST.DataBlocks.Count)];
+                foreach (var DB in ST.DataBlocks)
+                {
+                    var TempBlock = new byte[4096];
+                    reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
+                    reader.Read(TempBlock, 0, 4096);
+                    foreach (var ElemByte in TempBlock)
+                    {
+                        bytesStorageTables.SetValue(ElemByte, i);
+                        i = i + 1;
+                    }
+                }
+
+                Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
+                NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32);
+                var loopTo = NumberOfTables - 1;
+                for (i = 0; i <= loopTo; i++)
+                {
+                    int PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4);
+                    HeaderTables.Add(PageNum);
+                }
+            }
+
+            // прочитаем первые страницы таблиц
+            foreach (var HT in HeaderTables)
+            {
+                reader.BaseStream.Seek(HT * 4096, SeekOrigin.Begin);
+                reader.Read(bytesBlock, 0, 4096);
+                var PageHeader = ReadPage(reader, bytesBlock);
+                PageHeader.Fields = new List<AccessFunctions.TableFields>();
+                PageHeader.PageSize = 4096;
+                foreach (var ST in PageHeader.StorageTables)
+                {
+                    foreach (var DB in ST.DataBlocks)
+                    {
+                        ReadDataFromTable(reader, DB, bytesBlock, ref PageHeader, TableNameUsers);
+                        if ((PageHeader.TableName ?? "") == (TableNameUsers ?? ""))
+                        {
+                            return PageHeader;
+                        }
+                    }
+                }
+            }
+
+            return default;
+        }
+
+        public static AccessFunctions.PageParams ReadPage(BinaryReader reader, byte[] Bytes, int PageSize = 4096)
+        {
+            var Page = new AccessFunctions.PageParams();
+            Page.Sign = Encoding.UTF8.GetString(Bytes, 0, 8);
+            Page.Length = BitConverter.ToInt32(Bytes, 8);
+            Page.version1 = BitConverter.ToInt32(Bytes, 12);
+            Page.version2 = BitConverter.ToInt32(Bytes, 16);
+            Page.version = BitConverter.ToInt32(Bytes, 20);
+            int Index = 24;
+            Page.PagesNum = new List<int>();
+            Page.StorageTables = new List<AccessFunctions.StorageTable>();
+
+            // Получим номера страниц размещения 
+            while (true)
+            {
+                int blk = BitConverter.ToInt32(Bytes, Index);
+                if (blk == 0)
+                {
+                    break;
+                }
+
+                Page.PagesNum.Add(blk);
+                Index = Index + 4;
+                if (Index > PageSize - 4)
+                {
+                    break;
+                }
+            }
+
+            foreach (var blk in Page.PagesNum)
+            {
+                var StorageTables = new AccessFunctions.StorageTable();
+                StorageTables.Number = blk;
+                StorageTables.DataBlocks = new List<int>();
+                var bytesBlock = new byte[PageSize];
+                reader.BaseStream.Seek(blk * PageSize, SeekOrigin.Begin);
+                reader.Read(bytesBlock, 0, PageSize);
+                int NumberOfPages = BitConverter.ToInt32(bytesBlock, 0);
+                Index = 4;
+                for (int ii = 0, loopTo = NumberOfPages - 1; ii <= loopTo; ii++)
+                {
+                    int dp = BitConverter.ToInt32(bytesBlock, Index);
+                    if (dp == 0)
+                    {
+                        break;
+                    }
+
+                    StorageTables.DataBlocks.Add(dp);
+                    Index = Index + 4;
+                    if (Index > PageSize - 4)
+                    {
+                        break;
+                    }
+                }
+
+                Page.StorageTables.Add(StorageTables);
+            }
+
+            return Page;
+        }
+
+        public static void ReadDataFromTable(BinaryReader reader, int DB, byte[] bytesBlock, ref AccessFunctions.PageParams PageHeader, string TableNameUsers)
+        {
+            reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
+            reader.Read(bytesBlock, 0, 4096);
+            string TableDescr = "";
+            for (double i = 0d, loopTo = Math.Min(PageHeader.Length - 1L, 4096d / 2d - 1d); i <= loopTo; i++)
+                TableDescr = TableDescr + Encoding.UTF8.GetString(bytesBlock, (int)Math.Round(i * 2d), 1);
+            var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
+            int RowSize = 1;
+            string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
+            PageHeader.TableName = TableName;
+            if (!((TableName ?? "") == (TableNameUsers ?? "")))
+            {
+                return;
+            }
+
+            foreach (var a in ParsedString[0][2])
+            {
+                if (Conversions.ToBoolean(!a.IsList))
+                {
+                    continue;
+                }
+
+                var Field = new AccessFunctions.TableFields();
+                Field.Name = a[0].ToString().Replace("\"", "");
+                Field.Type = a[1].ToString().Replace("\"", "");
+                Field.CouldBeNull = Conversions.ToInteger(a[2].ToString());
+                Field.Length = Conversions.ToInteger(a[3].ToString());
+                Field.Precision = Conversions.ToInteger(a[4].ToString());
+                int FieldSize = Field.CouldBeNull;
+                if (Field.Type == "B")
+                {
+                    FieldSize = FieldSize + Field.Length;
+                }
+                else if (Field.Type == "L")
+                {
+                    FieldSize = FieldSize + 1;
+                }
+                else if (Field.Type == "N")
+                {
+                    FieldSize = (int)Math.Round(FieldSize + Math.Truncate((Field.Length + 2) / 2d));
+                }
+                else if (Field.Type == "NC")
+                {
+                    FieldSize = FieldSize + Field.Length * 2;
+                }
+                else if (Field.Type == "NVC")
+                {
+                    FieldSize = FieldSize + Field.Length * 2 + 2;
+                }
+                else if (Field.Type == "RV")
+                {
+                    FieldSize = FieldSize + 16;
+                }
+                else if (Field.Type == "I")
+                {
+                    FieldSize = FieldSize + 8;
+                }
+                else if (Field.Type == "T")
+                {
+                    FieldSize = FieldSize + 8;
+                }
+                else if (Field.Type == "DT")
+                {
+                    FieldSize = FieldSize + 7;
+                }
+                else if (Field.Type == "NT")
+                {
+                    FieldSize = FieldSize + 8;
+                }
+
+                Field.Size = FieldSize;
+                Field.Offset = RowSize;
+                RowSize = RowSize + FieldSize;
+                PageHeader.Fields.Add(Field);
+            }
+
+            PageHeader.RowSize = RowSize;
+
+            // {"Files",118,119,96}
+            // Данные, BLOB, индексы
+
+            int BlockData = Convert.ToInt32(ParsedString[0][5][1].ToString());
+            int BlockBlob = Convert.ToInt32(ParsedString[0][5][2].ToString());
+            PageHeader.BlockData = BlockData;
+            PageHeader.BlockBlob = BlockBlob;
+            ReadDataPage(ref PageHeader, TableName, BlockData, BlockBlob, reader);
+        }
+
+        public static byte[] GetBlodData(int BlockBlob, int Dataindex, int Datasize, BinaryReader reader)
+        {
+            var bytesBlock1 = new byte[4096];
+            reader.BaseStream.Seek(BlockBlob * 4096, SeekOrigin.Begin);
+            reader.Read(bytesBlock1, 0, 4096);
+            var DataPage = ReadPage(reader, bytesBlock1);
+            int TotalBlocks = 0;
+            foreach (var ST in DataPage.StorageTables)
+                TotalBlocks = TotalBlocks + ST.DataBlocks.Count;
+            var bytesBlock = new byte[(4096 * TotalBlocks)];
+            int i = 0;
+            foreach (var ST in DataPage.StorageTables)
+            {
+                foreach (var DB in ST.DataBlocks)
+                {
+                    var TempBlock = new byte[4096];
+                    reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
+                    reader.Read(TempBlock, 0, 4096);
+                    foreach (var ElemByte in TempBlock)
+                    {
+                        bytesBlock.SetValue(ElemByte, i);
+                        i = i + 1;
+                    }
+                }
+            }
+
+            int NextBlock = Dataindex;
+            int Pos = Dataindex * 256;
+            var ByteBlock = new byte[Datasize];
+            i = 0;
+            while (NextBlock > 0)
+            {
+                NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
+                short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
+
+                // Dim ByteTemp() As Byte = New Byte(BlockSize - 1) {}
+
+                for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
+                {
+                    ByteBlock.SetValue(bytesBlock[Pos + 6 + j], i);
+                    i = i + 1;
+                }
+
+                Pos = NextBlock * 256;
+            }
+
+            return ByteBlock;
+        }
+
+        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, string table, int block, int BlockBlob, BinaryReader reader)
+        {
+            PageHeader.Records = new List<Dictionary<string, object>>();
+            var bytesBlock1 = new byte[4096];
+            reader.BaseStream.Seek(block * 4096, SeekOrigin.Begin);
+            reader.Read(bytesBlock1, 0, 4096);
+            var DataPage = ReadPage(reader, bytesBlock1);
+            int TotalBlocks = 0;
+            foreach (var ST in DataPage.StorageTables)
+                TotalBlocks = TotalBlocks + ST.DataBlocks.Count;
+            var bytesBlock = new byte[(4096 * TotalBlocks)];
+            int i = 0;
+            foreach (var ST in DataPage.StorageTables)
+            {
+                foreach (var DB in ST.DataBlocks)
+                {
+                    var TempBlock = new byte[4096];
+                    reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
+                    reader.Read(TempBlock, 0, 4096);
+                    foreach (var ElemByte in TempBlock)
+                    {
+                        bytesBlock.SetValue(ElemByte, i);
+                        i = i + 1;
+                    }
+                }
+            }
+
+            int Size = (int)Math.Round(DataPage.Length / (double)PageHeader.RowSize);
+            var loopTo = Size - 1;
+            for (i = 1; i <= loopTo; i++)
+            {
+                int Pos = PageHeader.RowSize * i;
+                int FieldStartPos = 0;
+                bool IsDeleted = BitConverter.ToBoolean(bytesBlock, Pos);
+                var Dict = new Dictionary<string, object>();
+                Dict.Add("IsDeleted", IsDeleted);
+                foreach (var Field in PageHeader.Fields)
+                {
+                    int Pos1 = Pos + 1 + FieldStartPos;
+                    if (Field.Name == "PASSWORD")
+                    {
+                        Dict.Add("OFFSET_PASSWORD", Pos1);
+                    }
+
+                    if (Field.Name == "DATA")
+                    {
+                        Dict.Add("DATA_POS", BitConverter.ToInt32(bytesBlock, Pos1));
+                        Dict.Add("DATA_SIZE", BitConverter.ToInt32(bytesBlock, Pos1 + 4));
+                    }
+
+                    object BytesVal = null;
+                    if (Field.Type == "B")
+                    {
+                        string Strguid = Convert.ToBase64String(bytesBlock, Pos1 + Field.CouldBeNull, Field.Size - Field.CouldBeNull);
+                        BytesVal = Convert.FromBase64String(Strguid);
+                    }
+
+                    // Dim G = Convert.
+
+                    else if (Field.Type == "L")
+                    {
+                        BytesVal = BitConverter.ToBoolean(bytesBlock, Pos1 + Field.CouldBeNull);
+                    }
+                    else if (Field.Type == "DT")
+                    {
+                        var BytesDate = new byte[7]; // 7 байт
+                        for (int AA = 0; AA <= 6; AA++)
+                            BytesDate.SetValue(Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16)), AA);
+                        try
+                        {
+                            BytesVal = new DateTime(Conversions.ToInteger((BytesDate[0] * 100) + BytesDate[1]),
+                                                    Conversions.ToInteger(BytesDate[2]),
+                                                    Conversions.ToInteger(BytesDate[3]),
+                                                    Conversions.ToInteger(BytesDate[4]),
+                                                    Conversions.ToInteger(BytesDate[5]),
+                                                    Conversions.ToInteger(BytesDate[6]));
+                        }
+                        catch (Exception ex)
+                        {
+                            BytesVal = "";
+                        }
+                    }
+                    else if (Field.Type == "I")
+                    {
+                        // двоичные данные неограниченной длины
+                        // в рамках хранилища 8.3.6 их быть не должно
+
+
+                        int DataPos = BitConverter.ToInt32(bytesBlock, Pos1);
+                        int DataSize = BitConverter.ToInt32(bytesBlock, Pos1 + 4);
+                        var BytesValTemp = GetBlodData(BlockBlob, DataPos, DataSize, reader);
+                        var DataKey = new byte[1];
+                        int DataKeySize = 0;
+                        BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
+                        Dict.Add("DATA_KEYSIZE", DataKeySize);
+                        Dict.Add("DATA_KEY", DataKey);
+                        Dict.Add("DATA_BINARY", BytesValTemp);
+                    }
+                    else if (Field.Type == "NT")
+                    {
+                        // Строка неограниченной длины
+                        BytesVal = ""; // TODO
+                    }
+                    else if (Field.Type == "N")
+                    {
+                        // число
+                        BytesVal = 0;
+                        string StrNumber = "";
+                        for (int AA = 0, loopTo1 = Field.Size - 1; AA <= loopTo1; AA++)
+                        {
+                            string character = Convert.ToString(bytesBlock[Pos1 + AA], 16);
+                            StrNumber = Conversions.ToString(Operators.AddObject(Operators.AddObject(StrNumber, Interaction.IIf(character.Length == 1, "0", "")), character));
+                        }
+
+                        string FirstSimbol = StrNumber.Substring(0, 1);
+                        StrNumber = StrNumber.Substring(1, Field.Length);
+                        if (string.IsNullOrEmpty(StrNumber))
+                        {
+                            BytesVal = 0;
+                        }
+                        else
+                        {
+                            BytesVal = Operators.DivideObject(Convert.ToInt32(StrNumber), Interaction.IIf(Field.Precision > 0, Field.Precision * 10, 1));
+                            if (FirstSimbol == "0")
+                            {
+                                BytesVal = Operators.MultiplyObject(BytesVal, -1);
+                            }
+                        }
+                    }
+                    else if (Field.Type == "NVC")
+                    {
+                        // Строка переменной длины
+                        var BytesStr = new byte[2];
+                        for (int AA = 0; AA <= 1; AA++)
+                            BytesStr.SetValue(bytesBlock[Pos1 + AA + Field.CouldBeNull], AA);
+                        var L = Math.Min(Field.Size, (BytesStr[0] + (BytesStr[1] * 256)) * 2);
+                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Conversions.ToInteger(L)).Trim(); // was L- 2
+                    }
+                    else if (Field.Type == "NC")
+                    {
+                        // строка фиксированной длины
+                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1, Field.Size);
+                    }
+
+                    Dict.Add(Field.Name, BytesVal);
+                    FieldStartPos = FieldStartPos + Field.Size;
+                }
+
+                PageHeader.Records.Add(Dict);
+            }
+        }
+    }
+}
