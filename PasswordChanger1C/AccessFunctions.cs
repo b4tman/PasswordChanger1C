@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PasswordChanger1C
 {
-    static class AccessFunctions
+    public static class AccessFunctions
     {
         public struct StorageTable
         {
