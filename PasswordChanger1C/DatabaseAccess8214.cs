@@ -221,7 +221,7 @@ namespace PasswordChanger1C
             ReadDataPage(ref PageHeader, TableName, BlockData, BlockBlob, reader);
         }
 
-        public static byte[] GetBlodData(int BlockBlob, int Dataindex, int Datasize, BinaryReader reader)
+        public static byte[] GetBlobData(int BlockBlob, int Dataindex, int Datasize, BinaryReader reader)
         {
             var bytesBlock1 = new byte[4096];
             reader.BaseStream.Seek(BlockBlob * 4096, SeekOrigin.Begin);
@@ -360,7 +360,7 @@ namespace PasswordChanger1C
 
                         int DataPos = BitConverter.ToInt32(bytesBlock, Pos1);
                         int DataSize = BitConverter.ToInt32(bytesBlock, Pos1 + 4);
-                        var BytesValTemp = GetBlodData(BlockBlob, DataPos, DataSize, reader);
+                        var BytesValTemp = GetBlobData(BlockBlob, DataPos, DataSize, reader);
                         var DataKey = new byte[1];
                         int DataKeySize = 0;
                         BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
