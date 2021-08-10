@@ -56,7 +56,7 @@ namespace PasswordChanger1C
                 }
 
                 var TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition);
-                if ((TableDefinition[0][0].ToString().ToUpper() ?? "") == TargetTable)
+                if (TableDefinition[0][0].ToString().ToUpper() == TargetTable)
                 {
                     Page.TableDefinition = StrDefinition;
                     CommonModule.ParseTableDefinition(ref Page);
