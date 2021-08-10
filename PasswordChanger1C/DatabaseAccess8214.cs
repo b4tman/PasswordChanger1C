@@ -32,7 +32,7 @@ namespace PasswordChanger1C
                     reader.Read(TempBlock, 0, 4096);
                     foreach (var ElemByte in TempBlock)
                     {
-                        bytesStorageTables.SetValue(ElemByte, i);
+                        bytesStorageTables[i] = ElemByte;
                         i++;
                     }
                 }
@@ -240,7 +240,7 @@ namespace PasswordChanger1C
                     reader.Read(TempBlock, 0, 4096);
                     foreach (var ElemByte in TempBlock)
                     {
-                        bytesBlock.SetValue(ElemByte, i);
+                        bytesBlock[i] = ElemByte;
                         i++;
                     }
                 }
@@ -259,7 +259,7 @@ namespace PasswordChanger1C
 
                 for (int j = 0; j < BlockSize; j++)
                 {
-                    ByteBlock.SetValue(bytesBlock[Pos + 6 + j], i);
+                    ByteBlock[i] = bytesBlock[Pos + 6 + j];
                     i++;
                 }
 
@@ -290,7 +290,7 @@ namespace PasswordChanger1C
                     reader.Read(TempBlock, 0, 4096);
                     foreach (var ElemByte in TempBlock)
                     {
-                        bytesBlock.SetValue(ElemByte, i);
+                        bytesBlock[i] = ElemByte;
                         i++;
                     }
                 }
@@ -335,7 +335,7 @@ namespace PasswordChanger1C
                     {
                         var BytesDate = new byte[7]; // 7 байт
                         for (int AA = 0; AA <= 6; AA++)
-                            BytesDate.SetValue(Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16)), AA);
+                            BytesDate[AA] = Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16));
                         try
                         {
                             BytesVal = new DateTime(BytesDate[0] * 100 + BytesDate[1],
@@ -402,7 +402,7 @@ namespace PasswordChanger1C
                         // Строка переменной длины
                         var BytesStr = new byte[2];
                         for (int AA = 0; AA <= 1; AA++)
-                            BytesStr.SetValue(bytesBlock[Pos1 + AA + Field.CouldBeNull], AA);
+                            BytesStr[AA] = bytesBlock[Pos1 + AA + Field.CouldBeNull];
                         var L = Math.Min(Field.Size, (BytesStr[0] + (BytesStr[1] * 256)) * 2);
                         BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Convert.ToInt32(L)).Trim(); // was L- 2
                     }

@@ -108,7 +108,7 @@ namespace PasswordChanger1C
                     reader.Read(TempBlock, 0, 4096);
                     foreach (var ElemByte in TempBlock)
                     {
-                        bytesBlock.SetValue(ElemByte, i);
+                        bytesBlock[i] = ElemByte;
                         i++;
                     }
                 }
@@ -118,7 +118,7 @@ namespace PasswordChanger1C
             string Test = Encoding.Unicode.GetString(bytesBlock, Offset, 64);
             var Pass = Encoding.Unicode.GetBytes(NewPass);
             for (i = 0; i < Pass.Length; i++)
-                bytesBlock.SetValue(Pass[i], i + Offset);
+                bytesBlock[i + Offset] = Pass[i];
             fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
             var writer = new BinaryWriter(fs);
             i = 0;
@@ -129,7 +129,7 @@ namespace PasswordChanger1C
                     var TempBlock = new byte[4096];
                     for (int j = 0; j <= 4095; j++)
                     {
-                        TempBlock.SetValue(bytesBlock[i], j);
+                        TempBlock[j] = bytesBlock[i];
                         i++;
                     }
 
@@ -172,7 +172,7 @@ namespace PasswordChanger1C
                     reader.Read(TempBlock, 0, PageSize);
                     foreach (var ElemByte in TempBlock)
                     {
-                        bytesBlock.SetValue(ElemByte, i);
+                        bytesBlock[i] = ElemByte;
                         i++;
                     }
                 }
@@ -189,7 +189,7 @@ namespace PasswordChanger1C
                 short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
                 for (int j = 0; j < BlockSize; j++)
                 {
-                    bytesBlock.SetValue(NewData[ii], Pos + 6 + j);
+                    bytesBlock[Pos + 6 + j] = NewData[ii];
                     ii++;
                 }
 
@@ -204,7 +204,7 @@ namespace PasswordChanger1C
             // Dim Pass = Encoding.Unicode.GetBytes(NewPass)
 
             // For i = 0 To Pass.Length - 1
-            // bytesBlock.SetValue(Pass[i), i + Offset)
+            // bytesBlock(i + Offset) = Pass(i)
             // Next
 
             fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
@@ -217,7 +217,7 @@ namespace PasswordChanger1C
                     var TempBlock = new byte[PageSize];
                     for (int j = 0; j < PageSize; j++)
                     {
-                        TempBlock.SetValue(bytesBlock[ii], j);
+                        TempBlock[j] = bytesBlock[ii];
                         ii++;
                     }
 
