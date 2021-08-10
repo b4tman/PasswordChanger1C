@@ -64,7 +64,7 @@ namespace PasswordChanger1C.Tests
         [InlineData(File8214)]
         public void WritePasswordIntoInfoBaseIB_Test(string original_filename)
         {
-            string tmp_folder = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
+            string tmp_folder = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
             using (TempStorage tmp_storage = new TempStorage(tmp_folder))
             {
                 string tmp_filename = Path.Join(tmp_folder, "test.1cd");
