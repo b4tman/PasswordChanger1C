@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace PasswordChanger1C
@@ -228,9 +229,7 @@ namespace PasswordChanger1C
             reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock1, 0, PageSize);
             var DataPage = ReadPage(reader, bytesBlock1);
-            int TotalBlocks = 0;
-            foreach (var ST in DataPage.StorageTables)
-                TotalBlocks += ST.DataBlocks.Count;
+            int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
             var bytesBlock = new byte[PageSize * TotalBlocks];
             int i = 0;
             foreach (var ST in DataPage.StorageTables)
@@ -278,9 +277,7 @@ namespace PasswordChanger1C
             reader.BaseStream.Seek(block * PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock1, 0, PageSize);
             var DataPage = ReadPage(reader, bytesBlock1);
-            int TotalBlocks = 0;
-            foreach (var ST in DataPage.StorageTables)
-                TotalBlocks += ST.DataBlocks.Count;
+            int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
             var bytesBlock = new byte[PageSize * TotalBlocks];
             int i = 0;
             foreach (var ST in DataPage.StorageTables)
