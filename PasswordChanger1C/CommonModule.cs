@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PasswordChanger1C
 {
-    static class CommonModule
+    public static class CommonModule
     {
         public static string DecodePasswordStructure(byte[] bytes_Input, ref int KeySize, ref byte[] KeyData)
         {
