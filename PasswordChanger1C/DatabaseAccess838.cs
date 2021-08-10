@@ -14,7 +14,7 @@ namespace PasswordChanger1C
             var bytesBlock = new byte[PageSize];
 
             // второй блок пропускаем
-            reader.Read(bytesBlock, 0, PageSize);
+            reader.BaseStream.Seek(PageSize, SeekOrigin.Current);
 
             // корневой блок
             reader.Read(bytesBlock, 0, PageSize);
@@ -25,6 +25,7 @@ namespace PasswordChanger1C
 
         private static AccessFunctions.PageParams FindTableDefinition(BinaryReader reader, byte[] Bytes, int PageSize, string TableUsersName)
         {
+            string TargetTable = $"\"{TableUsersName.ToUpper()}\"";
             var Page = ReadObjectPageDefinition(reader, Bytes, PageSize);
             Page.BinaryData = ReadAllStoragePagesForObject(reader, Page);
             Page.PageSize = PageSize;
@@ -34,7 +35,7 @@ namespace PasswordChanger1C
             var BytesTableStructureBlockNumbers = GetCleanDataFromBlob(1, PagesCountTableStructure * PageSize, Page.BinaryData, DataPositions: ref argDataPositions);
             int TotalBlocks = BitConverter.ToInt32(BytesTableStructureBlockNumbers, 32);
             var PagesWithTableSchema = new List<int>();
-            for (int j = 1, loopTo = TotalBlocks; j <= loopTo; j++)
+            for (int j = 1; j <= TotalBlocks; j++)
             {
                 int BlockNumber = BitConverter.ToInt32(BytesTableStructureBlockNumbers, 32 + j * 4);
                 PagesWithTableSchema.Add(BlockNumber);
@@ -55,7 +56,7 @@ namespace PasswordChanger1C
                 }
 
                 var TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition);
-                if ((TableDefinition[0][0].ToString().ToUpper() ?? "") == ("\"" + TableUsersName + "\"" ?? ""))
+                if ((TableDefinition[0][0].ToString().ToUpper() ?? "") == TargetTable)
                 {
                     Page.TableDefinition = StrDefinition;
                     CommonModule.ParseTableDefinition(ref Page);
@@ -79,7 +80,7 @@ namespace PasswordChanger1C
             DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
             var bytesBlock = DataPage.BinaryData;
             int Size = (int)Math.Round(DataPage.Length / (double)PageHeader.RowSize);
-            for (int i = 1, loopTo = Size - 1; i <= loopTo; i++)
+            for (int i = 1; i < Size; i++)
             {
                 int Pos = PageHeader.RowSize * i;
                 int FieldStartPos = 0;
@@ -111,17 +112,17 @@ namespace PasswordChanger1C
                     {
                         var BytesDate = new byte[7]; // 7 байт
                         for (int AA = 0; AA <= 6; AA++)
-                            BytesDate.SetValue(Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16)), AA);
+                            BytesDate[AA] = Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16));
                         try
                         {
-                            BytesVal = new DateTime((BytesDate[0] * 100) + BytesDate[1], 
+                            BytesVal = new DateTime((BytesDate[0] * 100) + BytesDate[1],
                                                     BytesDate[2], 
                                                     BytesDate[3], 
                                                     BytesDate[4], 
                                                     BytesDate[5], 
                                                     BytesDate[6]);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             BytesVal = "";
                         }
@@ -168,7 +169,7 @@ namespace PasswordChanger1C
                         // число
                         BytesVal = 0;
                         string StrNumber = "";
-                        for (int AA = 0, loopTo1 = Field.Size - 1; AA <= loopTo1; AA++)
+                        for (int AA = 0; AA < Field.Size; AA++)
                         {
                             var character = Convert.ToString(bytesBlock[Pos1 + AA], 16);
                             StrNumber = StrNumber + (character.Length == 1 ? "0" : "") + character;
@@ -194,7 +195,7 @@ namespace PasswordChanger1C
                         // Строка переменной длины
                         var BytesStr = new byte[2];
                         for (int AA = 0; AA <= 1; AA++)
-                            BytesStr.SetValue(bytesBlock[Pos1 + AA + Field.CouldBeNull], AA);
+                            BytesStr[AA] = bytesBlock[Pos1 + AA + Field.CouldBeNull];
                         int L = Math.Min(Field.Size, (BytesStr[0] + BytesStr[1] * 256) * 2);
                         BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Convert.ToInt32(L)).Trim(); // was L- 2
                     }
@@ -224,10 +225,10 @@ namespace PasswordChanger1C
                 NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
                 short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
                 Array.Resize(ref DataPositions, BlocksCount + 1);
-                DataPositions.SetValue(Pos + 6, BlocksCount);
-                for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
+                DataPositions[BlocksCount] = Pos + 6;
+                for (int j = 0; j < BlockSize; j++)
                 {
-                    ByteBlock.SetValue(bytesBlock[Pos + 6 + j], i);
+                    ByteBlock[i] = bytesBlock[Pos + 6 + j];
                     i++;
                 }
 
@@ -248,8 +249,8 @@ namespace PasswordChanger1C
                 var bytesBlock = new byte[Page.PageSize];
                 reader.BaseStream.Seek(blk * Page.PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock, 0, Page.PageSize);
-                for (int a = 0, loopTo = Page.PageSize - 1; a <= loopTo; a++)
-                    BytesTableStructure.SetValue(bytesBlock[a], i + a);
+                for (int a = 0; a < Page.PageSize; a++)
+                    BytesTableStructure[i + a] = bytesBlock[a];
                 i += Page.PageSize;
             }
 
@@ -273,12 +274,12 @@ namespace PasswordChanger1C
             Page.version = BitConverter.ToInt32(Bytes, 4);
             Page.version1 = BitConverter.ToInt32(Bytes, 8);
             Page.version2 = BitConverter.ToInt32(Bytes, 12);
-            if (Page.PageType == 64796)
+            if (Page.PageType == 0xFD1C)
             {
+                // 0xFD1C small storage table
+                // ???
             }
-            // 0xFD1C small storage table
-            // ???
-            else if (Page.PageType == 130332)
+            else if (Page.PageType == 0x1FD1C)
             {
                 // 0x01FD1C  large storage table
                 // ???
@@ -338,7 +339,7 @@ namespace PasswordChanger1C
                             }
 
                             int NewPosition = Position + i;
-                            BlobPage.BinaryData.SetValue(NewData[CurrentByte], NewPosition);
+                            BlobPage.BinaryData[NewPosition] = NewData[CurrentByte];
                             CurrentByte++;
                         }
                     }
@@ -350,9 +351,9 @@ namespace PasswordChanger1C
                     foreach (var Position in BlobPage.PagesNum)
                     {
                         var TempBlock = new byte[PageSize];
-                        for (int j = 0, loopTo = PageSize - 1; j <= loopTo; j++)
+                        for (int j = 0; j < PageSize; j++)
                         {
-                            TempBlock.SetValue(BlobPage.BinaryData[CurrentByte], j);
+                            TempBlock[j] = BlobPage.BinaryData[CurrentByte];
                             CurrentByte++;
                         }
 
