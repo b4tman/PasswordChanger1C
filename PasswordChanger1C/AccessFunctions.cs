@@ -117,8 +117,7 @@ namespace PasswordChanger1C
             reader.Close();
             string Test = Encoding.Unicode.GetString(bytesBlock, Offset, 64);
             var Pass = Encoding.Unicode.GetBytes(NewPass);
-            var loopTo = Pass.Length - 1;
-            for (i = 0; i <= loopTo; i++)
+            for (i = 0; i < Pass.Length; i++)
                 bytesBlock.SetValue(Pass[i], i + Offset);
             fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
             var writer = new BinaryWriter(fs);
@@ -188,7 +187,7 @@ namespace PasswordChanger1C
             {
                 NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
                 short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
-                for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
+                for (int j = 0; j < BlockSize; j++)
                 {
                     bytesBlock.SetValue(NewData[ii], Pos + 6 + j);
                     ii++;
@@ -216,7 +215,7 @@ namespace PasswordChanger1C
                 foreach (var DB in ST.DataBlocks)
                 {
                     var TempBlock = new byte[PageSize];
-                    for (int j = 0, loopTo1 = PageSize - 1; j <= loopTo1; j++)
+                    for (int j = 0; j < PageSize; j++)
                     {
                         TempBlock.SetValue(bytesBlock[ii], j);
                         ii++;

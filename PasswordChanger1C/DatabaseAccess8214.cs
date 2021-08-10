@@ -39,8 +39,7 @@ namespace PasswordChanger1C
 
                 Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
                 NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32);
-                var loopTo = NumberOfTables - 1;
-                for (i = 0; i <= loopTo; i++)
+                for (i = 0; i < NumberOfTables; i++)
                 {
                     int PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4);
                     HeaderTables.Add(PageNum);
@@ -110,7 +109,7 @@ namespace PasswordChanger1C
                 reader.Read(bytesBlock, 0, PageSize);
                 int NumberOfPages = BitConverter.ToInt32(bytesBlock, 0);
                 Index = 4;
-                for (int ii = 0, loopTo = NumberOfPages - 1; ii <= loopTo; ii++)
+                for (int ii = 0; ii < NumberOfPages; ii++)
                 {
                     int dp = BitConverter.ToInt32(bytesBlock, Index);
                     if (dp == 0)
@@ -258,7 +257,7 @@ namespace PasswordChanger1C
 
                 // Dim ByteTemp() As Byte = New Byte(BlockSize - 1) {}
 
-                for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
+                for (int j = 0; j < BlockSize; j++)
                 {
                     ByteBlock.SetValue(bytesBlock[Pos + 6 + j], i);
                     i++;
@@ -298,8 +297,7 @@ namespace PasswordChanger1C
             }
 
             int Size = (int)Math.Round(DataPage.Length / (double)PageHeader.RowSize);
-            var loopTo = Size - 1;
-            for (i = 1; i <= loopTo; i++)
+            for (i = 1; i < Size; i++)
             {
                 int Pos = PageHeader.RowSize * i;
                 int FieldStartPos = 0;
@@ -378,7 +376,7 @@ namespace PasswordChanger1C
                         // число
                         BytesVal = 0;
                         string StrNumber = "";
-                        for (int AA = 0, loopTo1 = Field.Size - 1; AA <= loopTo1; AA++)
+                        for (int AA = 0; AA < Field.Size; AA++)
                         {
                             string character = Convert.ToString(bytesBlock[Pos1 + AA], 16);
                             StrNumber = StrNumber + (character.Length == 1 ? "0" : "") + character;
