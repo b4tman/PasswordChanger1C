@@ -97,7 +97,7 @@ namespace PasswordChanger1C
                 int FieldSize = Field.CouldBeNull;
                 if (Field.Type == "B")
                 {
-                    FieldSize = FieldSize + Field.Length;
+                    FieldSize += Field.Length;
                 }
                 else if (Field.Type == "L")
                 {
@@ -109,7 +109,7 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "NC")
                 {
-                    FieldSize = FieldSize + Field.Length * 2;
+                    FieldSize += Field.Length * 2;
                 }
                 else if (Field.Type == "NVC")
                 {
@@ -117,28 +117,28 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "RV")
                 {
-                    FieldSize = FieldSize + 16;
+                    FieldSize += 16;
                 }
                 else if (Field.Type == "I")
                 {
-                    FieldSize = FieldSize + 8;
+                    FieldSize += 8;
                 }
                 else if (Field.Type == "T")
                 {
-                    FieldSize = FieldSize + 8;
+                    FieldSize += 8;
                 }
                 else if (Field.Type == "DT")
                 {
-                    FieldSize = FieldSize + 7;
+                    FieldSize += 7;
                 }
                 else if (Field.Type == "NT")
                 {
-                    FieldSize = FieldSize + 8;
+                    FieldSize += 8;
                 }
 
                 Field.Size = FieldSize;
                 Field.Offset = RowSize;
-                RowSize = RowSize + FieldSize;
+                RowSize += FieldSize;
                 PageHeader.Fields.Add(Field);
             }
 

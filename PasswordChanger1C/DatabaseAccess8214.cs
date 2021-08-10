@@ -33,7 +33,7 @@ namespace PasswordChanger1C
                     foreach (var ElemByte in TempBlock)
                     {
                         bytesStorageTables.SetValue(ElemByte, i);
-                        i = i + 1;
+                        i++;
                     }
                 }
 
@@ -93,7 +93,7 @@ namespace PasswordChanger1C
                 }
 
                 Page.PagesNum.Add(blk);
-                Index = Index + 4;
+                Index += 4;
                 if (Index > PageSize - 4)
                 {
                     break;
@@ -119,7 +119,7 @@ namespace PasswordChanger1C
                     }
 
                     StorageTables.DataBlocks.Add(dp);
-                    Index = Index + 4;
+                    Index += 4;
                     if (Index > PageSize - 4)
                     {
                         break;
@@ -138,7 +138,7 @@ namespace PasswordChanger1C
             reader.Read(bytesBlock, 0, 4096);
             string TableDescr = "";
             for (double i = 0d, loopTo = Math.Min(PageHeader.Length - 1L, 4096d / 2d - 1d); i <= loopTo; i++)
-                TableDescr = TableDescr + Encoding.UTF8.GetString(bytesBlock, (int)Math.Round(i * 2d), 1);
+                TableDescr += Encoding.UTF8.GetString(bytesBlock, (int)Math.Round(i * 2d), 1);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
             int RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
@@ -164,11 +164,11 @@ namespace PasswordChanger1C
                 int FieldSize = Field.CouldBeNull;
                 if (Field.Type == "B")
                 {
-                    FieldSize = FieldSize + Field.Length;
+                    FieldSize += Field.Length;
                 }
                 else if (Field.Type == "L")
                 {
-                    FieldSize = FieldSize + 1;
+                    FieldSize++;
                 }
                 else if (Field.Type == "N")
                 {
@@ -176,7 +176,7 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "NC")
                 {
-                    FieldSize = FieldSize + Field.Length * 2;
+                    FieldSize += Field.Length * 2;
                 }
                 else if (Field.Type == "NVC")
                 {
@@ -184,28 +184,28 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "RV")
                 {
-                    FieldSize = FieldSize + 16;
+                    FieldSize += 16;
                 }
                 else if (Field.Type == "I")
                 {
-                    FieldSize = FieldSize + 8;
+                    FieldSize += 8;
                 }
                 else if (Field.Type == "T")
                 {
-                    FieldSize = FieldSize + 8;
+                    FieldSize += 8;
                 }
                 else if (Field.Type == "DT")
                 {
-                    FieldSize = FieldSize + 7;
+                    FieldSize += 7;
                 }
                 else if (Field.Type == "NT")
                 {
-                    FieldSize = FieldSize + 8;
+                    FieldSize += 8;
                 }
 
                 Field.Size = FieldSize;
                 Field.Offset = RowSize;
-                RowSize = RowSize + FieldSize;
+                RowSize += FieldSize;
                 PageHeader.Fields.Add(Field);
             }
 
@@ -229,7 +229,7 @@ namespace PasswordChanger1C
             var DataPage = ReadPage(reader, bytesBlock1);
             int TotalBlocks = 0;
             foreach (var ST in DataPage.StorageTables)
-                TotalBlocks = TotalBlocks + ST.DataBlocks.Count;
+                TotalBlocks += ST.DataBlocks.Count;
             var bytesBlock = new byte[(4096 * TotalBlocks)];
             int i = 0;
             foreach (var ST in DataPage.StorageTables)
@@ -242,7 +242,7 @@ namespace PasswordChanger1C
                     foreach (var ElemByte in TempBlock)
                     {
                         bytesBlock.SetValue(ElemByte, i);
-                        i = i + 1;
+                        i++;
                     }
                 }
             }
@@ -261,7 +261,7 @@ namespace PasswordChanger1C
                 for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
                 {
                     ByteBlock.SetValue(bytesBlock[Pos + 6 + j], i);
-                    i = i + 1;
+                    i++;
                 }
 
                 Pos = NextBlock * 256;
@@ -279,7 +279,7 @@ namespace PasswordChanger1C
             var DataPage = ReadPage(reader, bytesBlock1);
             int TotalBlocks = 0;
             foreach (var ST in DataPage.StorageTables)
-                TotalBlocks = TotalBlocks + ST.DataBlocks.Count;
+                TotalBlocks += ST.DataBlocks.Count;
             var bytesBlock = new byte[(4096 * TotalBlocks)];
             int i = 0;
             foreach (var ST in DataPage.StorageTables)
@@ -292,7 +292,7 @@ namespace PasswordChanger1C
                     foreach (var ElemByte in TempBlock)
                     {
                         bytesBlock.SetValue(ElemByte, i);
-                        i = i + 1;
+                        i++;
                     }
                 }
             }
@@ -415,7 +415,7 @@ namespace PasswordChanger1C
                     }
 
                     Dict.Add(Field.Name, BytesVal);
-                    FieldStartPos = FieldStartPos + Field.Size;
+                    FieldStartPos += Field.Size;
                 }
 
                 PageHeader.Records.Add(Dict);

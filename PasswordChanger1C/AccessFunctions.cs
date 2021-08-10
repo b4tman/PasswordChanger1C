@@ -97,7 +97,7 @@ namespace PasswordChanger1C
             var DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
             int TotalBlocks = 0;
             foreach (var ST in DataPage.StorageTables)
-                TotalBlocks = TotalBlocks + ST.DataBlocks.Count;
+                TotalBlocks += ST.DataBlocks.Count;
             var bytesBlock = new byte[(4096 * TotalBlocks)];
             int i = 0;
             foreach (var ST in DataPage.StorageTables)
@@ -110,7 +110,7 @@ namespace PasswordChanger1C
                     foreach (var ElemByte in TempBlock)
                     {
                         bytesBlock.SetValue(ElemByte, i);
-                        i = i + 1;
+                        i++;
                     }
                 }
             }
@@ -132,7 +132,7 @@ namespace PasswordChanger1C
                     for (int j = 0; j <= 4095; j++)
                     {
                         TempBlock.SetValue(bytesBlock[i], j);
-                        i = i + 1;
+                        i++;
                     }
 
                     writer.Seek(DB * 4096, SeekOrigin.Begin);
@@ -162,7 +162,7 @@ namespace PasswordChanger1C
             DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
             int TotalBlocks = 0;
             foreach (var ST in DataPage.StorageTables)
-                TotalBlocks = TotalBlocks + ST.DataBlocks.Count;
+                TotalBlocks += ST.DataBlocks.Count;
             bytesBlock = new byte[(PageSize * TotalBlocks)];
             int i = 0;
             foreach (var ST in DataPage.StorageTables)
@@ -175,7 +175,7 @@ namespace PasswordChanger1C
                     foreach (var ElemByte in TempBlock)
                     {
                         bytesBlock.SetValue(ElemByte, i);
-                        i = i + 1;
+                        i++;
                     }
                 }
             }
@@ -192,7 +192,7 @@ namespace PasswordChanger1C
                 for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
                 {
                     bytesBlock.SetValue(NewData[ii], Pos + 6 + j);
-                    ii = ii + 1;
+                    ii++;
                 }
 
                 Pos = NextBlock * 256;
@@ -220,7 +220,7 @@ namespace PasswordChanger1C
                     for (int j = 0, loopTo1 = PageSize - 1; j <= loopTo1; j++)
                     {
                         TempBlock.SetValue(bytesBlock[ii], j);
-                        ii = ii + 1;
+                        ii++;
                     }
 
                     writer.Seek(DB * PageSize, SeekOrigin.Begin);

@@ -51,7 +51,7 @@ namespace PasswordChanger1C
                     Position = NextBlock * 256;
                     NextBlock = BitConverter.ToInt32(BytesTableStructure, Position);
                     StringLen = BitConverter.ToInt16(BytesTableStructure, Position + 4);
-                    StrDefinition = StrDefinition + Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen);
+                    StrDefinition += Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen);
                 }
 
                 var TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition);
@@ -205,7 +205,7 @@ namespace PasswordChanger1C
                     }
 
                     Dict.Add(Field.Name, BytesVal);
-                    FieldStartPos = FieldStartPos + Field.Size;
+                    FieldStartPos += Field.Size;
                 }
 
                 PageHeader.Records.Add(Dict);
@@ -228,11 +228,11 @@ namespace PasswordChanger1C
                 for (int j = 0, loopTo = BlockSize - 1; j <= loopTo; j++)
                 {
                     ByteBlock.SetValue(bytesBlock[Pos + 6 + j], i);
-                    i = i + 1;
+                    i++;
                 }
 
                 Pos = NextBlock * 256;
-                BlocksCount = BlocksCount + 1;
+                BlocksCount++;
             }
 
             return ByteBlock;
@@ -250,7 +250,7 @@ namespace PasswordChanger1C
                 reader.Read(bytesBlock, 0, Page.PageSize);
                 for (int a = 0, loopTo = Page.PageSize - 1; a <= loopTo; a++)
                     BytesTableStructure.SetValue(bytesBlock[a], i + a);
-                i = i + Page.PageSize;
+                i += Page.PageSize;
             }
 
             return BytesTableStructure;
@@ -298,7 +298,7 @@ namespace PasswordChanger1C
                 }
 
                 Page.PagesNum.Add(blk);
-                Index = Index + 4;
+                Index += 4;
                 if (Index > PageSize - 4)
                 {
                     break;
@@ -339,7 +339,7 @@ namespace PasswordChanger1C
 
                             int NewPosition = Position + i;
                             BlobPage.BinaryData.SetValue(NewData[CurrentByte], NewPosition);
-                            CurrentByte = CurrentByte + 1;
+                            CurrentByte++;
                         }
                     }
 
@@ -353,7 +353,7 @@ namespace PasswordChanger1C
                         for (int j = 0, loopTo = PageSize - 1; j <= loopTo; j++)
                         {
                             TempBlock.SetValue(BlobPage.BinaryData[CurrentByte], j);
-                            CurrentByte = CurrentByte + 1;
+                            CurrentByte++;
                         }
 
                         writer.Seek(Position * PageSize, SeekOrigin.Begin);

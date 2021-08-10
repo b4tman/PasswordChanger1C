@@ -71,7 +71,7 @@ namespace PasswordChanger1C.ParserServices
                 }
                 else if (string.IsNullOrEmpty(Val))
                 {
-                    Position = Position + 1;
+                    Position++;
                 }
                 else
                 {
@@ -90,7 +90,7 @@ namespace PasswordChanger1C.ParserServices
                     else
                     {
                         List.Add(Val);
-                        Position = Position + 1;
+                        Position++;
                     }
                 }
 
