@@ -71,22 +71,19 @@ namespace PasswordChanger1C.Tests
                 File.Copy(original_filename, tmp_filename);
 
                 string NewPassword = "test123";
-                string NewHash = CommonModule.EncryptStringSHA1(NewPassword);
-                string NewHash2 = CommonModule.EncryptStringSHA1(NewPassword.ToUpper());
+                var NewHashes = Tuple.Create(CommonModule.EncryptStringSHA1(NewPassword), CommonModule.EncryptStringSHA1(NewPassword.ToUpper()));
 
                 // read infobase
                 var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
                 var Row = TableParams.Records[1];
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
                 var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
-                string PassHash = Hashes.Item1.ToString();
-                string PassHash2 = Hashes.Item2.ToString();
 
                 var OldDataBinary = Row["DATA_BINARY"];
                 string OldData = Row["DATA"].ToString();
-                
+
                 // change value
-                string NewData = OldData.Replace($"{PassHash},{PassHash2}", $"\"{NewHash}\",\"{NewHash2}\"");
+                string NewData = CommonModule.ReplaceHashes(OldData, Hashes, NewHashes);
                 var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
 
                 // write
@@ -101,8 +98,8 @@ namespace PasswordChanger1C.Tests
                 string PassHash2_New = Hashes_New.Item2.Trim('"');
 
                 // check passwords
-                Assert.Equal(NewHash, PassHash_New);
-                Assert.Equal(NewHash2, PassHash2_New);
+                Assert.Equal(NewHashes.Item1, PassHash_New);
+                Assert.Equal(NewHashes.Item2, PassHash2_New);
             }
         }
     }

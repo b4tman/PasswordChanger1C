@@ -115,6 +115,20 @@ namespace PasswordChanger1C
             return Tuple.Create(result[0], result[1]);
         }
 
+        public static string ReplaceHashes(in string Data, in Tuple<string,string> OldHashes, in Tuple<string, string> NewHashes)
+        {
+            // Hashes can be with or without double quotes
+            static string EnsureDQuotes(string str) => str.StartsWith("\"") && str.EndsWith("\"") ? str : $"\"{str}\"";
+
+            string[] old_arr = { OldHashes.Item1, OldHashes.Item2 };
+            string[] new_arr = { NewHashes.Item1, NewHashes.Item2 };
+            var old_hashes = old_arr.Select(EnsureDQuotes);
+            var new_hashes = new_arr.Select(EnsureDQuotes);
+            string OldStr = string.Join(",", old_hashes);
+            string NewStr = string.Join(",", new_hashes);
+            return Data.Replace(OldStr, NewStr);
+        }
+
         public static void ParseTableDefinition(ref AccessFunctions.PageParams PageHeader)
         {
             var ParsedString = ParserServices.ParsesClass.ParseString(PageHeader.TableDefinition);
