@@ -226,11 +226,9 @@ namespace PasswordChanger1C
                 short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
                 Array.Resize(ref DataPositions, BlocksCount + 1);
                 DataPositions[BlocksCount] = Pos + 6;
-                for (int j = 0; j < BlockSize; j++)
-                {
-                    ByteBlock[i] = bytesBlock[Pos + 6 + j];
-                    i++;
-                }
+
+                bytesBlock.AsMemory(Pos + 6, BlockSize).CopyTo(ByteBlock.AsMemory(i));
+                i += BlockSize;
 
                 Pos = NextBlock * 256;
                 BlocksCount++;
@@ -242,15 +240,14 @@ namespace PasswordChanger1C
         private static byte[] ReadAllStoragePagesForObject(BinaryReader reader, AccessFunctions.PageParams Page)
         {
             int PagesCountTableStructure = Page.PagesNum.Count;
-            var BytesTableStructure = new byte[(PagesCountTableStructure * Page.PageSize)];
+            var BytesTableStructure = new byte[PagesCountTableStructure * Page.PageSize];
             int i = 0;
             foreach (var blk in Page.PagesNum)
             {
                 var bytesBlock = new byte[Page.PageSize];
                 reader.BaseStream.Seek(blk * Page.PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock, 0, Page.PageSize);
-                for (int a = 0; a < Page.PageSize; a++)
-                    BytesTableStructure[i + a] = bytesBlock[a];
+                bytesBlock.AsMemory(0, Page.PageSize).CopyTo(BytesTableStructure.AsMemory(i, Page.PageSize));
                 i += Page.PageSize;
             }
 
@@ -336,17 +333,10 @@ namespace PasswordChanger1C
                     // Data is stored in 256 bytes blocks (6 bytes reserved for next block number and size)
                     foreach (var Position in DataPositions)
                     {
-                        for (int i = 0; i <= 249; i++)
-                        {
-                            if (CurrentByte > NewData.Count() - 1)
-                            {
-                                break;
-                            }
-
-                            int NewPosition = Position + i;
-                            BlobPage.BinaryData[NewPosition] = NewData[CurrentByte];
-                            CurrentByte++;
-                        }
+                        int CopyCount = Math.Min(250, NewData.Count() - CurrentByte);
+                        NewData.AsMemory(CurrentByte, CopyCount)
+                            .CopyTo(BlobPage.BinaryData.AsMemory(Position));
+                        CurrentByte += CopyCount;
                     }
 
                     // Blob page(s) has been modified. Let's write it back to database
@@ -356,12 +346,9 @@ namespace PasswordChanger1C
                     foreach (var Position in BlobPage.PagesNum)
                     {
                         var TempBlock = new byte[PageSize];
-                        for (int j = 0; j < PageSize; j++)
-                        {
-                            TempBlock[j] = BlobPage.BinaryData[CurrentByte];
-                            CurrentByte++;
-                        }
-
+                        BlobPage.BinaryData.AsMemory(CurrentByte, PageSize).CopyTo(TempBlock.AsMemory());
+                        CurrentByte += PageSize;
+                        
                         writer.Seek(Position * PageSize, SeekOrigin.Begin);
                         writer.Write(TempBlock);
                     }

@@ -101,7 +101,7 @@ namespace PasswordChanger1C
                 reader.Read(bytesBlock1, 0, 4096);
                 DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
-                bytesBlock = new byte[(4096 * TotalBlocks)];
+                bytesBlock = new byte[4096 * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
@@ -110,20 +110,15 @@ namespace PasswordChanger1C
                         var TempBlock = new byte[4096];
                         reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
                         reader.Read(TempBlock, 0, 4096);
-                        foreach (var ElemByte in TempBlock)
-                        {
-                            bytesBlock[i] = ElemByte;
-                            i++;
-                        }
+                        TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
+                        i += TempBlock.Length;
                     }
                 }
             }
 
             //string Test = Encoding.Unicode.GetString(bytesBlock, Offset, 64);
             var Pass = Encoding.Unicode.GetBytes(NewPass);
-            i = 0;
-            for (i = 0; i < Pass.Length; i++)
-                bytesBlock[i + Offset] = Pass[i];
+            Pass.AsMemory().CopyTo(bytesBlock.AsMemory(Offset));
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
@@ -134,11 +129,8 @@ namespace PasswordChanger1C
                     foreach (var DB in ST.DataBlocks)
                     {
                         var TempBlock = new byte[4096];
-                        for (int j = 0; j <= 4095; j++)
-                        {
-                            TempBlock[j] = bytesBlock[i];
-                            i++;
-                        }
+                        bytesBlock.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
+                        i += TempBlock.Length;
 
                         writer.Seek(DB * 4096, SeekOrigin.Begin);
                         writer.Write(TempBlock);
@@ -169,7 +161,7 @@ namespace PasswordChanger1C
                 reader.Read(bytesBlock1, 0, PageSize);
                 DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
-                bytesBlock = new byte[(PageSize * TotalBlocks)];
+                bytesBlock = new byte[PageSize * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
@@ -178,11 +170,8 @@ namespace PasswordChanger1C
                         var TempBlock = new byte[PageSize];
                         reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
                         reader.Read(TempBlock, 0, PageSize);
-                        foreach (var ElemByte in TempBlock)
-                        {
-                            bytesBlock[i] = ElemByte;
-                            i++;
-                        }
+                        TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
+                        i += TempBlock.Length;
                     }
                 }
             }
@@ -194,11 +183,9 @@ namespace PasswordChanger1C
             {
                 NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
                 short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
-                for (int j = 0; j < BlockSize; j++)
-                {
-                    bytesBlock[Pos + 6 + j] = NewData[ii];
-                    ii++;
-                }
+
+                NewData.AsMemory(ii, BlockSize).CopyTo(bytesBlock.AsMemory(Pos + 6));
+                ii += BlockSize;
 
                 Pos = NextBlock * 256;
             }
@@ -212,11 +199,8 @@ namespace PasswordChanger1C
                     foreach (var DB in ST.DataBlocks)
                     {
                         var TempBlock = new byte[PageSize];
-                        for (int j = 0; j < PageSize; j++)
-                        {
-                            TempBlock[j] = bytesBlock[ii];
-                            ii++;
-                        }
+                        bytesBlock.AsMemory(ii, TempBlock.Length).CopyTo(TempBlock.AsMemory());
+                        ii += TempBlock.Length;
 
                         writer.Seek(DB * PageSize, SeekOrigin.Begin);
                         writer.Write(TempBlock);

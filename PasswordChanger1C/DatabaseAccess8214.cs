@@ -33,11 +33,9 @@ namespace PasswordChanger1C
                     var TempBlock = new byte[PageSize];
                     reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
                     reader.Read(TempBlock, 0, PageSize);
-                    foreach (var ElemByte in TempBlock)
-                    {
-                        bytesStorageTables[i] = ElemByte;
-                        i++;
-                    }
+
+                    TempBlock.AsMemory().CopyTo(bytesStorageTables.AsMemory(i));
+                    i += TempBlock.Length;
                 }
 
                 Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
@@ -239,11 +237,8 @@ namespace PasswordChanger1C
                     var TempBlock = new byte[PageSize];
                     reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
                     reader.Read(TempBlock, 0, PageSize);
-                    foreach (var ElemByte in TempBlock)
-                    {
-                        bytesBlock[i] = ElemByte;
-                        i++;
-                    }
+                    TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
+                    i += TempBlock.Length;
                 }
             }
 
@@ -256,13 +251,8 @@ namespace PasswordChanger1C
                 NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
                 short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
 
-                // Dim ByteTemp() As Byte = New Byte(BlockSize - 1) {}
-
-                for (int j = 0; j < BlockSize; j++)
-                {
-                    ByteBlock[i] = bytesBlock[Pos + 6 + j];
-                    i++;
-                }
+                bytesBlock.AsMemory(Pos + 6, BlockSize).CopyTo(ByteBlock.AsMemory(i));
+                i += BlockSize;
 
                 Pos = NextBlock * 256;
             }
@@ -287,11 +277,8 @@ namespace PasswordChanger1C
                     var TempBlock = new byte[PageSize];
                     reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
                     reader.Read(TempBlock, 0, PageSize);
-                    foreach (var ElemByte in TempBlock)
-                    {
-                        bytesBlock[i] = ElemByte;
-                        i++;
-                    }
+                    TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
+                    i += TempBlock.Length;
                 }
             }
 
