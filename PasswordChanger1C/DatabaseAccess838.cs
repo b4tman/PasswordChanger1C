@@ -311,18 +311,23 @@ namespace PasswordChanger1C
 
         public static void WritePasswordIntoInfoBaseIB(string FileName, AccessFunctions.PageParams PageHeader, byte[] UserID, byte[] OldData, byte[] NewData, int DataPos, int DataSize)
         {
-            var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
-            var reader = new BinaryReader(fs);
             int PageSize = PageHeader.PageSize;
             int BlockBlob = PageHeader.BlockBlob;
             var BytesBlobBlock = new byte[PageSize];
-            reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
-            reader.Read(BytesBlobBlock, 0, PageSize);
-            var BlobPage = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize);
-            BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
-            reader.Close();
             int[] DataPositions = null;
-            var BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, ref DataPositions);
+            byte[] BytesValTemp;
+            AccessFunctions.PageParams BlobPage;
+
+            using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
+            {
+                using var reader = new BinaryReader(fs);
+                reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
+                reader.Read(BytesBlobBlock, 0, PageSize);
+                BlobPage = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize);
+                BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
+            }
+            
+            BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, ref DataPositions);
             if (BytesValTemp.SequenceEqual(OldData))
             {
                 if (OldData.Count() == NewData.Count())
@@ -345,8 +350,8 @@ namespace PasswordChanger1C
                     }
 
                     // Blob page(s) has been modified. Let's write it back to database
-                    fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
-                    var writer = new BinaryWriter(fs);
+                    using var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
+                    using var writer = new BinaryWriter(fs);
                     CurrentByte = 0;
                     foreach (var Position in BlobPage.PagesNum)
                     {
@@ -360,8 +365,6 @@ namespace PasswordChanger1C
                         writer.Seek(Position * PageSize, SeekOrigin.Begin);
                         writer.Write(TempBlock);
                     }
-
-                    writer.Close();
                 }
                 else
                 {

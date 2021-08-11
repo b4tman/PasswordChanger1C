@@ -175,7 +175,7 @@ namespace PasswordChanger1C
                 var Connection = new SqlConnection(ConnectionString.Text);
                 Connection.Open();
                 var command = new SqlCommand("SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]", Connection);
-                var reader = command.ExecuteReader();
+                using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     try
@@ -222,8 +222,6 @@ namespace PasswordChanger1C
                         return;
                     }
                 }
-
-                reader.Close();
             }
             catch (Exception ex)
             {
@@ -271,7 +269,7 @@ namespace PasswordChanger1C
                                                 data,
                                                 admrole
                                             FROM public.v8users", Connection);
-                var reader = command.ExecuteReader();
+                using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     try
@@ -314,12 +312,10 @@ namespace PasswordChanger1C
                         MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
                                         ex.Message,
                                         "Ошибка работы с базой данных", MessageBoxButtons.OK,
-                                        MessageBoxIcon.Error);                        
+                                        MessageBoxIcon.Error);
                         return;
                     }
                 }
-
-                reader.Close();
             }
             catch (Exception ex)
             {
