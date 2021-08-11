@@ -48,12 +48,11 @@ namespace PasswordChanger1C.Tests
                 string PassHash = Hashes.Item1.Trim('"');
                 string PassHash2 = Hashes.Item2.Trim('"');
 
-                Assert.Equal(PassHash, PassHash2);
-
                 string Password = (TableParams.DatabaseVersion == "8.3.8") ? Password838 : Password8214;
-                string NewHash = CommonModule.EncryptStringSHA1(Password);
+                var ExpectedHashes = CommonModule.GeneratePasswordHashes(Password);
 
-                Assert.Equal(NewHash, PassHash);
+                Assert.Equal(ExpectedHashes.Item1, PassHash);
+                Assert.Equal(ExpectedHashes.Item2, PassHash2);
 
                 break; // first user only
             }
@@ -71,7 +70,7 @@ namespace PasswordChanger1C.Tests
                 File.Copy(original_filename, tmp_filename);
 
                 string NewPassword = "test123";
-                var NewHashes = Tuple.Create(CommonModule.EncryptStringSHA1(NewPassword), CommonModule.EncryptStringSHA1(NewPassword.ToUpper()));
+                var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
 
                 // read infobase
                 var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");

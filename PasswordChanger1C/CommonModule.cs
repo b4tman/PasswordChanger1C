@@ -129,6 +129,11 @@ namespace PasswordChanger1C
             return Data.Replace(OldStr, NewStr);
         }
 
+        public static Tuple<string, string> GeneratePasswordHashes(in string password)
+        {
+            return Tuple.Create(EncryptStringSHA1(password), EncryptStringSHA1(password.ToUpper()));
+        }
+
         public static void ParseTableDefinition(ref AccessFunctions.PageParams PageHeader)
         {
             var ParsedString = ParserServices.ParsesClass.ParseString(PageHeader.TableDefinition);
