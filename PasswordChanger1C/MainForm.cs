@@ -401,9 +401,9 @@ namespace PasswordChanger1C
                         {
                             int a = 0;
                             Str = Str + Environment.NewLine + SQLUser.Name;
-                            string NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim());
-                            string NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, "\"" + NewHash + "\"");
-                            NewData = NewData.Replace(SQLUser.PassHash2, "\"" + NewHash + "\"");
+                            var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
+                            var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
+                            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);
                             var NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData);
                             command.Parameters.Clear();
                             command.Parameters.Add(new SqlParameter("@user", SqlDbType.Binary)).Value = SQLUser.ID;
@@ -446,9 +446,9 @@ namespace PasswordChanger1C
                         if (SQLUser.IDStr == item.Text && !(SQLUser.PassHash == "\"\""))
                         {
                             Str = Str + Environment.NewLine + SQLUser.Name;
-                            string NewHash = CommonModule.EncryptStringSHA1(NewPassSQL.Text.Trim());
-                            string NewData = SQLUser.DataStr.Replace(SQLUser.PassHash, "\"" + NewHash + "\"");
-                            NewData = NewData.Replace(SQLUser.PassHash2, "\"" + NewHash + "\"");
+                            var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
+                            var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
+                            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);
                             var NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData);
                             command.Parameters.Clear();
                             command.Parameters.AddWithValue("NewData", NewBytes);
@@ -619,12 +619,11 @@ namespace PasswordChanger1C
                             if (Row["UserGuidStr"].ToString() == item.Text)
                             {
                                 Str = Str + Environment.NewLine + Row["NAME"].ToString();
-                                string NewHash = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim());
-                                string NewHash2 = CommonModule.EncryptStringSHA1(NewPassword.Text.Trim().ToUpper());
                                 var OldDataBinary = Row["DATA_BINARY"];
                                 string OldData = Row["DATA"].ToString();
-                                string NewData = OldData.Replace(Row["UserPassHash"].ToString(), "\"" + NewHash2 + "\"");
-                                NewData = NewData.Replace(Row["UserPassHash2"].ToString(), "\"" + NewHash2 + "\"");
+                                var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword.Text.Trim());
+                                var OldHashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
+                                string NewData = CommonModule.ReplaceHashes(OldData, OldHashes, NewHashes);
                                 var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
                                 AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])Row["ID"], (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
                             }
