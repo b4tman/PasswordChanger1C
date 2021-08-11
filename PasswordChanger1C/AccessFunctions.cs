@@ -10,8 +10,8 @@ namespace PasswordChanger1C
     {
         public struct StorageTable
         {
-            public int Number;
-            public List<int> DataBlocks;
+            public long Number;
+            public List<long> DataBlocks;
         }
 
         public struct TableFields
@@ -20,7 +20,7 @@ namespace PasswordChanger1C
             public int Length;
             public int Precision;
             public int Size;
-            public int Offset;
+            public long Offset;
             public string Type;
             public int CouldBeNull;
         }
@@ -34,13 +34,13 @@ namespace PasswordChanger1C
             public int version1;
             public int version2;
             public int version;
-            public List<int> PagesNum;
+            public List<long> PagesNum;
             public List<StorageTable> StorageTables;
             public List<TableFields> Fields;
-            public int RowSize;
+            public long RowSize;
             public List<Dictionary<string, object>> Records;
-            public int BlockData;
-            public int BlockBlob;
+            public long BlockData;
+            public long BlockBlob;
             public int PageSize;
             public string TableDefinition;
             public string DatabaseVersion;
@@ -89,7 +89,7 @@ namespace PasswordChanger1C
         {
             byte[] bytesBlock;
             PageParams DataPage;
-            int TotalBlocks;
+            long TotalBlocks;
             int i;
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
@@ -100,7 +100,7 @@ namespace PasswordChanger1C
                 reader.BaseStream.Seek(PageHeader.BlockData * 4096, SeekOrigin.Begin);
                 reader.Read(bytesBlock1, 0, 4096);
                 DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
-                TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
+                TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
                 bytesBlock = new byte[4096 * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
@@ -123,6 +123,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new BinaryWriter(fs);
+                long LastPos = 0;
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
@@ -132,7 +133,9 @@ namespace PasswordChanger1C
                         bytesBlock.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         i += TempBlock.Length;
 
-                        writer.Seek(DB * 4096, SeekOrigin.Begin);
+                        long CurPos = DB * 4096;
+                        int RelativePos = (int)(CurPos - LastPos);
+                        writer.Seek(RelativePos, SeekOrigin.Current);
                         writer.Write(TempBlock);
                     }
                 }
@@ -148,7 +151,7 @@ namespace PasswordChanger1C
             }
 
             int i;
-            int TotalBlocks;
+            long TotalBlocks;
             byte[] bytesBlock;
             int PageSize = PageHeader.PageSize;
             var bytesBlock1 = new byte[PageSize];
@@ -160,7 +163,7 @@ namespace PasswordChanger1C
                 reader.BaseStream.Seek(PageHeader.BlockBlob * PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock1, 0, PageSize);
                 DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
-                TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
+                TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
                 bytesBlock = new byte[PageSize * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
@@ -177,7 +180,7 @@ namespace PasswordChanger1C
             }
 
             int NextBlock = DataPos;
-            int Pos = DataPos * 256;
+            int Pos = (int)DataPos * 256;
             int ii = 0;
             while (NextBlock > 0)
             {
@@ -193,6 +196,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new BinaryWriter(fs);
+                long LastPos = 0;
                 ii = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
@@ -202,7 +206,9 @@ namespace PasswordChanger1C
                         bytesBlock.AsMemory(ii, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         ii += TempBlock.Length;
 
-                        writer.Seek(DB * PageSize, SeekOrigin.Begin);
+                        long CurPos = DB * PageSize;
+                        int RelativePos = (int)(CurPos - LastPos);
+                        writer.Seek(RelativePos, SeekOrigin.Current);
                         writer.Write(TempBlock);
                     }
                 }

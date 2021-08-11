@@ -80,7 +80,7 @@ namespace PasswordChanger1C
             Page.version2 = BitConverter.ToInt32(Bytes, 16);
             Page.version = BitConverter.ToInt32(Bytes, 20);
             int Index = 24;
-            Page.PagesNum = new List<int>();
+            Page.PagesNum = new List<long>();
             Page.StorageTables = new List<AccessFunctions.StorageTable>();
 
             // Получим номера страниц размещения 
@@ -104,7 +104,7 @@ namespace PasswordChanger1C
             {
                 var StorageTables = new AccessFunctions.StorageTable();
                 StorageTables.Number = blk;
-                StorageTables.DataBlocks = new List<int>();
+                StorageTables.DataBlocks = new List<long>();
                 var bytesBlock = new byte[PageSize];
                 reader.BaseStream.Seek(blk * PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock, 0, PageSize);
@@ -132,7 +132,7 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void ReadDataFromTable(BinaryReader reader, int DB, byte[] bytesBlock, ref AccessFunctions.PageParams PageHeader, string TableNameUsers)
+        public static void ReadDataFromTable(BinaryReader reader, long DB, byte[] bytesBlock, ref AccessFunctions.PageParams PageHeader, string TableNameUsers)
         {
             reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock, 0, PageSize);
@@ -285,7 +285,7 @@ namespace PasswordChanger1C
             int Size = (int)Math.Round(DataPage.Length / (double)PageHeader.RowSize);
             for (i = 1; i < Size; i++)
             {
-                int Pos = PageHeader.RowSize * i;
+                int Pos = (int)PageHeader.RowSize * i;
                 int FieldStartPos = 0;
                 bool IsDeleted = BitConverter.ToBoolean(bytesBlock, Pos);
                 var Dict = new Dictionary<string, object>();

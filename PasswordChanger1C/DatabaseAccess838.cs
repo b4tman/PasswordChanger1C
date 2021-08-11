@@ -69,8 +69,8 @@ namespace PasswordChanger1C
 
         private static void ReadAllRecordsFromStoragePages(ref AccessFunctions.PageParams PageHeader, BinaryReader reader)
         {
-            int FirstPage = PageHeader.BlockData;
-            int BlockBlob = PageHeader.BlockBlob;
+            long FirstPage = PageHeader.BlockData;
+            long BlockBlob = PageHeader.BlockBlob;
             int PageSize = PageHeader.PageSize;
             PageHeader.Records = new List<Dictionary<string, object>>();
             var bytesBlock1 = new byte[PageSize];
@@ -79,10 +79,10 @@ namespace PasswordChanger1C
             var DataPage = ReadObjectPageDefinition(reader, bytesBlock1, PageSize);
             DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
             var bytesBlock = DataPage.BinaryData;
-            int Size = (int)Math.Round(DataPage.Length / (double)PageHeader.RowSize);
+            long Size = DataPage.Length / PageHeader.RowSize;
             for (int i = 1; i < Size; i++)
             {
-                int Pos = PageHeader.RowSize * i;
+                int Pos = (int)PageHeader.RowSize * i;
                 int FieldStartPos = 0;
                 bool IsDeleted = BitConverter.ToBoolean(bytesBlock, Pos);
                 var Dict = new Dictionary<string, object>();
@@ -284,7 +284,7 @@ namespace PasswordChanger1C
 
             Page.Length = BitConverter.ToInt64(Bytes, 16);
             int Index = 24;
-            Page.PagesNum = new List<int>();
+            Page.PagesNum = new List<long>();
 
             // Получим номера страниц размещения 
             while (true)
@@ -309,7 +309,7 @@ namespace PasswordChanger1C
         public static void WritePasswordIntoInfoBaseIB(string FileName, AccessFunctions.PageParams PageHeader, byte[] UserID, byte[] OldData, byte[] NewData, int DataPos, int DataSize)
         {
             int PageSize = PageHeader.PageSize;
-            int BlockBlob = PageHeader.BlockBlob;
+            int BlockBlob = (int)PageHeader.BlockBlob;
             var BytesBlobBlock = new byte[PageSize];
             int[] DataPositions = null;
             byte[] BytesValTemp;
@@ -342,14 +342,17 @@ namespace PasswordChanger1C
                     // Blob page(s) has been modified. Let's write it back to database
                     using var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
                     using var writer = new BinaryWriter(fs);
+                    long LastPos = 0;
                     CurrentByte = 0;
                     foreach (var Position in BlobPage.PagesNum)
                     {
                         var TempBlock = new byte[PageSize];
                         BlobPage.BinaryData.AsMemory(CurrentByte, PageSize).CopyTo(TempBlock.AsMemory());
                         CurrentByte += PageSize;
-                        
-                        writer.Seek(Position * PageSize, SeekOrigin.Begin);
+
+                        long CurPos = Position * PageSize;
+                        int RelativePos = (int)(CurPos - LastPos);
+                        writer.Seek(RelativePos, SeekOrigin.Current);
                         writer.Write(TempBlock);
                     }
                 }
