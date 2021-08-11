@@ -80,10 +80,10 @@ namespace PasswordChanger1C
             // SHA-1 hash size is 160 bit
             const int hash_size = 20;
 
-            string base64String = hashstr.Trim('"');
+            if (string.IsNullOrEmpty(hashstr)) return false;
 
-            if (string.IsNullOrEmpty(base64String)
-                || base64String.Length < 20 || base64String.Length % 4 != 0
+            string base64String = hashstr.Trim('"');
+            if (base64String.Length < hash_size || base64String.Length % 4 != 0
                 || base64String.Contains(" ") || base64String.Contains("\t") 
                 || base64String.Contains("\r") || base64String.Contains("\n"))
                 return false;
