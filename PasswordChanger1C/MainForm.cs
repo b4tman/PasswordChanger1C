@@ -130,26 +130,12 @@ namespace PasswordChanger1C
                 }
 
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                string PassHash = AuthStructure[0][11].ToString();
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                string PassHash = Hashes.Item1;
                 var G = new Guid((byte[])Row["ID"]);
                 Row.Add("UserGuidStr", G.ToString());
-
-                // pretty crapy code here..
-                if (AuthStructure[0][7].ToString() == "0")
-                {
-                    Row.Add("UserPassHash", "");
-                    Row.Add("UserPassHash2", "");
-                }
-                else if (AuthStructure[0].Count == 17 | TableParams.DatabaseVersion == "8.3.8")
-                {
-                    Row.Add("UserPassHash", AuthStructure[0][11].ToString());
-                    Row.Add("UserPassHash2", AuthStructure[0][12].ToString());
-                }
-                else
-                {
-                    Row.Add("UserPassHash", AuthStructure[0][12].ToString());
-                    Row.Add("UserPassHash2", AuthStructure[0][13].ToString());
-                }
+                Row.Add("UserPassHash", Hashes.Item1);
+                Row.Add("UserPassHash2", Hashes.Item2);
 
                 var itemUserList = new ListViewItem(G.ToString());
                 itemUserList.SubItems.Add(Row["NAME"].ToString());
@@ -218,16 +204,11 @@ namespace PasswordChanger1C
                             // нет авторизации 1С
                             SQLUser.PassHash = "нет авторизации 1С";
                         }
-                        // ugh.. need to handle it properly
-                        else if (AuthStructure[0].Count == 17 | AuthStructure[0].Count == 19 | AuthStructure[0].Count == 21)
-                        {
-                            SQLUser.PassHash = AuthStructure[0][11].ToString();
-                            SQLUser.PassHash2 = AuthStructure[0][12].ToString();
-                        }
                         else
                         {
-                            SQLUser.PassHash = AuthStructure[0][12].ToString();
-                            SQLUser.PassHash2 = AuthStructure[0][13].ToString();
+                            var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                            SQLUser.PassHash = Hashes.Item1;
+                            SQLUser.PassHash2 = Hashes.Item2;
                         }
 
                         SQLUsers.Add(SQLUser);
@@ -321,22 +302,9 @@ namespace PasswordChanger1C
                         }
                         else
                         {
-                            try
-                            {
-                                if (AuthStructure[0].Count == 17 | AuthStructure[0].Count == 19 | AuthStructure[0].Count == 21)
-                                {
-                                    SQLUser.PassHash = AuthStructure[0][11].ToString();
-                                    SQLUser.PassHash2 = AuthStructure[0][12].ToString();
-                                }
-                                else
-                                {
-                                    SQLUser.PassHash = AuthStructure[0][12].ToString();
-                                    SQLUser.PassHash2 = AuthStructure[0][13].ToString();
-                                }
-                            }
-                            catch
-                            {
-                            }
+                            var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                            SQLUser.PassHash = Hashes.Item1;
+                            SQLUser.PassHash2 = Hashes.Item2;
                         }
 
                         SQLUsers.Add(SQLUser);
