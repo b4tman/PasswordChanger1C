@@ -44,9 +44,9 @@ namespace PasswordChanger1C.Tests
                     continue; // skip default user
                 }
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var hash_offset = 11; // 8.2.14 hash_offset == 8.3.8
-                string PassHash = AuthStructure[0][hash_offset].ToString().Trim('"');
-                string PassHash2 = AuthStructure[0][hash_offset + 1].ToString().Trim('"');
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                string PassHash = Hashes.Item1.Trim('"');
+                string PassHash2 = Hashes.Item2.Trim('"');
 
                 Assert.Equal(PassHash, PassHash2);
 
@@ -78,9 +78,9 @@ namespace PasswordChanger1C.Tests
                 var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
                 var Row = TableParams.Records[1];
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var hash_offset = 11; // 8.2.14 hash_offset == 8.3.8
-                string PassHash = AuthStructure[0][hash_offset].ToString();
-                string PassHash2 = AuthStructure[0][hash_offset + 1].ToString();
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                string PassHash = Hashes.Item1.ToString();
+                string PassHash2 = Hashes.Item2.ToString();
 
                 var OldDataBinary = Row["DATA_BINARY"];
                 string OldData = Row["DATA"].ToString();
@@ -96,8 +96,9 @@ namespace PasswordChanger1C.Tests
                 var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
                 var Row_New = TableParams_New.Records[1];
                 var AuthStructure_New = ParserServices.ParsesClass.ParseString(Row_New["DATA"].ToString())[0];
-                string PassHash_New = AuthStructure_New[0][hash_offset].ToString().Trim('"');
-                string PassHash2_New = AuthStructure_New[0][hash_offset + 1].ToString().Trim('"');
+                var Hashes_New = CommonModule.GetPasswordHashTuple(AuthStructure_New[0]);
+                string PassHash_New = Hashes_New.Item1.Trim('"');
+                string PassHash2_New = Hashes_New.Item2.Trim('"');
 
                 // check passwords
                 Assert.Equal(NewHash, PassHash_New);

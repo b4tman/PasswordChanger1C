@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
 
 namespace PasswordChanger1C
 {
@@ -72,6 +73,46 @@ namespace PasswordChanger1C
             bytesToHash = Encoding.UTF8.GetBytes(Str); // covert the password into ASCII code
             bytesToHash = sha.ComputeHash(bytesToHash); // this is where the magic starts and the encryption begins
             return Convert.ToBase64String(bytesToHash);
+        }
+
+        public static bool IsPasswordHash(in string hashstr)
+        {
+            // SHA-1 hash size is 160 bit
+            const int hash_size = 20;
+
+            string base64String = hashstr.Trim('"');
+
+            if (string.IsNullOrEmpty(base64String)
+                || base64String.Length < 20 || base64String.Length % 4 != 0
+                || base64String.Contains(" ") || base64String.Contains("\t") 
+                || base64String.Contains("\r") || base64String.Contains("\n"))
+                return false;
+            try
+            {
+                byte[] decoded = Convert.FromBase64String(base64String);
+                return hash_size == decoded.Length;
+            }
+            catch (Exception) { }
+            return false;
+        }
+
+        public static Tuple<string, string> GetPasswordHashTuple(in ParserServices.ParserList AuthStructure)
+        {
+            string[] result = { "", "" };
+
+            var Hashes = AuthStructure
+                 .Where(Item => !Item.IsList)
+                 .Select(Item => Item.ToString())
+                 .Where(Item => IsPasswordHash(Item))
+                 .Take(2);
+            
+            int i = 0;
+            foreach(var hash in Hashes)
+            {
+                result[i] = hash;
+                i++;
+            }
+            return Tuple.Create(result[0], result[1]);
         }
 
         public static void ParseTableDefinition(ref AccessFunctions.PageParams PageHeader)
