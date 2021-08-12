@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Linq;
 
 namespace PasswordChanger1C
 {
@@ -19,7 +19,7 @@ namespace PasswordChanger1C
             int i = Base + 1;
             int j = 1;
             int MaxI = bytes_Input.Length;
-            
+
             var BytesResult = new byte[MaxI - Base];
             while (i < MaxI)
             {
@@ -29,7 +29,7 @@ namespace PasswordChanger1C
                 }
 
                 BytesResult[i - Base - 1] = Convert.ToByte(bytes_Input[i] ^ bytes_Input[j]); // 239 for first
-                
+
                 i++;
                 j++;
             }
@@ -45,11 +45,11 @@ namespace PasswordChanger1C
             BytesResult[0] = Convert.ToByte(Base);
 
             KeyData.AsMemory(0, Base).CopyTo(BytesResult.AsMemory(1, Base));
-            
+
             int MaxI = bytes_Input.Length - 1;
             int i = 1;
             int j = 1;
-            
+
             while (i <= MaxI)
             {
                 if (j > Base)
@@ -78,13 +78,14 @@ namespace PasswordChanger1C
         public static bool IsPasswordHash(in string hashstr)
         {
             // SHA-1 hash size is 160 bit
-            const int hash_size = 20;
+            const int hash_size = 20; // 160 / 8
+            const int base64_size = 28; // ((4 * hash_size / 3) + 3) & ~3;
 
             if (string.IsNullOrEmpty(hashstr)) return false;
 
             string base64String = hashstr.Trim('"');
-            if (base64String.Length < hash_size || base64String.Length % 4 != 0
-                || base64String.Contains(" ") || base64String.Contains("\t") 
+            if (base64String.Length != base64_size
+                || base64String.Contains(" ") || base64String.Contains("\t")
                 || base64String.Contains("\r") || base64String.Contains("\n"))
                 return false;
             try
@@ -105,9 +106,9 @@ namespace PasswordChanger1C
                  .Select(Item => Item.ToString())
                  .Where(Item => IsPasswordHash(Item))
                  .Take(2);
-            
+
             int i = 0;
-            foreach(var hash in Hashes)
+            foreach (var hash in Hashes)
             {
                 result[i] = hash;
                 i++;
@@ -115,7 +116,7 @@ namespace PasswordChanger1C
             return Tuple.Create(result[0], result[1]);
         }
 
-        public static string ReplaceHashes(in string Data, in Tuple<string,string> OldHashes, in Tuple<string, string> NewHashes)
+        public static string ReplaceHashes(in string Data, in Tuple<string, string> OldHashes, in Tuple<string, string> NewHashes)
         {
             // Hashes can be with or without double quotes
             static string EnsureDQuotes(string str) => str.StartsWith("\"") && str.EndsWith("\"") ? str : $"\"{str}\"";
