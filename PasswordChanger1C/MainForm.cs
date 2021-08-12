@@ -172,9 +172,9 @@ namespace PasswordChanger1C
             SQLUserList.Items.Clear();
             try
             {
-                var Connection = new SqlConnection(ConnectionString.Text);
+                using var Connection = new SqlConnection(ConnectionString.Text);
                 Connection.Open();
-                var command = new SqlCommand("SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]", Connection);
+                using var command = new SqlCommand("SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]", Connection);
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -260,9 +260,9 @@ namespace PasswordChanger1C
             SQLUserList.Items.Clear();
             try
             {
-                var Connection = new NpgsqlConnection(ConnectionString.Text);
+                using var Connection = new NpgsqlConnection(ConnectionString.Text);
                 Connection.Open();
-                var command = new NpgsqlCommand(@"SELECT id,
+                using var command = new NpgsqlCommand(@"SELECT id,
 	                                            encode(id, 'hex') as idStr,
 	                                            CAST(name AS VARCHAR(64)) AS Name,
 	                                            CAST(descr AS VARCHAR(128)) AS Descr,
@@ -386,9 +386,9 @@ namespace PasswordChanger1C
             try
             {
                 string Str = "";
-                var Connection = new SqlConnection(ConnectionString.Text);
+                using var Connection = new SqlConnection(ConnectionString.Text);
                 Connection.Open();
-                var command = new SqlCommand("UPDATE [dbo].[v8users] SET [Data] = @data WHERE [ID] = @user", Connection);
+                using var command = new SqlCommand("UPDATE [dbo].[v8users] SET [Data] = @data WHERE [ID] = @user", Connection);
                 foreach (ListViewItem item in SQLUserList.SelectedItems)
                 {
                     foreach (var SQLUser in SQLUsers)
@@ -430,9 +430,9 @@ namespace PasswordChanger1C
             {
                 string Str = "";
                 int a = 0;
-                var Connection = new NpgsqlConnection(ConnectionString.Text);
+                using var Connection = new NpgsqlConnection(ConnectionString.Text);
                 Connection.Open();
-                var command = new NpgsqlCommand(@"UPDATE public.v8users 
+                using var command = new NpgsqlCommand(@"UPDATE public.v8users 
                                              SET data = @NewData 
                                              WHERE id = decode(@id, 'hex')", Connection);
                 foreach (ListViewItem item in SQLUserList.SelectedItems)
