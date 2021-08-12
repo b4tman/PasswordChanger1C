@@ -50,7 +50,8 @@ namespace PasswordChanger1C
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            int ShowWarningParameterIndex = My.MyProject.Application.CommandLineArgs.IndexOf("nowarning");
+            var CommandLineArgs = Environment.GetCommandLineArgs();
+            int ShowWarningParameterIndex = Array.IndexOf(CommandLineArgs, "nowarning");
             if (ShowWarningParameterIndex == -1)
             {
                 if (!ShowWarning())
