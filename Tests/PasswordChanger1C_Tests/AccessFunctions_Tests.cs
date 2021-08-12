@@ -44,7 +44,7 @@ namespace PasswordChanger1C.Tests
                     continue; // skip default user
                 }
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
                 string PassHash = Hashes.Item1.Trim('"');
                 string PassHash2 = Hashes.Item2.Trim('"');
 
@@ -76,7 +76,7 @@ namespace PasswordChanger1C.Tests
                 var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
                 var Row = TableParams.Records[1];
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
 
                 var OldDataBinary = Row["DATA_BINARY"];
                 string OldData = Row["DATA"].ToString();
@@ -92,7 +92,7 @@ namespace PasswordChanger1C.Tests
                 var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
                 var Row_New = TableParams_New.Records[1];
                 var AuthStructure_New = ParserServices.ParsesClass.ParseString(Row_New["DATA"].ToString())[0];
-                var Hashes_New = CommonModule.GetPasswordHashTuple(AuthStructure_New[0]);
+                var Hashes_New = CommonModule.GetPasswordHashTuple(AuthStructure_New);
                 string PassHash_New = Hashes_New.Item1.Trim('"');
                 string PassHash2_New = Hashes_New.Item2.Trim('"');
 

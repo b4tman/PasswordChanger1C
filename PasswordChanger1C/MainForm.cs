@@ -131,7 +131,7 @@ namespace PasswordChanger1C
                 }
 
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
                 string PassHash = Hashes.Item1;
                 var G = new Guid((byte[])Row["ID"]);
                 Row.Add("UserGuidStr", G.ToString());
