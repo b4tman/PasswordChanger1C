@@ -123,7 +123,6 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new BinaryWriter(fs);
-                long LastPos = 0;
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
@@ -133,9 +132,7 @@ namespace PasswordChanger1C
                         bytesBlock.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         i += TempBlock.Length;
 
-                        long CurPos = DB * 4096;
-                        int RelativePos = (int)(CurPos - LastPos);
-                        writer.Seek(RelativePos, SeekOrigin.Current);
+                        writer.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
                         writer.Write(TempBlock);
                     }
                 }
@@ -196,7 +193,6 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new BinaryWriter(fs);
-                long LastPos = 0;
                 ii = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
@@ -206,9 +202,7 @@ namespace PasswordChanger1C
                         bytesBlock.AsMemory(ii, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         ii += TempBlock.Length;
 
-                        long CurPos = DB * PageSize;
-                        int RelativePos = (int)(CurPos - LastPos);
-                        writer.Seek(RelativePos, SeekOrigin.Current);
+                        writer.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Current);
                         writer.Write(TempBlock);
                     }
                 }

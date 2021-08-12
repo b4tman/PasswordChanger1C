@@ -342,7 +342,6 @@ namespace PasswordChanger1C
                     // Blob page(s) has been modified. Let's write it back to database
                     using var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
                     using var writer = new BinaryWriter(fs);
-                    long LastPos = 0;
                     CurrentByte = 0;
                     foreach (var Position in BlobPage.PagesNum)
                     {
@@ -350,9 +349,7 @@ namespace PasswordChanger1C
                         BlobPage.BinaryData.AsMemory(CurrentByte, PageSize).CopyTo(TempBlock.AsMemory());
                         CurrentByte += PageSize;
 
-                        long CurPos = Position * PageSize;
-                        int RelativePos = (int)(CurPos - LastPos);
-                        writer.Seek(RelativePos, SeekOrigin.Current);
+                        writer.BaseStream.Seek(Position * (long)PageSize, SeekOrigin.Begin);
                         writer.Write(TempBlock);
                     }
                 }
