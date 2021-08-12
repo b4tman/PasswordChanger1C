@@ -66,6 +66,7 @@ namespace PasswordChanger1C
             return BytesResult;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "SecurityIntelliSenseCS:MS Security rules violation", Justification = "SHA-1 hash type")]
         public static string EncryptStringSHA1(string Str)
         {
             var sha = new SHA1CryptoServiceProvider(); // declare sha as a new SHA1CryptoServiceProvider

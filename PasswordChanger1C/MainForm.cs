@@ -66,12 +66,12 @@ namespace PasswordChanger1C
             // TEMP
             // Return True
 
-            var Rez = MessageBox.Show("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine + 
-                                      "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine + 
-                                      "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine + 
-                                      "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + Environment.NewLine + 
-                                      "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Environment.NewLine + 
-                                      "Продолжить?", 
+            var Rez = MessageBox.Show("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine +
+                                      "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine +
+                                      "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine +
+                                      "Несанкционированный доступ к информации преследуются по ст. 1301 Гражданского кодекса РФ, ст. 7.12 Кодекса Российской Федерации " + Environment.NewLine +
+                                      "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Environment.NewLine +
+                                      "Продолжить?",
                                       "Правила использования", MessageBoxButtons.YesNo);
             if (Rez == DialogResult.Yes)
             {
@@ -174,7 +174,9 @@ namespace PasswordChanger1C
             {
                 using var Connection = new SqlConnection(ConnectionString.Text);
                 Connection.Open();
+#pragma warning disable SecurityIntelliSenseCS // MS Security rules violation
                 using var command = new SqlCommand("SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]", Connection);
+#pragma warning restore SecurityIntelliSenseCS // MS Security rules violation
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -388,14 +390,15 @@ namespace PasswordChanger1C
                 string Str = "";
                 using var Connection = new SqlConnection(ConnectionString.Text);
                 Connection.Open();
+#pragma warning disable SecurityIntelliSenseCS // MS Security rules violation
                 using var command = new SqlCommand("UPDATE [dbo].[v8users] SET [Data] = @data WHERE [ID] = @user", Connection);
+#pragma warning restore SecurityIntelliSenseCS // MS Security rules violation
                 foreach (ListViewItem item in SQLUserList.SelectedItems)
                 {
                     foreach (var SQLUser in SQLUsers)
                     {
                         if (SQLUser.IDStr == item.Text && !(SQLUser.PassHash == "\"\""))
                         {
-                            int a = 0;
                             Str = Str + Environment.NewLine + SQLUser.Name;
                             var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
                             var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
@@ -410,14 +413,14 @@ namespace PasswordChanger1C
                 }
 
                 GetUsersMSSQL();
-                
+
                 MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
                                 "Операция успешно выполнена", MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine + 
+                MessageBox.Show("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine +
                                 ex.Message,
                                 "Ошибка работы с базой данных", MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
@@ -599,7 +602,7 @@ namespace PasswordChanger1C
                 var Rez = MessageBox.Show("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Environment.NewLine +
                             "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
                             "Установить новый пароль выбранным пользователям?",
-                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);              
+                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);
                 if (Rez != DialogResult.Yes)
                 {
                     return;
