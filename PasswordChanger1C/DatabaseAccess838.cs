@@ -135,29 +135,34 @@ namespace PasswordChanger1C
 
                         int DataPos = BitConverter.ToInt32(bytesBlock, Pos1);
                         int DataSize = BitConverter.ToInt32(bytesBlock, Pos1 + 4);
-                        if (Field.Name == "DATA")
+
+                        if (DataSize > 0)
                         {
-                            Dict.Add("DATA_POS", DataPos);
-                            Dict.Add("DATA_SIZE", DataSize);
+
+                            if (Field.Name == "DATA")
+                            {
+                                Dict.Add("DATA_POS", DataPos);
+                                Dict.Add("DATA_SIZE", DataSize);
+                            }
+
+                            // Dim BytesValTemp = GetBlodDataByIndex(BlockBlob, DataPos, DataSize, reader, PageSize)
+                            var BytesBlobBlock = new byte[PageSize];
+                            reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
+                            reader.Read(BytesBlobBlock, 0, PageSize);
+                            var BlobPage = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize);
+                            BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
+                            int[] argDataPositions = null;
+                            var BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, DataPositions: ref argDataPositions);
+                            // ***************************************
+
+
+                            var DataKey = new byte[1];
+                            int DataKeySize = 0;
+                            BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
+                            Dict.Add("DATA_KEYSIZE", DataKeySize);
+                            Dict.Add("DATA_KEY", DataKey);
+                            Dict.Add("DATA_BINARY", BytesValTemp);
                         }
-
-                        // Dim BytesValTemp = GetBlodDataByIndex(BlockBlob, DataPos, DataSize, reader, PageSize)
-                        var BytesBlobBlock = new byte[PageSize];
-                        reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
-                        reader.Read(BytesBlobBlock, 0, PageSize);
-                        var BlobPage = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize);
-                        BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
-                        int[] argDataPositions = null;
-                        var BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, DataPositions: ref argDataPositions);
-                        // ***************************************
-
-
-                        var DataKey = new byte[1];
-                        int DataKeySize = 0;
-                        BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
-                        Dict.Add("DATA_KEYSIZE", DataKeySize);
-                        Dict.Add("DATA_KEY", DataKey);
-                        Dict.Add("DATA_BINARY", BytesValTemp);
                     }
                     else if (Field.Type == "NT")
                     {

@@ -341,16 +341,19 @@ namespace PasswordChanger1C
                         // двоичные данные неограниченной длины
                         // в рамках хранилища 8.3.6 их быть не должно
 
-
                         int DataPos = BitConverter.ToInt32(bytesBlock, Pos1);
                         int DataSize = BitConverter.ToInt32(bytesBlock, Pos1 + 4);
-                        var BytesValTemp = GetBlobData(BlockBlob, DataPos, DataSize, reader);
-                        var DataKey = new byte[1];
-                        int DataKeySize = 0;
-                        BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
-                        Dict.Add("DATA_KEYSIZE", DataKeySize);
-                        Dict.Add("DATA_KEY", DataKey);
-                        Dict.Add("DATA_BINARY", BytesValTemp);
+
+                        if (DataSize > 0)
+                        {
+                            var BytesValTemp = GetBlobData(BlockBlob, DataPos, DataSize, reader);
+                            var DataKey = new byte[1];
+                            int DataKeySize = 0;
+                            BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
+                            Dict.Add("DATA_KEYSIZE", DataKeySize);
+                            Dict.Add("DATA_KEY", DataKey);
+                            Dict.Add("DATA_BINARY", BytesValTemp);
+                        }
                     }
                     else if (Field.Type == "NT")
                     {
