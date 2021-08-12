@@ -51,7 +51,6 @@ namespace PasswordChanger1C
         {
             using var fs = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var reader = new BinaryReader(fs);
-
             var bytesBlock = new byte[24];
             reader.Read(bytesBlock, 0, 24);
             string Sign = Encoding.UTF8.GetString(bytesBlock, 0, 8);
@@ -70,19 +69,19 @@ namespace PasswordChanger1C
             }
 
             reader.BaseStream.Seek(PageSize, SeekOrigin.Begin);
+
+            PageParams Param;
             if (DatabaseVersion.StartsWith("8.3"))
             {
-                var Param = DatabaseAccess838.ReadInfoBase(reader, TableNameUsers, PageSize);
-                Param.DatabaseVersion = DatabaseVersion;
-                return Param;
+                Param = DatabaseAccess838.ReadInfoBase(reader, TableNameUsers, PageSize);
             }
             else
             {
-                var Param = DatabaseAccess8214.ReadInfoBase(reader, TableNameUsers);
-                Param.DatabaseVersion = DatabaseVersion;
-                return Param;
+                Param = DatabaseAccess8214.ReadInfoBase(reader, TableNameUsers);
             }
-            return default;
+            Param.DatabaseVersion = DatabaseVersion;
+
+            return Param;
         }
 
         public static void WritePasswordIntoInfoBaseRepo(string FileName, PageParams PageHeader, byte[] UserID, string NewPass, int Offset)
