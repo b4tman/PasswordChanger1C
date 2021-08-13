@@ -8,6 +8,8 @@ namespace PasswordChanger1C
 {
     public static class AccessFunctions
     {
+        private const string InfobaseFile_Sign = "1CDBMSV8";
+        private const string InfoBaseRepo_EmptyPassword = "d41d8cd98f00b204e9800998ecf8427e";
         public struct StorageTable
         {
             public long Number;
@@ -47,7 +49,7 @@ namespace PasswordChanger1C
             public byte[] BinaryData;
         }
 
-        public static PageParams ReadInfoBase(string FileName, string TableNameUsers)
+        public static PageParams ReadInfoBase(in string FileName, in string TableNameUsers)
         {
             using var fs = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var reader = new BinaryReader(fs);
@@ -55,7 +57,7 @@ namespace PasswordChanger1C
             reader.Read(bytesBlock, 0, 24);
             string Sign = Encoding.UTF8.GetString(bytesBlock, 0, 8);
 
-            if ("1CDBMSV8" != Sign) throw new Exception("wrong infobase file format");
+            if (InfobaseFile_Sign != Sign) throw new Exception("wrong infobase file format");
 
             string V1 = bytesBlock[8].ToString();
             string V2 = bytesBlock[9].ToString();
@@ -84,7 +86,7 @@ namespace PasswordChanger1C
             return Param;
         }
 
-        public static void WritePasswordIntoInfoBaseRepo(string FileName, PageParams PageHeader, byte[] UserID, string NewPass, int Offset)
+        public static void WritePasswordIntoInfoBaseRepo(in string FileName, in PageParams PageHeader, in int Offset, in string NewPass = null)
         {
             byte[] bytesBlock;
             PageParams DataPage;
@@ -116,6 +118,7 @@ namespace PasswordChanger1C
             }
 
             //string Test = Encoding.Unicode.GetString(bytesBlock, Offset, 64);
+            string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
             var Pass = Encoding.Unicode.GetBytes(NewPass);
             Pass.AsMemory().CopyTo(bytesBlock.AsMemory(Offset));
 
@@ -138,11 +141,11 @@ namespace PasswordChanger1C
             }
         }
 
-        public static void WritePasswordIntoInfoBaseIB(string FileName, PageParams PageHeader, byte[] UserID, byte[] OldData, byte[] NewData, int DataPos, int DataSize)
+        public static void WritePasswordIntoInfoBaseIB(in string FileName, in PageParams PageHeader, in byte[] OldData, in byte[] NewData, in int DataPos, in int DataSize)
         {
             if (PageHeader.DatabaseVersion.StartsWith("8.3"))
             {
-                DatabaseAccess838.WritePasswordIntoInfoBaseIB(FileName, PageHeader, UserID, OldData, NewData, DataPos, DataSize);
+                DatabaseAccess838.WritePasswordIntoInfoBaseIB(FileName, PageHeader, OldData, NewData, DataPos, DataSize);
                 return;
             }
 

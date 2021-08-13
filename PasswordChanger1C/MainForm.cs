@@ -570,7 +570,7 @@ namespace PasswordChanger1C
                             if (Row["UserGuidStr"].ToString() == item.Text)
                             {
                                 Str = Str + Environment.NewLine + Row["NAME"].ToString();
-                                AccessFunctions.WritePasswordIntoInfoBaseRepo(Repo1C.Text, TableParams, (byte[])Row["USERID"], "d41d8cd98f00b204e9800998ecf8427e", Convert.ToInt32(Row["OFFSET_PASSWORD"]));
+                                AccessFunctions.WritePasswordIntoInfoBaseRepo(Repo1C.Text, TableParams, Convert.ToInt32(Row["OFFSET_PASSWORD"]));
                             }
                         }
                     }
@@ -625,7 +625,7 @@ namespace PasswordChanger1C
                                 var OldHashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
                                 string NewData = CommonModule.ReplaceHashes(OldData, OldHashes, NewHashes);
                                 var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
-                                AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])Row["ID"], (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
+                                AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
                             }
                         }
                     }

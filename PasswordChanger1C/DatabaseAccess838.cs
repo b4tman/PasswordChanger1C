@@ -311,7 +311,7 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void WritePasswordIntoInfoBaseIB(string FileName, AccessFunctions.PageParams PageHeader, byte[] UserID, byte[] OldData, byte[] NewData, int DataPos, int DataSize)
+        public static void WritePasswordIntoInfoBaseIB(string FileName, AccessFunctions.PageParams PageHeader, byte[] OldData, byte[] NewData, int DataPos, int DataSize)
         {
             int PageSize = PageHeader.PageSize;
             int BlockBlob = (int)PageHeader.BlockBlob;

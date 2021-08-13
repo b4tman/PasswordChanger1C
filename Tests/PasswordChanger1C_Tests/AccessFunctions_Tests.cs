@@ -86,7 +86,7 @@ namespace PasswordChanger1C.Tests
                 var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
 
                 // write
-                AccessFunctions.WritePasswordIntoInfoBaseIB(tmp_filename, TableParams, (byte[])Row["ID"], (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
+                AccessFunctions.WritePasswordIntoInfoBaseIB(tmp_filename, TableParams, (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
 
                 // read new infobase
                 var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
