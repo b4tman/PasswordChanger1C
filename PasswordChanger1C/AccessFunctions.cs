@@ -9,7 +9,7 @@ namespace PasswordChanger1C
     public static class AccessFunctions
     {
         private const string InfobaseFile_Sign = "1CDBMSV8";
-        private const string InfoBaseRepo_EmptyPassword = "d41d8cd98f00b204e9800998ecf8427e";
+        public const string InfoBaseRepo_EmptyPassword = "d41d8cd98f00b204e9800998ecf8427e";
         public struct StorageTable
         {
             public long Number;

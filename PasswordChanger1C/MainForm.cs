@@ -46,7 +46,7 @@ namespace PasswordChanger1C
             public byte[] KeyData;
         }
 
-        private List<SQLUser> SQLUsers = new List<SQLUser>();
+        private List<SQLUser> SQLUsers = new();
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
@@ -64,9 +64,6 @@ namespace PasswordChanger1C
         private static bool ShowWarning()
         {
 
-            // TEMP
-            // Return True
-
             var Rez = MessageBox.Show("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine +
                                       "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine +
                                       "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine +
@@ -74,12 +71,7 @@ namespace PasswordChanger1C
                                       "об административных правонарушениях, ст. 146 Уголовного кодекса РФ." + Environment.NewLine +
                                       "Продолжить?",
                                       "Правила использования", MessageBoxButtons.YesNo);
-            if (Rez == DialogResult.Yes)
-            {
-                return true;
-            }
-
-            return false;
+            return Rez == DialogResult.Yes;
         }
 
         private void Button6_Click(object sender, EventArgs e)
@@ -97,8 +89,6 @@ namespace PasswordChanger1C
 
         public void GetUsers()
         {
-            // Try
-
             ListViewUsers.Items.Clear();
             try
             {
@@ -167,7 +157,6 @@ namespace PasswordChanger1C
 
         public void GetUsersMSSQL()
         {
-
             // *****************************************************
             SQLUsers.Clear();
             SQLUserList.Items.Clear();
@@ -183,24 +172,18 @@ namespace PasswordChanger1C
                 {
                     try
                     {
-                        var SQLUser = new SQLUser();
-                        SQLUser.ID = (byte[])reader.GetSqlBinary(0);
-                        SQLUser.Name = reader.GetString(1);
-                        SQLUser.Descr = reader.GetString(2);
-                        SQLUser.Data = (byte[])reader.GetSqlBinary(3);
-                        SQLUser.AdmRole = BitConverter.ToBoolean((byte[])reader.GetSqlBinary(4), 0) ? "Да" : "";
+                        var SQLUser = new SQLUser
+                        {
+                            ID = (byte[])reader.GetSqlBinary(0),
+                            Name = reader.GetString(1),
+                            Descr = reader.GetString(2),
+                            Data = (byte[])reader.GetSqlBinary(3),
+                            AdmRole = BitConverter.ToBoolean((byte[])reader.GetSqlBinary(4), 0) ? "Да" : ""
+                        };
                         SQLUser.IDStr = new Guid(SQLUser.ID).ToString();
                         SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
                         ParserServices.ParserList AuthStructure;
-                        if (!(SQLUser.DataStr[0] == '{'))
-                        {
-                            // postgres in my test has weird first symbol
-                            AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1));
-                        }
-                        else
-                        {
-                            AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
-                        }
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
 
                         if (AuthStructure[0][7].ToString() == "0")
                         {
@@ -257,7 +240,6 @@ namespace PasswordChanger1C
 
         public void GetUsersPostgreSQL()
         {
-
             // *****************************************************
             SQLUsers.Clear();
             SQLUserList.Items.Clear();
@@ -286,15 +268,7 @@ namespace PasswordChanger1C
                         SQLUser.AdmRole = reader.GetBoolean(5) ? "Да" : "";
                         SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
                         ParserServices.ParserList AuthStructure;
-                        if (!(SQLUser.DataStr[0] == '{'))
-                        {
-                            // postgres in my test has weird first symbol
-                            AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr.Substring(1));
-                        }
-                        else
-                        {
-                            AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
-                        }
+                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
 
                         if (AuthStructure[0][7].ToString() == "0")
                         {
@@ -522,7 +496,7 @@ namespace PasswordChanger1C
                 var itemUserList = new ListViewItem(G.ToString());
                 Row.Add("UserGuidStr", G.ToString());
                 itemUserList.SubItems.Add(Row["NAME"].ToString());
-                if (Row["PASSWORD"].ToString() == "d41d8cd98f00b204e9800998ecf8427e")
+                if (Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword)
                 {
                     itemUserList.SubItems.Add("<нет>");
                 }
@@ -532,7 +506,7 @@ namespace PasswordChanger1C
                 }
 
                 int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
-                if (RIGHTS == 65535 | RIGHTS == 32773)
+                if (RIGHTS == 0xFFFF || RIGHTS == 0x8005)
                 {
                     itemUserList.SubItems.Add("Да");
                 }
