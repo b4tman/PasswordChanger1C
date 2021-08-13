@@ -119,7 +119,7 @@ namespace PasswordChanger1C
 
             //string Test = Encoding.Unicode.GetString(bytesBlock, Offset, 64);
             string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
-            var Pass = Encoding.Unicode.GetBytes(NewPass);
+            var Pass = Encoding.Unicode.GetBytes(PassStr);
             Pass.AsMemory().CopyTo(bytesBlock.AsMemory(Offset));
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
