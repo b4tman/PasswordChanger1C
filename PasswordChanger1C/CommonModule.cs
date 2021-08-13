@@ -8,7 +8,7 @@ namespace PasswordChanger1C
 {
     public static class CommonModule
     {
-        public static string DecodePasswordStructure(byte[] bytes_Input, ref int KeySize, ref byte[] KeyData)
+        public static string DecodePasswordStructure(in byte[] bytes_Input, ref int KeySize, ref byte[] KeyData)
         {
             short Base = bytes_Input[0];
             KeySize = Base;
@@ -37,7 +37,7 @@ namespace PasswordChanger1C
             return Encoding.UTF8.GetString(BytesResult);
         }
 
-        public static byte[] EncodePasswordStructure(string Str, int KeySize, byte[] KeyData)
+        public static byte[] EncodePasswordStructure(in string Str, in int KeySize, in byte[] KeyData)
         {
             var bytes_Input = Encoding.UTF8.GetBytes(Str);
             int Base = KeySize;
@@ -67,7 +67,7 @@ namespace PasswordChanger1C
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "SecurityIntelliSenseCS:MS Security rules violation", Justification = "SHA-1 hash type")]
-        public static string EncryptStringSHA1(string Str)
+        public static string EncryptStringSHA1(in string Str)
         {
             var sha = new SHA1CryptoServiceProvider(); // declare sha as a new SHA1CryptoServiceProvider
             byte[] bytesToHash; // and here is a byte variable
