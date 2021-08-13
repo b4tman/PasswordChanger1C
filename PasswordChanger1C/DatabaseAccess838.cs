@@ -113,10 +113,10 @@ namespace PasswordChanger1C
                         try
                         {
                             BytesVal = new DateTime((BytesDate[0] * 100) + BytesDate[1],
-                                                    BytesDate[2], 
-                                                    BytesDate[3], 
-                                                    BytesDate[4], 
-                                                    BytesDate[5], 
+                                                    BytesDate[2],
+                                                    BytesDate[3],
+                                                    BytesDate[4],
+                                                    BytesDate[5],
                                                     BytesDate[6]);
                         }
                         catch (Exception)
@@ -321,7 +321,7 @@ namespace PasswordChanger1C
                 BlobPage = ReadObjectPageDefinition(BytesBlobBlock, PageSize);
                 BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
             }
-            
+
             BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, ref DataPositions);
             if (BytesValTemp.SequenceEqual(OldData))
             {
@@ -359,6 +359,44 @@ namespace PasswordChanger1C
             else
             {
                 throw new Exception("Информация в БД была изменена другим процессом! Прочитайте список пользователей заново.");
+            }
+        }
+
+        public static void WritePasswordIntoInfoBaseRepo(in string FileName, in AccessFunctions.PageParams PageHeader, in int Offset, in string NewPass = null)
+        {
+            int PageSize = PageHeader.PageSize;
+            var BytesDataBlock = new byte[PageSize];
+            AccessFunctions.PageParams DataPage;
+            string PassStr = string.IsNullOrEmpty(NewPass) ? AccessFunctions.InfoBaseRepo_EmptyPassword : NewPass;
+            var Pass = Encoding.Unicode.GetBytes(PassStr);
+            int CurrentByte;
+
+            using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
+            {
+                using var reader = new BinaryReader(fs);
+                reader.BaseStream.Seek(PageHeader.BlockData * (long)PageSize, SeekOrigin.Begin);
+                reader.Read(BytesDataBlock, 0, PageSize);
+                DataPage = ReadObjectPageDefinition(BytesDataBlock, PageSize);
+                DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
+            }
+            //Encoding.Unicode.GetString(DataPage.BinaryData, Offset, Pass.Length)
+
+            Pass.AsMemory().CopyTo(DataPage.BinaryData.AsMemory(Offset, Pass.Length));
+
+            // Data page(s) has been modified. Let's write it back to database
+            using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
+            {
+                using var writer = new BinaryWriter(fs);
+                CurrentByte = 0;
+                foreach (var Position in DataPage.PagesNum)
+                {
+                    var TempBlock = new byte[PageSize];
+                    DataPage.BinaryData.AsMemory(CurrentByte, PageSize).CopyTo(TempBlock.AsMemory());
+                    CurrentByte += PageSize;
+
+                    writer.BaseStream.Seek(Position * (long)PageSize, SeekOrigin.Begin);
+                    writer.Write(TempBlock);
+                }
             }
         }
     }

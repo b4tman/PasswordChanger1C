@@ -93,6 +93,11 @@ namespace PasswordChanger1C
             long TotalBlocks;
             int i;
 
+            if ("8.3.8" == PageHeader.DatabaseVersion)
+            {
+                DatabaseAccess838.WritePasswordIntoInfoBaseRepo(FileName, PageHeader, Offset, NewPass);
+                return;
+            }
             if ("8.2.14" != PageHeader.DatabaseVersion)
             {
                 throw new NotSupportedException($"Repo infobase file version \"{PageHeader.DatabaseVersion}\" not supported");
