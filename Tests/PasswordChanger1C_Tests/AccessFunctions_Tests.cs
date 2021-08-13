@@ -10,14 +10,16 @@ namespace PasswordChanger1C.Tests
     {
         const string File838 = "./Resources/8.3.8.1CD";
         const string File8214 = "./Resources/8.2.14.1CD";
-        const string FileRepo = "./Resources/repo.1CD";
+        const string FileRepo8214 = "./Resources/repo_8.2.14.1CD";
+        const string FileRepo838 = "./Resources/repo_8.3.8.1CD";
         const string Password838 = "1";
         const string Password8214 = "1";
 
         [Theory]
         [InlineData(File838)]
         [InlineData(File8214)]
-        [InlineData(FileRepo)]
+        [InlineData(FileRepo8214)]
+        [InlineData(FileRepo838)]
         public void Resources_Test(string filename)
         {
             Assert.True(File.Exists(filename));
@@ -60,10 +62,12 @@ namespace PasswordChanger1C.Tests
             }
         }
 
-        [Fact]
-        public void ReadInfoBase_RepoTest()
+        [Theory]
+        [InlineData(FileRepo8214)]
+        [InlineData(FileRepo838)]
+        public void ReadInfoBase_RepoTest(string filename)
         {
-            var TableParams = AccessFunctions.ReadInfoBase(FileRepo, "USERS");
+            var TableParams = AccessFunctions.ReadInfoBase(filename, "USERS");
             Assert.NotNull(TableParams.Records);
 
             foreach (var Row in TableParams.Records)
@@ -124,14 +128,16 @@ namespace PasswordChanger1C.Tests
             }
         }
 
-        [Fact]
-        public void WritePasswordIntoInfoBaseRepo_Test()
+        [Theory]
+        [InlineData(FileRepo8214)]
+        [InlineData(FileRepo838)]
+        public void WritePasswordIntoInfoBaseRepo_Test(string original_filename)
         {
             string tmp_folder = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
             using (TempStorage tmp_storage = new TempStorage(tmp_folder))
             {
                 string tmp_filename = Path.Join(tmp_folder, "test.1cd");
-                File.Copy(FileRepo, tmp_filename);
+                File.Copy(original_filename, tmp_filename);
 
                 string NewPassword = "test123";
                 var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
