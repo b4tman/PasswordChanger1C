@@ -55,13 +55,12 @@ namespace PasswordChanger1C.ParserServices
             return List;
         }
 
-        private static ParserList ParseStringInternal(string[] Arr, ref int Position, int ArrLength)
+        private static ParserList ParseStringInternal(string[] Arr, ref int Position, in int ArrLength)
         {
-
             // TODO - не обрабатываются ситуации с двойными кавычками и переносами строк в тексте 
 
             var List = new ParserList();
-            while (true)
+            while (Position < ArrLength)
             {
                 string Val = Arr[Position].Trim();
                 if (Val.StartsWith("{"))
@@ -93,13 +92,7 @@ namespace PasswordChanger1C.ParserServices
                         Position++;
                     }
                 }
-
-                if (Position >= ArrLength)
-                {
-                    break;
-                }
             }
-
             return List;
         }
     }
