@@ -10,12 +10,14 @@ namespace PasswordChanger1C.Tests
     {
         const string File838 = "./Resources/8.3.8.1CD";
         const string File8214 = "./Resources/8.2.14.1CD";
+        const string FileRepo = "./Resources/repo.1CD";
         const string Password838 = "1";
         const string Password8214 = "1";
 
         [Theory]
         [InlineData(File838)]
         [InlineData(File8214)]
+        [InlineData(FileRepo)]
         public void Resources_Test(string filename)
         {
             Assert.True(File.Exists(filename));
@@ -55,6 +57,26 @@ namespace PasswordChanger1C.Tests
                 Assert.Equal(ExpectedHashes.Item2, PassHash2);
 
                 break; // first user only
+            }
+        }
+
+        [Fact]
+        public void ReadInfoBase_RepoTest()
+        {
+            var TableParams = AccessFunctions.ReadInfoBase(FileRepo, "USERS");
+            Assert.NotNull(TableParams.Records);
+
+            foreach (var Row in TableParams.Records)
+            {
+                string username = Row["NAME"].ToString();
+                if ("TestNoPassword" == username)
+                {
+                    Assert.Equal(AccessFunctions.InfoBaseRepo_EmptyPassword, Row["PASSWORD"].ToString());
+                }
+                else if ("Test" == username)
+                {
+                    Assert.NotEqual(AccessFunctions.InfoBaseRepo_EmptyPassword, Row["PASSWORD"].ToString());
+                }
             }
         }
 
