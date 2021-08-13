@@ -93,24 +93,29 @@ namespace PasswordChanger1C
             long TotalBlocks;
             int i;
 
+            if ("8.2.14" != PageHeader.DatabaseVersion)
+            {
+                throw new NotSupportedException($"Repo infobase file version \"{PageHeader.DatabaseVersion}\" not supported");
+            }
+
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new BinaryReader(fs);
 
-                var bytesBlock1 = new byte[4096];
-                reader.BaseStream.Seek(PageHeader.BlockData * 4096, SeekOrigin.Begin);
-                reader.Read(bytesBlock1, 0, 4096);
+                var bytesBlock1 = new byte[PageHeader.PageSize];
+                reader.BaseStream.Seek(PageHeader.BlockData * (long)PageHeader.PageSize, SeekOrigin.Begin);
+                reader.Read(bytesBlock1, 0, PageHeader.PageSize);
                 DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
-                bytesBlock = new byte[4096 * TotalBlocks];
+                bytesBlock = new byte[PageHeader.PageSize * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        var TempBlock = new byte[4096];
-                        reader.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
-                        reader.Read(TempBlock, 0, 4096);
+                        var TempBlock = new byte[PageHeader.PageSize];
+                        reader.BaseStream.Seek(DB * (long)PageHeader.PageSize, SeekOrigin.Begin);
+                        reader.Read(TempBlock, 0, PageHeader.PageSize);
                         TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
                         i += TempBlock.Length;
                     }
@@ -130,11 +135,11 @@ namespace PasswordChanger1C
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        var TempBlock = new byte[4096];
+                        var TempBlock = new byte[PageHeader.PageSize];
                         bytesBlock.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         i += TempBlock.Length;
 
-                        writer.BaseStream.Seek(DB * 4096, SeekOrigin.Begin);
+                        writer.BaseStream.Seek(DB * (long)PageHeader.PageSize, SeekOrigin.Begin);
                         writer.Write(TempBlock);
                     }
                 }
