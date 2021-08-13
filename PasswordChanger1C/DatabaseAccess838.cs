@@ -9,7 +9,7 @@ namespace PasswordChanger1C
 {
     static class DatabaseAccess838
     {
-        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, string TableNameUsers, int PageSize)
+        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, in string TableNameUsers, in int PageSize)
         {
             var bytesBlock = new byte[PageSize];
 
@@ -23,10 +23,10 @@ namespace PasswordChanger1C
             return Param;
         }
 
-        private static AccessFunctions.PageParams FindTableDefinition(BinaryReader reader, byte[] Bytes, int PageSize, string TableUsersName)
+        private static AccessFunctions.PageParams FindTableDefinition(BinaryReader reader, byte[] Bytes, in int PageSize, in string TableUsersName)
         {
             string TargetTable = $"\"{TableUsersName.ToUpper()}\"";
-            var Page = ReadObjectPageDefinition(reader, Bytes, PageSize);
+            var Page = ReadObjectPageDefinition(Bytes, PageSize);
             Page.BinaryData = ReadAllStoragePagesForObject(reader, Page);
             Page.PageSize = PageSize;
             int PagesCountTableStructure = Page.PagesNum.Count;
@@ -74,9 +74,9 @@ namespace PasswordChanger1C
             int PageSize = PageHeader.PageSize;
             PageHeader.Records = new List<Dictionary<string, object>>();
             var bytesBlock1 = new byte[PageSize];
-            reader.BaseStream.Seek(FirstPage * PageSize, SeekOrigin.Begin);
+            reader.BaseStream.Seek(FirstPage * (long)PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock1, 0, PageSize);
-            var DataPage = ReadObjectPageDefinition(reader, bytesBlock1, PageSize);
+            var DataPage = ReadObjectPageDefinition(bytesBlock1, PageSize);
             DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
             var bytesBlock = DataPage.BinaryData;
             long Size = DataPage.Length / PageHeader.RowSize;
@@ -101,9 +101,6 @@ namespace PasswordChanger1C
                         string Strguid = Convert.ToBase64String(bytesBlock, Pos1 + Field.CouldBeNull, Field.Size - Field.CouldBeNull);
                         BytesVal = Convert.FromBase64String(Strguid);
                     }
-
-                    // Dim G = Convert.
-
                     else if (Field.Type == "L")
                     {
                         BytesVal = BitConverter.ToBoolean(bytesBlock, Pos1 + Field.CouldBeNull);
@@ -132,29 +129,25 @@ namespace PasswordChanger1C
                         // двоичные данные неограниченной длины
                         // в рамках хранилища 8.3.6 их быть не должно
 
-
                         int DataPos = BitConverter.ToInt32(bytesBlock, Pos1);
                         int DataSize = BitConverter.ToInt32(bytesBlock, Pos1 + 4);
 
                         if (DataSize > 0)
                         {
-
                             if (Field.Name == "DATA")
                             {
                                 Dict.Add("DATA_POS", DataPos);
                                 Dict.Add("DATA_SIZE", DataSize);
                             }
 
-                            // Dim BytesValTemp = GetBlodDataByIndex(BlockBlob, DataPos, DataSize, reader, PageSize)
                             var BytesBlobBlock = new byte[PageSize];
-                            reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
+                            reader.BaseStream.Seek(BlockBlob * (long)PageSize, SeekOrigin.Begin);
                             reader.Read(BytesBlobBlock, 0, PageSize);
-                            var BlobPage = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize);
+                            var BlobPage = ReadObjectPageDefinition(BytesBlobBlock, PageSize);
                             BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
                             int[] argDataPositions = null;
                             var BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, DataPositions: ref argDataPositions);
                             // ***************************************
-
 
                             var DataKey = new byte[1];
                             int DataKeySize = 0;
@@ -218,7 +211,7 @@ namespace PasswordChanger1C
             }
         }
 
-        private static byte[] GetCleanDataFromBlob(int Dataindex, int Datasize, byte[] bytesBlock, [Optional, DefaultParameterValue(null)] ref int[] DataPositions)
+        private static byte[] GetCleanDataFromBlob(in int Dataindex, in int Datasize, in byte[] bytesBlock, [Optional, DefaultParameterValue(null)] ref int[] DataPositions)
         {
             int NextBlock = 999; // any number gt 0
             int Pos = Dataindex * 256;
@@ -242,7 +235,7 @@ namespace PasswordChanger1C
             return ByteBlock;
         }
 
-        private static byte[] ReadAllStoragePagesForObject(BinaryReader reader, AccessFunctions.PageParams Page)
+        private static byte[] ReadAllStoragePagesForObject(BinaryReader reader, in AccessFunctions.PageParams Page)
         {
             int PagesCountTableStructure = Page.PagesNum.Count;
             var BytesTableStructure = new byte[PagesCountTableStructure * Page.PageSize];
@@ -250,7 +243,7 @@ namespace PasswordChanger1C
             foreach (var blk in Page.PagesNum)
             {
                 var bytesBlock = new byte[Page.PageSize];
-                reader.BaseStream.Seek(blk * Page.PageSize, SeekOrigin.Begin);
+                reader.BaseStream.Seek(blk * (long)Page.PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock, 0, Page.PageSize);
                 bytesBlock.AsMemory(0, Page.PageSize).CopyTo(BytesTableStructure.AsMemory(i, Page.PageSize));
                 i += Page.PageSize;
@@ -259,7 +252,7 @@ namespace PasswordChanger1C
             return BytesTableStructure;
         }
 
-        private static AccessFunctions.PageParams ReadObjectPageDefinition(BinaryReader reader, byte[] Bytes, int PageSize = 4096)
+        private static AccessFunctions.PageParams ReadObjectPageDefinition(in byte[] Bytes, in int PageSize)
         {
 
             // struct {
@@ -311,10 +304,10 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void WritePasswordIntoInfoBaseIB(string FileName, AccessFunctions.PageParams PageHeader, byte[] OldData, byte[] NewData, int DataPos, int DataSize)
+        public static void WritePasswordIntoInfoBaseIB(in string FileName, in AccessFunctions.PageParams PageHeader, in byte[] OldData, in byte[] NewData, in int DataPos, in int DataSize)
         {
             int PageSize = PageHeader.PageSize;
-            int BlockBlob = (int)PageHeader.BlockBlob;
+            long BlockBlob = PageHeader.BlockBlob;
             var BytesBlobBlock = new byte[PageSize];
             int[] DataPositions = null;
             byte[] BytesValTemp;
@@ -323,9 +316,9 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new BinaryReader(fs);
-                reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
+                reader.BaseStream.Seek(BlockBlob * (long)PageSize, SeekOrigin.Begin);
                 reader.Read(BytesBlobBlock, 0, PageSize);
-                BlobPage = ReadObjectPageDefinition(reader, BytesBlobBlock, PageSize);
+                BlobPage = ReadObjectPageDefinition(BytesBlobBlock, PageSize);
                 BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
             }
             
