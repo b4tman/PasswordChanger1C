@@ -123,5 +123,37 @@ namespace PasswordChanger1C.Tests
                 Assert.Equal(NewHashes.Item2, PassHash2_New);
             }
         }
+
+        [Fact]
+        public void WritePasswordIntoInfoBaseRepo_Test()
+        {
+            string tmp_folder = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString());
+            using (TempStorage tmp_storage = new TempStorage(tmp_folder))
+            {
+                string tmp_filename = Path.Join(tmp_folder, "test.1cd");
+                File.Copy(FileRepo, tmp_filename);
+
+                string NewPassword = "test123";
+                var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
+
+                // read infobase
+                var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "USERS");
+                var Row = TableParams.Records[0];
+                Assert.Equal("Test", Row["NAME"].ToString());
+                Assert.NotEqual(AccessFunctions.InfoBaseRepo_EmptyPassword, Row["PASSWORD"].ToString());
+
+                // write
+                AccessFunctions.WritePasswordIntoInfoBaseRepo(tmp_filename, TableParams, Convert.ToInt32(Row["OFFSET_PASSWORD"]));
+
+                // read new infobase
+                var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "USERS");
+                var Row_New = TableParams_New.Records[0];
+
+                // check data
+                Assert.Equal(Row["NAME"].ToString(), Row_New["NAME"].ToString());
+                Assert.NotEqual(Row["PASSWORD"].ToString(), Row_New["PASSWORD"].ToString());
+                Assert.Equal(AccessFunctions.InfoBaseRepo_EmptyPassword, Row_New["PASSWORD"].ToString());                
+            }
+        }
     }
 }
