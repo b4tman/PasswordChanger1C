@@ -10,20 +10,20 @@ namespace PasswordChanger1C
     {
         const int PageSize = 4096;
 
-        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, string TableNameUsers)
+        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, in string TableNameUsers)
         {
             var bytesBlock = new byte[PageSize];
 
             // второй блок пропускаем
-            reader.BaseStream.Seek(PageSize, SeekOrigin.Current);
+            reader.BaseStream.Seek((long)PageSize, SeekOrigin.Current);
 
             // корневой блок
             reader.Read(bytesBlock, 0, PageSize);
             var Param = ReadPage(reader, bytesBlock);
             Param.PageSize = PageSize;
-            string Language = "";
-            int NumberOfTables = 0;
-            var HeaderTables = new List<int>();
+            string Language;
+            int NumberOfTables;
+            var HeaderTables = new List<long>();
             int i = 0;
             foreach (var ST in Param.StorageTables)
             {
@@ -31,7 +31,7 @@ namespace PasswordChanger1C
                 foreach (var DB in ST.DataBlocks)
                 {
                     var TempBlock = new byte[PageSize];
-                    reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
+                    reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
                     reader.Read(TempBlock, 0, PageSize);
 
                     TempBlock.AsMemory().CopyTo(bytesStorageTables.AsMemory(i));
@@ -42,7 +42,7 @@ namespace PasswordChanger1C
                 NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32);
                 for (i = 0; i < NumberOfTables; i++)
                 {
-                    int PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4);
+                    long PageNum = BitConverter.ToInt32(bytesStorageTables, 36 + i * 4);
                     HeaderTables.Add(PageNum);
                 }
             }
@@ -50,7 +50,7 @@ namespace PasswordChanger1C
             // прочитаем первые страницы таблиц
             foreach (var HT in HeaderTables)
             {
-                reader.BaseStream.Seek(HT * PageSize, SeekOrigin.Begin);
+                reader.BaseStream.Seek(HT * (long)PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock, 0, PageSize);
                 var PageHeader = ReadPage(reader, bytesBlock);
                 PageHeader.Fields = new List<AccessFunctions.TableFields>();
@@ -71,22 +71,24 @@ namespace PasswordChanger1C
             return default;
         }
 
-        public static AccessFunctions.PageParams ReadPage(BinaryReader reader, byte[] Bytes)
+        public static AccessFunctions.PageParams ReadPage(BinaryReader reader, in byte[] Bytes)
         {
-            var Page = new AccessFunctions.PageParams();
-            Page.Sign = Encoding.UTF8.GetString(Bytes, 0, 8);
-            Page.Length = BitConverter.ToInt32(Bytes, 8);
-            Page.version1 = BitConverter.ToInt32(Bytes, 12);
-            Page.version2 = BitConverter.ToInt32(Bytes, 16);
-            Page.version = BitConverter.ToInt32(Bytes, 20);
             int Index = 24;
-            Page.PagesNum = new List<long>();
-            Page.StorageTables = new List<AccessFunctions.StorageTable>();
+            var Page = new AccessFunctions.PageParams
+            {
+                Sign = Encoding.UTF8.GetString(Bytes, 0, 8),
+                Length = BitConverter.ToInt32(Bytes, 8),
+                version1 = BitConverter.ToInt32(Bytes, 12),
+                version2 = BitConverter.ToInt32(Bytes, 16),
+                version = BitConverter.ToInt32(Bytes, 20),
+                PagesNum = new List<long>(),
+                StorageTables = new List<AccessFunctions.StorageTable>()
+            };
 
             // Получим номера страниц размещения 
-            while (true)
+            while (Index <= PageSize - 4)
             {
-                int blk = BitConverter.ToInt32(Bytes, Index);
+                long blk = BitConverter.ToInt32(Bytes, Index);
                 if (blk == 0)
                 {
                     break;
@@ -94,25 +96,23 @@ namespace PasswordChanger1C
 
                 Page.PagesNum.Add(blk);
                 Index += 4;
-                if (Index > PageSize - 4)
-                {
-                    break;
-                }
             }
 
             foreach (var blk in Page.PagesNum)
             {
-                var StorageTables = new AccessFunctions.StorageTable();
-                StorageTables.Number = blk;
-                StorageTables.DataBlocks = new List<long>();
+                var StorageTables = new AccessFunctions.StorageTable
+                {
+                    Number = blk,
+                    DataBlocks = new List<long>()
+                };
                 var bytesBlock = new byte[PageSize];
-                reader.BaseStream.Seek(blk * PageSize, SeekOrigin.Begin);
+                reader.BaseStream.Seek(blk * (long)PageSize, SeekOrigin.Begin);
                 reader.Read(bytesBlock, 0, PageSize);
                 int NumberOfPages = BitConverter.ToInt32(bytesBlock, 0);
                 Index = 4;
-                for (int ii = 0; ii < NumberOfPages; ii++)
+                for (int ii = 0; ii < NumberOfPages && Index <= PageSize - 4; ii++)
                 {
-                    int dp = BitConverter.ToInt32(bytesBlock, Index);
+                    long dp = BitConverter.ToInt32(bytesBlock, Index);
                     if (dp == 0)
                     {
                         break;
@@ -120,10 +120,6 @@ namespace PasswordChanger1C
 
                     StorageTables.DataBlocks.Add(dp);
                     Index += 4;
-                    if (Index > PageSize - 4)
-                    {
-                        break;
-                    }
                 }
 
                 Page.StorageTables.Add(StorageTables);
@@ -132,15 +128,16 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void ReadDataFromTable(BinaryReader reader, long DB, byte[] bytesBlock, ref AccessFunctions.PageParams PageHeader, string TableNameUsers)
+        public static void ReadDataFromTable(BinaryReader reader, in long DB, byte[] bytesBlock, ref AccessFunctions.PageParams PageHeader, in string TableNameUsers)
         {
-            reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
+            reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock, 0, PageSize);
             string TableDescr = "";
-            for (double i = 0d, loopTo = Math.Min(PageHeader.Length - 1L, Convert.ToDouble(PageSize) / 2d - 1d); i <= loopTo; i++)
-                TableDescr += Encoding.UTF8.GetString(bytesBlock, (int)Math.Round(i * 2d), 1);
+            long descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
+            for (int i = 0; i < descrLength; i++)
+                TableDescr += Encoding.UTF8.GetString(bytesBlock, i * 2, 1);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
-            int RowSize = 1;
+            long RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
             PageHeader.TableName = TableName;
             if (TableName != TableNameUsers)
@@ -155,12 +152,14 @@ namespace PasswordChanger1C
                     continue;
                 }
 
-                var Field = new AccessFunctions.TableFields();
-                Field.Name = a[0].ToString().Replace("\"", "");
-                Field.Type = a[1].ToString().Replace("\"", "");
-                Field.CouldBeNull = Convert.ToInt32(a[2].ToString());
-                Field.Length = Convert.ToInt32(a[3].ToString());
-                Field.Precision = Convert.ToInt32(a[4].ToString());
+                var Field = new AccessFunctions.TableFields
+                {
+                    Name = a[0].ToString().Replace("\"", ""),
+                    Type = a[1].ToString().Replace("\"", ""),
+                    CouldBeNull = Convert.ToInt32(a[2].ToString()),
+                    Length = Convert.ToInt32(a[3].ToString()),
+                    Precision = Convert.ToInt32(a[4].ToString())
+                };
                 int FieldSize = Field.CouldBeNull;
                 if (Field.Type == "B")
                 {
@@ -172,7 +171,7 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "N")
                 {
-                    FieldSize = (int)Math.Round(FieldSize + Math.Truncate((Field.Length + 2) / 2d));
+                    FieldSize += (Field.Length + 2) / 2;
                 }
                 else if (Field.Type == "NC")
                 {
@@ -180,7 +179,7 @@ namespace PasswordChanger1C
                 }
                 else if (Field.Type == "NVC")
                 {
-                    FieldSize = FieldSize + Field.Length * 2 + 2;
+                    FieldSize += Field.Length * 2 + 2;
                 }
                 else if (Field.Type == "RV")
                 {
@@ -218,13 +217,13 @@ namespace PasswordChanger1C
             int BlockBlob = Convert.ToInt32(ParsedString[0][5][2].ToString());
             PageHeader.BlockData = BlockData;
             PageHeader.BlockBlob = BlockBlob;
-            ReadDataPage(ref PageHeader, TableName, BlockData, BlockBlob, reader);
+            ReadDataPage(ref PageHeader, BlockData, BlockBlob, reader);
         }
 
-        public static byte[] GetBlobData(int BlockBlob, int Dataindex, int Datasize, BinaryReader reader)
+        public static byte[] GetBlobData(in long BlockBlob, in int Dataindex, in int Datasize, BinaryReader reader)
         {
             var bytesBlock1 = new byte[PageSize];
-            reader.BaseStream.Seek(BlockBlob * PageSize, SeekOrigin.Begin);
+            reader.BaseStream.Seek(BlockBlob * (long)PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock1, 0, PageSize);
             var DataPage = ReadPage(reader, bytesBlock1);
             int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
@@ -235,7 +234,7 @@ namespace PasswordChanger1C
                 foreach (var DB in ST.DataBlocks)
                 {
                     var TempBlock = new byte[PageSize];
-                    reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
+                    reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
                     reader.Read(TempBlock, 0, PageSize);
                     TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
                     i += TempBlock.Length;
@@ -260,11 +259,11 @@ namespace PasswordChanger1C
             return ByteBlock;
         }
 
-        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, string table, int block, int BlockBlob, BinaryReader reader)
+        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, in long block, in long BlockBlob, BinaryReader reader)
         {
             PageHeader.Records = new List<Dictionary<string, object>>();
             var bytesBlock1 = new byte[PageSize];
-            reader.BaseStream.Seek(block * PageSize, SeekOrigin.Begin);
+            reader.BaseStream.Seek(block * (long)PageSize, SeekOrigin.Begin);
             reader.Read(bytesBlock1, 0, PageSize);
             var DataPage = ReadPage(reader, bytesBlock1);
             int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
@@ -275,21 +274,23 @@ namespace PasswordChanger1C
                 foreach (var DB in ST.DataBlocks)
                 {
                     var TempBlock = new byte[PageSize];
-                    reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
+                    reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
                     reader.Read(TempBlock, 0, PageSize);
                     TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
                     i += TempBlock.Length;
                 }
             }
 
-            int Size = (int)Math.Round(DataPage.Length / (double)PageHeader.RowSize);
+            long Size = DataPage.Length / PageHeader.RowSize;
             for (i = 1; i < Size; i++)
             {
                 int Pos = (int)PageHeader.RowSize * i;
                 int FieldStartPos = 0;
                 bool IsDeleted = BitConverter.ToBoolean(bytesBlock, Pos);
-                var Dict = new Dictionary<string, object>();
-                Dict.Add("IsDeleted", IsDeleted);
+                var Dict = new Dictionary<string, object>
+                {
+                    { "IsDeleted", IsDeleted }
+                };
                 foreach (var Field in PageHeader.Fields)
                 {
                     int Pos1 = Pos + 1 + FieldStartPos;
@@ -297,8 +298,7 @@ namespace PasswordChanger1C
                     {
                         Dict.Add("OFFSET_PASSWORD", Pos1);
                     }
-
-                    if (Field.Name == "DATA")
+                    else if (Field.Name == "DATA")
                     {
                         Dict.Add("DATA_POS", BitConverter.ToInt32(bytesBlock, Pos1));
                         Dict.Add("DATA_SIZE", BitConverter.ToInt32(bytesBlock, Pos1 + 4));
@@ -310,9 +310,6 @@ namespace PasswordChanger1C
                         string Strguid = Convert.ToBase64String(bytesBlock, Pos1 + Field.CouldBeNull, Field.Size - Field.CouldBeNull);
                         BytesVal = Convert.FromBase64String(Strguid);
                     }
-
-                    // Dim G = Convert.
-
                     else if (Field.Type == "L")
                     {
                         BytesVal = BitConverter.ToBoolean(bytesBlock, Pos1 + Field.CouldBeNull);
