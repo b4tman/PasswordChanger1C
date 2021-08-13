@@ -47,10 +47,9 @@ namespace PasswordChanger1C.ParserServices
 
     public class ParsesClass
     {
-        public static ParserList ParseString(string Str)
+        public static ParserList ParseString(in string Str)
         {
-            char[] BomMarkers = { '\uFEFF' };
-            var Arr = Str.Trim(BomMarkers).Split(',');
+            var Arr = Str.TrimStart('\uFEFF').Split(',');
             int argPosition = 0;
             var List = ParseStringInternal(Arr, ref argPosition, Arr.Length - 1);
             return List;
