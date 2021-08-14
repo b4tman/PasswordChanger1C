@@ -12,6 +12,14 @@ namespace PasswordChanger1C
         {
         }
     }
+
+    public class WrongFileFormatException : Exception
+    {
+        public WrongFileFormatException(string message) : base(message)
+        {
+        }
+    }
+
     public static class AccessFunctions
     {
         private const string InfobaseFile_Sign = "1CDBMSV8";
@@ -61,9 +69,15 @@ namespace PasswordChanger1C
             using var reader = new BinaryReader(fs);
             var bytesBlock = new byte[24];
             reader.Read(bytesBlock, 0, 24);
-            string Sign = Encoding.UTF8.GetString(bytesBlock, 0, 8);
+            string Sign = "";
 
-            if (InfobaseFile_Sign != Sign) throw new Exception("wrong infobase file format");
+            try
+            {
+                Sign = Encoding.ASCII.GetString(bytesBlock, 0, 8);
+            }
+            catch { }
+            if (InfobaseFile_Sign != Sign)
+                throw new WrongFileFormatException($"wrong infobase file format, expected \"{InfobaseFile_Sign}\", got \"{Sign}\"");
 
             string V1 = bytesBlock[8].ToString();
             string V2 = bytesBlock[9].ToString();
