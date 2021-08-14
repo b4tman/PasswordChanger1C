@@ -19,7 +19,11 @@ namespace PasswordChanger1C
             // корневой блок
             reader.Read(bytesBlock, 0, PageSize);
             var Param = FindTableDefinition(reader, bytesBlock, PageSize, TableNameUsers);
-            ReadAllRecordsFromStoragePages(ref Param, reader);
+
+            if (Param.TableName is not null) // if table found
+            {
+                ReadAllRecordsFromStoragePages(ref Param, reader);
+            }
             return Param;
         }
 
@@ -69,6 +73,8 @@ namespace PasswordChanger1C
 
         private static void ReadAllRecordsFromStoragePages(ref AccessFunctions.PageParams PageHeader, BinaryReader reader)
         {
+            if (PageHeader.Fields is null) return;
+
             long FirstPage = PageHeader.BlockData;
             long BlockBlob = PageHeader.BlockBlob;
             int PageSize = PageHeader.PageSize;
