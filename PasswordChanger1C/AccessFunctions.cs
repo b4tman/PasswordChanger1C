@@ -79,13 +79,16 @@ namespace PasswordChanger1C
             reader.BaseStream.Seek(PageSize, SeekOrigin.Begin);
 
             PageParams Param;
-            if (DatabaseVersion.StartsWith("8.3"))
+            if ("8.3.8" == DatabaseVersion)
             {
                 Param = DatabaseAccess838.ReadInfoBase(reader, TableNameUsers, PageSize);
             }
-            else
+            else if ("8.2.14" == DatabaseVersion)
             {
                 Param = DatabaseAccess8214.ReadInfoBase(reader, TableNameUsers);
+            } else
+            {
+                throw new NotSupportedException($"Infobase file version \"{DatabaseVersion}\" not supported");
             }
             Param.DatabaseVersion = DatabaseVersion;
 
