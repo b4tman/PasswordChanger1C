@@ -6,6 +6,9 @@ using System.Text;
 
 namespace PasswordChanger1C
 {
+    /// <summary>
+    ///  Error when password length for Repo file is not 64 unicode bytes
+    /// </summary>
     public class RepoPasswordLengthException : Exception
     {
         public RepoPasswordLengthException(string message) : base(message)
@@ -13,6 +16,9 @@ namespace PasswordChanger1C
         }
     }
 
+    /// <summary>
+    ///  Error when file format is not match 1C DBMS
+    /// </summary>
     public class WrongFileFormatException : Exception
     {
         public WrongFileFormatException(string message) : base(message)
