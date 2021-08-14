@@ -6,6 +6,12 @@ using System.Text;
 
 namespace PasswordChanger1C
 {
+    public class RepoPasswordLengthException : Exception
+    {
+        public RepoPasswordLengthException(string message) : base(message)
+        {
+        }
+    }
     public static class AccessFunctions
     {
         private const string InfobaseFile_Sign = "1CDBMSV8";
@@ -92,6 +98,9 @@ namespace PasswordChanger1C
             PageParams DataPage;
             long TotalBlocks;
             int i;
+            string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
+            var Pass = Encoding.Unicode.GetBytes(PassStr);
+            if (Pass.Length != 64) throw new RepoPasswordLengthException($"password length should be 64 unicode bytes, but got {Pass.Length} bytes");
 
             if ("8.3.8" == PageHeader.DatabaseVersion)
             {
@@ -127,9 +136,6 @@ namespace PasswordChanger1C
                 }
             }
 
-            //string Test = Encoding.Unicode.GetString(bytesBlock, Offset, 64);
-            string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
-            var Pass = Encoding.Unicode.GetBytes(PassStr);
             Pass.AsMemory().CopyTo(bytesBlock.AsMemory(Offset));
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
