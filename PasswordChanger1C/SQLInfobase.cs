@@ -54,8 +54,8 @@ namespace PasswordChanger1C
                 SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
                 var AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
                 var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
-                SQLUser.PassHash = Hashes.Item1;
-                SQLUser.PassHash2 = Hashes.Item2;
+                SQLUser.PassHash = Hashes.Item1.Trim('"');
+                SQLUser.PassHash2 = Hashes.Item2.Trim('"');
             }
             protected static string Format_AdmRole(in bool AdmRole)
             {
