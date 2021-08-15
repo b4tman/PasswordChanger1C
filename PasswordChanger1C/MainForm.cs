@@ -31,22 +31,7 @@ namespace PasswordChanger1C
 
         private AccessFunctions.PageParams TableParams;
 
-        public struct SQLUser
-        {
-            public byte[] ID;
-            public string IDStr;
-            public string Name;
-            public string Descr;
-            public byte[] Data;
-            public string DataStr;
-            public string PassHash;
-            public string PassHash2;
-            public string AdmRole;
-            public int KeySize;
-            public byte[] KeyData;
-        }
-
-        private List<SQLUser> SQLUsers = new();
+        private List<SQLInfobase.SQLUser> SQLUsers = new();
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
@@ -139,160 +124,29 @@ namespace PasswordChanger1C
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            switch (cbDBType.SelectedIndex)
+            SQLInfobase.DBMSType dbms_type = cbDBType.SelectedIndex switch
             {
-                case 0:
-                    {
-                        GetUsersMSSQL();
-                        break;
-                    }
-
-                case 1:
-                    {
-                        GetUsersPostgreSQL();
-                        break;
-                    }
-            }
+                0 => SQLInfobase.DBMSType.MSSQLServer,
+                1 => SQLInfobase.DBMSType.PostgreSQL,
+                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
+            };
+            GetUsers_SQLInfobase(dbms_type);
         }
 
-        public void GetUsersMSSQL()
+        public void GetUsers_SQLInfobase(in SQLInfobase.DBMSType dbms_type)
         {
-            // *****************************************************
-            SQLUsers.Clear();
+            Func<IDbConnection> factory = dbms_type switch
+            {
+                SQLInfobase.DBMSType.MSSQLServer => () => new SqlConnection(ConnectionString.Text),
+                SQLInfobase.DBMSType.PostgreSQL => () => new NpgsqlConnection(ConnectionString.Text),
+                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
+            };
+
             SQLUserList.Items.Clear();
             try
             {
-                using var Connection = new SqlConnection(ConnectionString.Text);
-                Connection.Open();
-#pragma warning disable SecurityIntelliSenseCS // MS Security rules violation
-                using var command = new SqlCommand("SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]", Connection);
-#pragma warning restore SecurityIntelliSenseCS // MS Security rules violation
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    try
-                    {
-                        var SQLUser = new SQLUser
-                        {
-                            ID = (byte[])reader.GetSqlBinary(0),
-                            Name = reader.GetString(1),
-                            Descr = reader.GetString(2),
-                            Data = (byte[])reader.GetSqlBinary(3),
-                            AdmRole = BitConverter.ToBoolean((byte[])reader.GetSqlBinary(4), 0) ? "Да" : ""
-                        };
-                        SQLUser.IDStr = new Guid(SQLUser.ID).ToString();
-                        SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
-                        ParserServices.ParserList AuthStructure;
-                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
-
-                        if (AuthStructure[0][7].ToString() == "0")
-                        {
-                            // нет авторизации 1С
-                            SQLUser.PassHash = "нет авторизации 1С";
-                        }
-                        else
-                        {
-                            var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
-                            SQLUser.PassHash = Hashes.Item1;
-                            SQLUser.PassHash2 = Hashes.Item2;
-                        }
-
-                        SQLUsers.Add(SQLUser);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
-                                        ex.Message,
-                                        "Ошибка работы с базой данных", MessageBoxButtons.OK,
-                                        MessageBoxIcon.Error);
-                        return;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
-                                 ex.Message,
-                                 "Ошибка работы с базой данных", MessageBoxButtons.OK,
-                                 MessageBoxIcon.Error);
-                return;
-            }
-
-            // *****************************************************
-
-            foreach (var Row in SQLUsers)
-            {
-                if (string.IsNullOrEmpty(Row.Name))
-                {
-                    continue;
-                }
-
-                var itemUserList = new ListViewItem(Row.IDStr);
-                itemUserList.SubItems.Add(Row.Name);
-                itemUserList.SubItems.Add(Row.Descr);
-                itemUserList.SubItems.Add(Row.PassHash);
-                itemUserList.SubItems.Add(Row.AdmRole);
-                SQLUserList.Items.Add(itemUserList);
-            }
-            // *****************************************************
-
-        }
-
-        public void GetUsersPostgreSQL()
-        {
-            // *****************************************************
-            SQLUsers.Clear();
-            SQLUserList.Items.Clear();
-            try
-            {
-                using var Connection = new NpgsqlConnection(ConnectionString.Text);
-                Connection.Open();
-                using var command = new NpgsqlCommand(@"SELECT id,
-	                                            encode(id, 'hex') as idStr,
-	                                            CAST(name AS VARCHAR(64)) AS Name,
-	                                            CAST(descr AS VARCHAR(128)) AS Descr,
-                                                data,
-                                                admrole
-                                            FROM public.v8users", Connection);
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    try
-                    {
-                        var SQLUser = new SQLUser();
-                        SQLUser.ID = (byte[])reader[0];
-                        SQLUser.IDStr = reader.GetString(1);
-                        SQLUser.Name = reader.GetString(2);
-                        SQLUser.Descr = reader.GetString(3);
-                        SQLUser.Data = (byte[])reader[4];
-                        SQLUser.AdmRole = reader.GetBoolean(5) ? "Да" : "";
-                        SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
-                        ParserServices.ParserList AuthStructure;
-                        AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
-
-                        if (AuthStructure[0][7].ToString() == "0")
-                        {
-                            // нет авторизации 1С
-                            SQLUser.PassHash = "нет авторизации 1С";
-                        }
-                        else
-                        {
-                            var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
-                            SQLUser.PassHash = Hashes.Item1;
-                            SQLUser.PassHash2 = Hashes.Item2;
-                        }
-
-                        SQLUsers.Add(SQLUser);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Ошибка при попытке чтения пользователей из базы данных:" + Environment.NewLine +
-                                        ex.Message,
-                                        "Ошибка работы с базой данных", MessageBoxButtons.OK,
-                                        MessageBoxIcon.Error);
-                        return;
-                    }
-                }
+                var reader = new SQLInfobase.ReadUsers(dbms_type, factory);
+                SQLUsers = reader.GetAll();
             }
             catch (Exception ex)
             {
@@ -303,8 +157,11 @@ namespace PasswordChanger1C
                 return;
             }
 
-            // *****************************************************
+            Fill_SQLUserList();
+        }
 
+        private void Fill_SQLUserList()
+        {
             foreach (var Row in SQLUsers)
             {
                 if (string.IsNullOrEmpty(Row.Name))
@@ -319,8 +176,6 @@ namespace PasswordChanger1C
                 itemUserList.SubItems.Add(Row.AdmRole);
                 SQLUserList.Items.Add(itemUserList);
             }
-            // *****************************************************
-
         }
 
         private void ButtonChangePassSQL_Click(object sender, EventArgs e)
@@ -387,7 +242,7 @@ namespace PasswordChanger1C
                     }
                 }
 
-                GetUsersMSSQL();
+                GetUsers_SQLInfobase(SQLInfobase.DBMSType.MSSQLServer);
 
                 MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
                                 "Операция успешно выполнена", MessageBoxButtons.OK,
@@ -432,7 +287,8 @@ namespace PasswordChanger1C
                     }
                 }
 
-                GetUsersPostgreSQL();
+                GetUsers_SQLInfobase(SQLInfobase.DBMSType.PostgreSQL);
+
                 if (a > 0)
                 {
                     MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
