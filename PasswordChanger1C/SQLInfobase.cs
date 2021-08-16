@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace PasswordChanger1C
 {
@@ -11,6 +13,7 @@ namespace PasswordChanger1C
             MSSQLServer,
             PostgreSQL
         }
+
         public struct SQLUser
         {
             public byte[] ID;
@@ -47,8 +50,11 @@ namespace PasswordChanger1C
                     _ => throw new WrongDBMSTypeException("unknown DBMS type"),
                 };
             }
+
             public abstract string SelectSQL { get; }
+
             public abstract SQLUser ReadUser(IDataReader reader);
+
             protected static void ParseData(ref SQLUser SQLUser)
             {
                 SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
@@ -57,6 +63,7 @@ namespace PasswordChanger1C
                 SQLUser.PassHash = Hashes.Item1.Trim('"');
                 SQLUser.PassHash2 = Hashes.Item2.Trim('"');
             }
+
             protected static string Format_AdmRole(in bool AdmRole)
             {
                 return AdmRole ? "\u2714" : ""; // ✔
@@ -66,6 +73,7 @@ namespace PasswordChanger1C
         private class SQLUserReader_MSSQLServer : SQLUserReader
         {
             private const string _SelectSQL = "SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]";
+
             public override string SelectSQL
             {
                 get { return _SelectSQL; }
@@ -96,7 +104,9 @@ namespace PasswordChanger1C
                    data,
                    admrole
             FROM public.v8users";
-            public override string SelectSQL {
+
+            public override string SelectSQL
+            {
                 get { return _SelectSQL; }
             }
 
@@ -143,6 +153,16 @@ namespace PasswordChanger1C
                 }
                 return rows;
             }
+        }
+
+        public static Func<IDbConnection> CreateConnectionFactory(in DBMSType dbms_type, string connection_str)
+        {
+            return dbms_type switch
+            {
+                SQLInfobase.DBMSType.MSSQLServer => () => new SqlConnection(connection_str),
+                SQLInfobase.DBMSType.PostgreSQL => () => new NpgsqlConnection(connection_str),
+                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
+            };
         }
     }
 }

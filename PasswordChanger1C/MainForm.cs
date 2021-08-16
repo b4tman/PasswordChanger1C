@@ -135,12 +135,7 @@ namespace PasswordChanger1C
 
         public void GetUsers_SQLInfobase(in SQLInfobase.DBMSType dbms_type)
         {
-            Func<IDbConnection> factory = dbms_type switch
-            {
-                SQLInfobase.DBMSType.MSSQLServer => () => new SqlConnection(ConnectionString.Text),
-                SQLInfobase.DBMSType.PostgreSQL => () => new NpgsqlConnection(ConnectionString.Text),
-                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
-            };
+            var factory = SQLInfobase.CreateConnectionFactory(dbms_type, ConnectionString.Text);
 
             SQLUserList.Items.Clear();
             try
