@@ -5,11 +5,11 @@ using Xunit;
 
 namespace PasswordChanger1C.Tests
 {
+    // https://stackoverflow.com/questions/58375054/mocking-sqlconnection-sqlcommand-and-sqlreader-in-c-sharp-using-mstest
     public class SQLInfobase_Tests
     {
         private const string Test_Password = "1";
         private readonly static byte[] Test_Id = FromBase64("k42MsT0XVTlFDlfbSk/naQ==");
-        private readonly static string Test_IdStr = BitConverter.ToString(Test_Id).Replace("-", "");
 
         private readonly static byte[] Test_Data = FromBase64(@"
                 GPJBHWrITsJOq25wcpiLMoP5YTI4Nr85ER36ohH8L/YozllGS7W+BeebTAYNBtoUKMF5eUfwLaB/mApBRa2+AbrVQ+Kq5g/
@@ -18,6 +18,7 @@ namespace PasswordChanger1C.Tests
                 5MVId5xMUiGGa0U4F0bJuvOStavUQJhQdAIVscrcT+DBbFziUJSPM/kaMjKCmZLc8dsR8JxRB2nf4V7wQIlOdP4D6HVUx4J
                 Go0JI8NxJVr6f/p7mFpFXqinAq/0a0kIS5MIPf9LZlq1YvNim0JBXrqpTw=="
         );
+        private readonly static Tuple<string,string> Test_Hashes = CommonModule.GeneratePasswordHashes(Test_Password);
 
         private static byte[] FromBase64(in string data)
         {
@@ -33,7 +34,7 @@ namespace PasswordChanger1C.Tests
         [Fact()]
         public void GetAll_PostgreSQL_Test()
         {
-            // https://stackoverflow.com/questions/58375054/mocking-sqlconnection-sqlcommand-and-sqlreader-in-c-sharp-using-mstest
+            string Test_IdStr = BitConverter.ToString(Test_Id).Replace("-", "").ToLower();
 
             var readerMock = new Mock<IDataReader>();
             readerMock.SetupSequence(_ => _.Read())
@@ -63,10 +64,47 @@ namespace PasswordChanger1C.Tests
                 Assert.Equal("TestDescr", x.Descr);
                 Assert.Equal("938d8cb13d175539450e57db4a4fe769", x.IDStr);
                 Assert.Equal("\u2714", x.AdmRole);
+                Assert.Equal(Test_Hashes.Item1, x.PassHash);
+                Assert.Equal(Test_Hashes.Item2, x.PassHash2);
+            });
+            commandMock.Verify();
+        }
 
-                var ExpectedHashes = CommonModule.GeneratePasswordHashes(Test_Password);
-                Assert.Equal(ExpectedHashes.Item1, x.PassHash);
-                Assert.Equal(ExpectedHashes.Item2, x.PassHash2);
+        [Fact()]
+        public void GetAll_MSSQLServer_Test()
+        {
+            string Test_IdStr = new Guid(Test_Id).ToString();
+            byte[] Test_AdmRole = BitConverter.GetBytes(true);
+
+            var readerMock = new Mock<IDataReader>();
+            readerMock.SetupSequence(_ => _.Read())
+                .Returns(true)
+                .Returns(false);
+
+            readerMock.Setup(reader => reader.GetValue(0)).Returns(Test_Id);      //ID
+            readerMock.Setup(reader => reader.GetString(1)).Returns("TestName");  //Name
+            readerMock.Setup(reader => reader.GetString(2)).Returns("TestDescr"); //Descr
+            readerMock.Setup(reader => reader.GetValue(3)).Returns(Test_Data);    //Data
+            readerMock.Setup(reader => reader.GetValue(4)).Returns(Test_AdmRole); //AdmRole
+
+            var commandMock = new Mock<IDbCommand>();
+            commandMock.Setup(m => m.ExecuteReader()).Returns(readerMock.Object).Verifiable();
+
+            var connectionMock = new Mock<IDbConnection>();
+            connectionMock.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
+
+            var data = new SQLInfobase.ReadUsers(SQLInfobase.DBMSType.MSSQLServer, () => connectionMock.Object);
+            var result = data.GetAll();
+
+            Assert.Single(result);
+            Assert.Collection(result, x =>
+            {
+                Assert.Equal("TestName", x.Name);
+                Assert.Equal("TestDescr", x.Descr);
+                Assert.Equal(Test_IdStr, x.IDStr);
+                Assert.Equal("\u2714", x.AdmRole);
+                Assert.Equal(Test_Hashes.Item1, x.PassHash);
+                Assert.Equal(Test_Hashes.Item2, x.PassHash2);
             });
             commandMock.Verify();
         }
