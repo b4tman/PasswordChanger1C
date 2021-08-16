@@ -227,7 +227,7 @@ namespace PasswordChanger1C
                 {
                     foreach (var SQLUser in SQLUsers)
                     {
-                        if (SQLUser.IDStr == item.Text && !(SQLUser.PassHash == "\"\""))
+                        if (SQLUser.IDStr == item.Text && SQLUser.PassHash != "")
                         {
                             Str = Str + Environment.NewLine + SQLUser.Name;
                             var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
@@ -272,7 +272,7 @@ namespace PasswordChanger1C
                 {
                     foreach (var SQLUser in SQLUsers)
                     {
-                        if (SQLUser.IDStr == item.Text && !(SQLUser.PassHash == "\"\""))
+                        if (SQLUser.IDStr == item.Text && SQLUser.PassHash != "")
                         {
                             Str = Str + Environment.NewLine + SQLUser.Name;
                             var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
