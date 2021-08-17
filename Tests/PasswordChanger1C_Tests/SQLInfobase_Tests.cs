@@ -18,7 +18,104 @@ namespace PasswordChanger1C.Tests
                 5MVId5xMUiGGa0U4F0bJuvOStavUQJhQdAIVscrcT+DBbFziUJSPM/kaMjKCmZLc8dsR8JxRB2nf4V7wQIlOdP4D6HVUx4J
                 Go0JI8NxJVr6f/p7mFpFXqinAq/0a0kIS5MIPf9LZlq1YvNim0JBXrqpTw=="
         );
-        private readonly static Tuple<string,string> Test_Hashes = CommonModule.GeneratePasswordHashes(Test_Password);
+        private readonly static Tuple<string, string> Test_Hashes = CommonModule.GeneratePasswordHashes(Test_Password);
+
+        private class SQLUser_MockData
+        {
+            public SQLInfobase.SQLUser SQLUser
+            {
+                get 
+                { 
+                    return new SQLInfobase.SQLUser {
+                        ID = ID,
+                        IDStr = IDStr,
+                        Name = Name,
+                        Descr = Descr,
+                        Data = Data,
+                        DataStr = DataStr,
+                        PassHash = PasswordHashes.Item1,
+                        PassHash2 = PasswordHashes.Item2,
+                        AdmRole = AdmRole ? "\u2714" : "",
+                        KeySize = KeySize,
+                        KeyData = KeyData
+                    }; 
+                }
+            }
+
+            public SQLInfobase.DBMSType DBMSType { get; set; }
+            public byte[] ID { get; set; }
+            public byte[] Data { get; set; }
+            public string Name { get; set; }
+            public string Descr { get; set; }            
+            public bool AdmRole { get; set; }
+            private int KeySize { get; set; }
+            private byte[] KeyData { get; set; }
+
+            public Tuple<string,string> PasswordHashes
+            {
+                get
+                {
+                    var AuthStructure = ParserServices.ParsesClass.ParseString(DataStr);
+                    return CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                }
+            }
+
+            private string _Password;
+            public string Password 
+            {
+                get
+                {
+                    return _Password;
+                }
+                set
+                {
+                    _Password = value;
+                    var NewHashes = CommonModule.GeneratePasswordHashes(_Password);
+                    DataStr = CommonModule.ReplaceHashes(DataStr, PasswordHashes, NewHashes);
+                } 
+            }
+
+            public string IDStr
+            { 
+                get 
+                {
+                    string result = "";
+                    if (SQLInfobase.DBMSType.PostgreSQL == DBMSType)
+                        result = BitConverter.ToString(ID).Replace("-", "").ToLower();
+                    else if (SQLInfobase.DBMSType.MSSQLServer == DBMSType)
+                        result = new Guid(ID).ToString();
+                    return result;                    
+                } 
+            }
+
+            public string DataStr
+            {
+                get
+                {
+                    int _KeySize = KeySize;
+                    byte[] _KeyData = KeyData;
+                    string result = CommonModule.DecodePasswordStructure(Data, ref _KeySize, ref _KeyData);
+                    KeySize = _KeySize;
+                    KeyData = _KeyData;
+                    return result;
+                }
+                set
+                {
+                    Data = CommonModule.EncodePasswordStructure(DataStr, KeySize, KeyData);
+                }
+            }
+
+            public SQLUser_MockData()
+            {
+                ID = Test_Id;
+                Data = Test_Data;
+                Password = Test_Password;
+                Name = "TestName";
+                Descr = "TestDescr";
+                AdmRole = true;
+                DBMSType = SQLInfobase.DBMSType.PostgreSQL;
+            }            
+        }
 
         private static byte[] FromBase64(in string data)
         {
@@ -31,82 +128,72 @@ namespace PasswordChanger1C.Tests
             return Convert.FromBase64String(base64str);
         }
 
-        [Fact()]
-        public void GetAll_PostgreSQL_Test()
+        private static Mock<IDbConnection> SetupConnectionMock(in SQLUser_MockData data)
         {
-            string Test_IdStr = BitConverter.ToString(Test_Id).Replace("-", "").ToLower();
-
             var readerMock = new Mock<IDataReader>();
             readerMock.SetupSequence(_ => _.Read())
                 .Returns(true)
                 .Returns(false);
 
-            readerMock.Setup(reader => reader.GetValue(0)).Returns(Test_Id);      //ID
-            readerMock.Setup(reader => reader.GetString(1)).Returns(Test_IdStr);  //IDStr
-            readerMock.Setup(reader => reader.GetString(2)).Returns("TestName");  //Name
-            readerMock.Setup(reader => reader.GetString(3)).Returns("TestDescr"); //Descr
-            readerMock.Setup(reader => reader.GetValue(4)).Returns(Test_Data);    //Data
-            readerMock.Setup(reader => reader.GetBoolean(5)).Returns(true);       //AdmRole
+            if (SQLInfobase.DBMSType.PostgreSQL == data.DBMSType)
+            {
+                readerMock.Setup(reader => reader.GetValue(0)).Returns(data.ID);        //ID
+                readerMock.Setup(reader => reader.GetString(1)).Returns(data.IDStr);    //IDStr
+                readerMock.Setup(reader => reader.GetString(2)).Returns(data.Name);     //Name
+                readerMock.Setup(reader => reader.GetString(3)).Returns(data.Descr);    //Descr
+                readerMock.Setup(reader => reader.GetValue(4)).Returns(data.Data);      //Data
+                readerMock.Setup(reader => reader.GetBoolean(5)).Returns(data.AdmRole); //AdmRole
+            }
+            else if (SQLInfobase.DBMSType.MSSQLServer == data.DBMSType)
+            {
+                byte[] AdmRole = BitConverter.GetBytes(data.AdmRole);
+
+                readerMock.Setup(reader => reader.GetValue(0)).Returns(data.ID);     //ID
+                readerMock.Setup(reader => reader.GetString(1)).Returns(data.Name);  //Name
+                readerMock.Setup(reader => reader.GetString(2)).Returns(data.Descr); //Descr
+                readerMock.Setup(reader => reader.GetValue(3)).Returns(data.Data);   //Data
+                readerMock.Setup(reader => reader.GetValue(4)).Returns(AdmRole);     //AdmRole
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
 
             var commandMock = new Mock<IDbCommand>();
-            commandMock.Setup(m => m.ExecuteReader()).Returns(readerMock.Object).Verifiable();
+            commandMock.Setup(m => m.ExecuteReader()).Returns(readerMock.Object);
 
             var connectionMock = new Mock<IDbConnection>();
             connectionMock.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
 
-            var data = new SQLInfobase.Users(SQLInfobase.DBMSType.PostgreSQL, () => connectionMock.Object);
-            var result = data.GetAll();
-
-            Assert.Single(result);
-            Assert.Collection(result, x =>
-            {
-                Assert.Equal("TestName", x.Name);
-                Assert.Equal("TestDescr", x.Descr);
-                Assert.Equal("938d8cb13d175539450e57db4a4fe769", x.IDStr);
-                Assert.Equal("\u2714", x.AdmRole);
-                Assert.Equal(Test_Hashes.Item1, x.PassHash);
-                Assert.Equal(Test_Hashes.Item2, x.PassHash2);
-            });
-            commandMock.Verify();
+            return connectionMock;
         }
 
-        [Fact()]
-        public void GetAll_MSSQLServer_Test()
+        [Theory]
+        [InlineData(SQLInfobase.DBMSType.PostgreSQL)]
+        [InlineData(SQLInfobase.DBMSType.MSSQLServer)]
+        public void GetAll_Test(in SQLInfobase.DBMSType DBMSType)
         {
-            string Test_IdStr = new Guid(Test_Id).ToString();
-            byte[] Test_AdmRole = BitConverter.GetBytes(true);
+            var data = new SQLUser_MockData
+            {
+                DBMSType = DBMSType
+            };
+            var Expected = data.SQLUser;
 
-            var readerMock = new Mock<IDataReader>();
-            readerMock.SetupSequence(_ => _.Read())
-                .Returns(true)
-                .Returns(false);
-
-            readerMock.Setup(reader => reader.GetValue(0)).Returns(Test_Id);      //ID
-            readerMock.Setup(reader => reader.GetString(1)).Returns("TestName");  //Name
-            readerMock.Setup(reader => reader.GetString(2)).Returns("TestDescr"); //Descr
-            readerMock.Setup(reader => reader.GetValue(3)).Returns(Test_Data);    //Data
-            readerMock.Setup(reader => reader.GetValue(4)).Returns(Test_AdmRole); //AdmRole
-
-            var commandMock = new Mock<IDbCommand>();
-            commandMock.Setup(m => m.ExecuteReader()).Returns(readerMock.Object).Verifiable();
-
-            var connectionMock = new Mock<IDbConnection>();
-            connectionMock.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
-
-            var data = new SQLInfobase.Users(SQLInfobase.DBMSType.MSSQLServer, () => connectionMock.Object);
-            var result = data.GetAll();
+            var connectionMock = SetupConnectionMock(data);
+            var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
+            var result = Users.GetAll();
 
             Assert.Single(result);
-            Assert.Collection(result, x =>
+            Assert.Collection(result, Actual =>
             {
-                Assert.Equal("TestName", x.Name);
-                Assert.Equal("TestDescr", x.Descr);
-                Assert.Equal(Test_IdStr, x.IDStr);
-                Assert.Equal("\u2714", x.AdmRole);
-                Assert.Equal(Test_Hashes.Item1, x.PassHash);
-                Assert.Equal(Test_Hashes.Item2, x.PassHash2);
+                Assert.Equal(Expected.Name, Actual.Name);
+                Assert.Equal(Expected.Descr, Actual.Descr);
+                Assert.Equal(Expected.IDStr, Actual.IDStr);
+                Assert.Equal(Expected.AdmRole, Actual.AdmRole);
+
+                Assert.Equal(Test_Hashes.Item1, Actual.PassHash);
+                Assert.Equal(Test_Hashes.Item2, Actual.PassHash2);
             });
-            commandMock.Verify();
         }
     }
 }
