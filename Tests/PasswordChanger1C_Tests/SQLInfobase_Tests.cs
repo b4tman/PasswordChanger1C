@@ -54,7 +54,7 @@ namespace PasswordChanger1C.Tests
             var connectionMock = new Mock<IDbConnection>();
             connectionMock.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
 
-            var data = new SQLInfobase.ReadUsers(SQLInfobase.DBMSType.PostgreSQL, () => connectionMock.Object);
+            var data = new SQLInfobase.Users(SQLInfobase.DBMSType.PostgreSQL, () => connectionMock.Object);
             var result = data.GetAll();
 
             Assert.Single(result);
@@ -93,7 +93,7 @@ namespace PasswordChanger1C.Tests
             var connectionMock = new Mock<IDbConnection>();
             connectionMock.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
 
-            var data = new SQLInfobase.ReadUsers(SQLInfobase.DBMSType.MSSQLServer, () => connectionMock.Object);
+            var data = new SQLInfobase.Users(SQLInfobase.DBMSType.MSSQLServer, () => connectionMock.Object);
             var result = data.GetAll();
 
             Assert.Single(result);

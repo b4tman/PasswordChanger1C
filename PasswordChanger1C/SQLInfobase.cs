@@ -39,21 +39,23 @@ namespace PasswordChanger1C
             }
         }
 
-        private abstract class SQLUserReader
+        private abstract class SQLUserAdapter
         {
-            public static SQLUserReader From_DBMSType(in DBMSType dbms_type)
+            public static SQLUserAdapter From_DBMSType(in DBMSType dbms_type)
             {
                 return dbms_type switch
                 {
-                    DBMSType.MSSQLServer => new SQLUserReader_MSSQLServer(),
-                    DBMSType.PostgreSQL => new SQLUserReader_PostgreSQL(),
+                    DBMSType.MSSQLServer => new SQLUserAdapter_MSSQLServer(),
+                    DBMSType.PostgreSQL => new SQLUserAdapter_PostgreSQL(),
                     _ => throw new WrongDBMSTypeException("unknown DBMS type"),
                 };
             }
 
             public abstract string SelectSQL { get; }
+            public abstract string UpdateSQL { get; }
 
             public abstract SQLUser ReadUser(IDataReader reader);
+            public abstract void SetUpdateParams(IDbCommand command, in SQLUser SQLUser);
 
             protected static void ParseData(ref SQLUser SQLUser)
             {
@@ -70,13 +72,18 @@ namespace PasswordChanger1C
             }
         }
 
-        private class SQLUserReader_MSSQLServer : SQLUserReader
+        private class SQLUserAdapter_MSSQLServer : SQLUserAdapter
         {
             private const string _SelectSQL = "SELECT [ID], [Name], [Descr], [Data], [AdmRole] FROM [dbo].[v8users] ORDER BY [Name]";
+            private const string _UpdateSQL = "UPDATE [dbo].[v8users] SET [Data] = @data WHERE [ID] = @user";
 
             public override string SelectSQL
             {
                 get { return _SelectSQL; }
+            }
+            public override string UpdateSQL
+            {
+                get { return _UpdateSQL; }
             }
 
             public override SQLUser ReadUser(IDataReader reader)
@@ -93,9 +100,17 @@ namespace PasswordChanger1C
                 ParseData(ref SQLUser);
                 return SQLUser;
             }
+
+            public override void SetUpdateParams(IDbCommand _command, in SQLUser SQLUser)
+            {
+                var command = (SqlCommand)_command;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@user", SqlDbType.Binary)).Value = SQLUser.ID;
+                command.Parameters.Add(new SqlParameter("@data", SqlDbType.Binary)).Value = SQLUser.Data;
+            }
         }
 
-        private class SQLUserReader_PostgreSQL : SQLUserReader
+        private class SQLUserAdapter_PostgreSQL : SQLUserAdapter
         {
             private const string _SelectSQL = @"
             SELECT id, encode(id, 'hex') as idStr,
@@ -104,10 +119,18 @@ namespace PasswordChanger1C
                    data,
                    admrole
             FROM public.v8users";
+            private const string _UpdateSQL = @"
+            UPDATE public.v8users 
+            SET data = @NewData 
+            WHERE id = decode(@id, 'hex')";
 
             public override string SelectSQL
             {
                 get { return _SelectSQL; }
+            }
+            public override string UpdateSQL
+            {
+                get { return _UpdateSQL; }
             }
 
             public override SQLUser ReadUser(IDataReader reader)
@@ -124,17 +147,25 @@ namespace PasswordChanger1C
                 ParseData(ref SQLUser);
                 return SQLUser;
             }
+
+            public override void SetUpdateParams(IDbCommand _command, in SQLUser SQLUser)
+            {
+                var command = (NpgsqlCommand)_command;
+                command.Parameters.Clear();
+                command.Parameters.AddWithValue("NewData", SQLUser.Data);
+                command.Parameters.AddWithValue("id", SQLUser.IDStr);
+            }
         }
 
-        public class ReadUsers
+        public class Users
         {
             private Func<IDbConnection> Factory { get; }
-            private SQLUserReader UserReader { get; }
+            private SQLUserAdapter Adapter { get; }
 
-            public ReadUsers(in DBMSType dbms_type, in Func<IDbConnection> factory)
+            public Users(in DBMSType dbms_type, in Func<IDbConnection> factory)
             {
                 Factory = factory;
-                UserReader = SQLUserReader.From_DBMSType(dbms_type);
+                Adapter = SQLUserAdapter.From_DBMSType(dbms_type);
             }
 
             // https://stackoverflow.com/questions/58375054/mocking-sqlconnection-sqlcommand-and-sqlreader-in-c-sharp-using-mstest
@@ -142,17 +173,40 @@ namespace PasswordChanger1C
             {
                 using IDbConnection connection = Factory.Invoke();
                 using IDbCommand command = connection.CreateCommand();
-                command.CommandText = UserReader.SelectSQL;
+                command.CommandText = Adapter.SelectSQL;
 
                 connection.Open();
                 using IDataReader reader = command.ExecuteReader();
                 List<SQLUser> rows = new();
                 while (reader.Read())
                 {
-                    rows.Add(UserReader.ReadUser(reader));
+                    rows.Add(Adapter.ReadUser(reader));
                 }
                 return rows;
             }
+
+            public bool Update(in SQLUser SQLUser)
+            {
+                using IDbConnection connection = Factory.Invoke();
+                using IDbCommand command = connection.CreateCommand();
+                command.CommandText = Adapter.UpdateSQL;
+                Adapter.SetUpdateParams(command, SQLUser);
+                connection.Open();
+                int rows = command.ExecuteNonQuery();
+                return 0 < rows;
+            }
+        }
+
+        public static void UpdatePassword(ref SQLUser SQLUser, in string NewPassword)
+        {
+            var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
+            var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
+            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);            
+            var NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData);
+            SQLUser.PassHash = NewHashes.Item1;
+            SQLUser.PassHash2 = NewHashes.Item2;
+            SQLUser.DataStr = NewData;
+            SQLUser.Data = NewBytes;
         }
 
         public static Func<IDbConnection> CreateConnectionFactory(in DBMSType dbms_type, string connection_str)

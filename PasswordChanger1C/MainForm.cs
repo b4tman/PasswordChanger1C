@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
-using Npgsql;
 
 namespace PasswordChanger1C
 {
@@ -122,15 +120,41 @@ namespace PasswordChanger1C
             }
         }
 
-        private void Button2_Click(object sender, EventArgs e)
+        private SQLInfobase.DBMSType Selected_DBMSType()
         {
-            SQLInfobase.DBMSType dbms_type = cbDBType.SelectedIndex switch
+            return cbDBType.SelectedIndex switch
             {
                 0 => SQLInfobase.DBMSType.MSSQLServer,
                 1 => SQLInfobase.DBMSType.PostgreSQL,
                 _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
             };
-            GetUsers_SQLInfobase(dbms_type);
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            GetUsers_SQLInfobase(Selected_DBMSType());
+        }
+
+        private void ButtonChangePassSQL_Click(object sender, EventArgs e)
+        {
+            if (SQLUserList.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Не выделены строки с пользователями для установки нового пароля!",
+                                "Не выделены строки с пользователями", MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                return;
+            }
+
+            var Rez = MessageBox.Show("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine +
+                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
+                            "Установить новый пароль выбранным пользователям?",
+                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);
+            if (Rez != DialogResult.Yes)
+            {
+                return;
+            }
+
+            SetUsers_SQLInfobase(Selected_DBMSType());
         }
 
         public void GetUsers_SQLInfobase(in SQLInfobase.DBMSType dbms_type)
@@ -140,8 +164,8 @@ namespace PasswordChanger1C
             SQLUserList.Items.Clear();
             try
             {
-                var reader = new SQLInfobase.ReadUsers(dbms_type, factory);
-                SQLUsers = reader.GetAll();
+                var Users = new SQLInfobase.Users(dbms_type, factory);
+                SQLUsers = Users.GetAll();
             }
             catch (Exception ex)
             {
@@ -173,75 +197,35 @@ namespace PasswordChanger1C
             }
         }
 
-        private void ButtonChangePassSQL_Click(object sender, EventArgs e)
+        public void SetUsers_SQLInfobase(in SQLInfobase.DBMSType dbms_type)
         {
-            if (SQLUserList.SelectedItems.Count == 0)
+            bool is_Success = false;
+            string NewPassword = NewPassSQL.Text.Trim();
+            List<string> Selected_ID = new();
+            foreach (ListViewItem item in SQLUserList.SelectedItems) Selected_ID.Add(item.Text);
+
+            var SelectedUsers = SQLUsers.FindAll(user => Selected_ID.Contains(user.IDStr) && user.PassHash != "");
+            if (0 == SelectedUsers.Count)
             {
-                MessageBox.Show("Не выделены строки с пользователями для установки нового пароля!",
-                                "Не выделены строки с пользователями", MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                MessageBox.Show("Невозможно изменить пароль выбранным пользователям, так как авторизация средставми 1С не используется",
+                                "Ошибка изменения пароля", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 return;
             }
 
-            var Rez = MessageBox.Show("Внесение изменений в базу данных может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine +
-                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
-                            "Установить новый пароль выбранным пользователям?",
-                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);
-            if (Rez != DialogResult.Yes)
-            {
-                return;
-            }
+            var UserNames = string.Join(", ", SelectedUsers.Select(user => user.Name));
 
-            switch (cbDBType.SelectedIndex)
-            {
-                case 0:
-                    {
-                        SetUsersMSSQL();
-                        break;
-                    }
+            var factory = SQLInfobase.CreateConnectionFactory(dbms_type, ConnectionString.Text);
 
-                case 1:
-                    {
-                        SetUsersPostgreSQL();
-                        break;
-                    }
-            }
-        }
-
-        public void SetUsersMSSQL()
-        {
             try
             {
-                string Str = "";
-                using var Connection = new SqlConnection(ConnectionString.Text);
-                Connection.Open();
-#pragma warning disable SecurityIntelliSenseCS // MS Security rules violation
-                using var command = new SqlCommand("UPDATE [dbo].[v8users] SET [Data] = @data WHERE [ID] = @user", Connection);
-#pragma warning restore SecurityIntelliSenseCS // MS Security rules violation
-                foreach (ListViewItem item in SQLUserList.SelectedItems)
+                var Users = new SQLInfobase.Users(dbms_type, factory);
+                foreach (var SelectedUser in SelectedUsers)
                 {
-                    foreach (var SQLUser in SQLUsers)
-                    {
-                        if (SQLUser.IDStr == item.Text && SQLUser.PassHash != "")
-                        {
-                            Str = Str + Environment.NewLine + SQLUser.Name;
-                            var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
-                            var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
-                            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);
-                            var NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData);
-                            command.Parameters.Clear();
-                            command.Parameters.Add(new SqlParameter("@user", SqlDbType.Binary)).Value = SQLUser.ID;
-                            command.Parameters.Add(new SqlParameter("@data", SqlDbType.Binary)).Value = NewBytes;
-                            command.ExecuteNonQuery();
-                        }
-                    }
+                    var User = SelectedUser;
+                    SQLInfobase.UpdatePassword(ref User, NewPassword);
+                    is_Success = Users.Update(User);
                 }
-
-                GetUsers_SQLInfobase(SQLInfobase.DBMSType.MSSQLServer);
-
-                MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
-                                "Операция успешно выполнена", MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -250,53 +234,15 @@ namespace PasswordChanger1C
                                 "Ошибка работы с базой данных", MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
             }
-        }
 
-        public void SetUsersPostgreSQL()
-        {
-            try
+            GetUsers_SQLInfobase(dbms_type);
+
+
+            if (is_Success)
             {
-                string Str = "";
-                int a = 0;
-                using var Connection = new NpgsqlConnection(ConnectionString.Text);
-                Connection.Open();
-                using var command = new NpgsqlCommand(@"UPDATE public.v8users 
-                                             SET data = @NewData 
-                                             WHERE id = decode(@id, 'hex')", Connection);
-                foreach (ListViewItem item in SQLUserList.SelectedItems)
-                {
-                    foreach (var SQLUser in SQLUsers)
-                    {
-                        if (SQLUser.IDStr == item.Text && SQLUser.PassHash != "")
-                        {
-                            Str = Str + Environment.NewLine + SQLUser.Name;
-                            var NewHashes = CommonModule.GeneratePasswordHashes(NewPassSQL.Text.Trim());
-                            var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
-                            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);
-                            var NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData);
-                            command.Parameters.Clear();
-                            command.Parameters.AddWithValue("NewData", NewBytes);
-                            command.Parameters.AddWithValue("id", SQLUser.IDStr);
-                            a = command.ExecuteNonQuery();
-                        }
-                    }
-                }
-
-                GetUsers_SQLInfobase(SQLInfobase.DBMSType.PostgreSQL);
-
-                if (a > 0)
-                {
-                    MessageBox.Show("Успешно установлен пароль '" + NewPassSQL.Text.Trim() + "' для пользователей:" + Str,
+                MessageBox.Show("Успешно установлен пароль '" + NewPassword + "' для пользователей:" + Environment.NewLine + UserNames,
                                 "Операция успешно выполнена", MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при попытке записи новых данных пользователей в базу данных:" + Environment.NewLine +
-                                ex.Message,
-                                "Ошибка работы с базой данных", MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
             }
         }
 
