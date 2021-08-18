@@ -1,6 +1,4 @@
 ﻿using Xunit;
-using PasswordChanger1C;
-using Newtonsoft.Json;
 using System;
 using System.IO;
 
