@@ -8,7 +8,7 @@ namespace PasswordChanger1C.Tests
     // https://stackoverflow.com/questions/58375054/mocking-sqlconnection-sqlcommand-and-sqlreader-in-c-sharp-using-mstest
     public class SQLInfobase_Tests
     {
-        private const string Test_Password = "1";
+        private const string Test_Password = "test_password_123";
         private readonly static byte[] Test_Id = FromBase64("k42MsT0XVTlFDlfbSk/naQ==");
 
         private readonly static byte[] Test_Data = FromBase64(@"
@@ -101,12 +101,12 @@ namespace PasswordChanger1C.Tests
                 }
                 set
                 {
-                    Data = CommonModule.EncodePasswordStructure(DataStr, KeySize, KeyData);
+                    Data = CommonModule.EncodePasswordStructure(value, KeySize, KeyData);
                 }
             }
 
             public SQLUser_MockData()
-            {
+            {   // default data
                 ID = Test_Id;
                 Data = Test_Data;
                 Password = Test_Password;
@@ -114,7 +114,7 @@ namespace PasswordChanger1C.Tests
                 Descr = "TestDescr";
                 AdmRole = true;
                 DBMSType = SQLInfobase.DBMSType.PostgreSQL;
-            }            
+            }
         }
 
         private static byte[] FromBase64(in string data)
