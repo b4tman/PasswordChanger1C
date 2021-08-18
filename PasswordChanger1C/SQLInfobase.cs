@@ -101,12 +101,21 @@ namespace PasswordChanger1C
                 return SQLUser;
             }
 
-            public override void SetUpdateParams(IDbCommand _command, in SQLUser SQLUser)
+            public override void SetUpdateParams(IDbCommand command, in SQLUser SQLUser)
             {
-                var command = (SqlCommand)_command;
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@user", SqlDbType.Binary)).Value = SQLUser.ID;
-                command.Parameters.Add(new SqlParameter("@data", SqlDbType.Binary)).Value = SQLUser.Data;
+                var param_user = command.CreateParameter();
+                param_user.ParameterName = "@user";
+                param_user.DbType = DbType.Binary;
+                param_user.Value = SQLUser.ID;
+
+                var param_data = command.CreateParameter();
+                param_data.ParameterName = "@data";
+                param_data.DbType = DbType.Binary;
+                param_data.Value = SQLUser.Data;
+
+                command.Parameters.Add(param_user);
+                command.Parameters.Add(param_data);
             }
         }
 
@@ -148,12 +157,21 @@ namespace PasswordChanger1C
                 return SQLUser;
             }
 
-            public override void SetUpdateParams(IDbCommand _command, in SQLUser SQLUser)
+            public override void SetUpdateParams(IDbCommand command, in SQLUser SQLUser)
             {
-                var command = (NpgsqlCommand)_command;
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("NewData", SQLUser.Data);
-                command.Parameters.AddWithValue("id", SQLUser.IDStr);
+                var param_id = command.CreateParameter();
+                param_id.ParameterName = "id";
+                param_id.DbType = DbType.String;
+                param_id.Value = SQLUser.IDStr;
+
+                var param_data = command.CreateParameter();
+                param_data.ParameterName = "NewData";
+                param_data.DbType = DbType.Binary;
+                param_data.Value = SQLUser.Data;
+
+                command.Parameters.Add(param_id);
+                command.Parameters.Add(param_data);
             }
         }
 
