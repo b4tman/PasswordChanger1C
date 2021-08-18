@@ -247,6 +247,8 @@ namespace PasswordChanger1C.Tests
             var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
             var result = Users.GetAll();
 
+            connectionMock.VerifyAll();
+
             Assert.Single(result);
             Assert.Collection(result, Actual =>
             {
@@ -277,6 +279,8 @@ namespace PasswordChanger1C.Tests
             var connectionMock = SetupConnectionMock_Update(User);
             var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
             var is_ok = Users.Update(User);
+
+            connectionMock.VerifyAll();
 
             Assert.True(is_ok);
         }
