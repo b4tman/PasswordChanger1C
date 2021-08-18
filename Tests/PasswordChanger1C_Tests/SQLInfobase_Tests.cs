@@ -2,6 +2,8 @@
 using System;
 using System.Data;
 using Xunit;
+using System.Collections;
+using System.Linq;
 
 namespace PasswordChanger1C.Tests
 {
@@ -128,7 +130,7 @@ namespace PasswordChanger1C.Tests
             return Convert.FromBase64String(base64str);
         }
 
-        private static Mock<IDbConnection> SetupConnectionMock(in SQLUser_MockData data)
+        private static Mock<IDbConnection> SetupConnectionMock_GetAll(in SQLUser_MockData data)
         {
             var readerMock = new Mock<IDataReader>();
             readerMock.SetupSequence(_ => _.Read())
@@ -168,6 +170,68 @@ namespace PasswordChanger1C.Tests
             return connectionMock;
         }
 
+        private static Mock<IDbConnection> SetupConnectionMock_Update(in SQLInfobase.SQLUser ExpectedUser)
+        {
+            var user = ExpectedUser;
+            var data_is_set = false;
+            var id_is_set = false;
+
+            IDbDataParameter NewParameter()
+            {
+                var ParamMock = new Mock<IDbDataParameter>();
+                ParamMock.SetupAllProperties();
+                ParamMock.SetupSet(_ => _.Value = It.IsAny<byte[]>()).Callback<object>(data => {
+                    // check if new Data param value is equal with testing user Data
+
+                    var b = (byte[])data;
+                    bool is_data = b.Length > 20;
+                    if (is_data) {
+                        Assert.False(data_is_set);
+                        Assert.Equal(user.Data, b);
+                        data_is_set = true;
+                    } else // check ID (MSSQLServer)
+                    {
+                        Assert.False(id_is_set);
+                        Assert.Equal(user.ID, b);
+                        id_is_set = true;
+                    }
+                });
+                ParamMock.SetupSet(_ => _.Value = It.IsAny<string>()).Callback<object>(val => {
+                    // check if new IDStr param value is equal with testing user IDStr (PostgreSQL)
+
+                    var s = (string)val;
+                    Assert.False(id_is_set);
+                    Assert.Equal(user.IDStr, s);
+                    id_is_set = true;
+                });
+                return ParamMock.Object;
+            };
+
+            var ParamsMock = new Mock<IDataParameterCollection>();
+            ParamsMock.SetupAllProperties();
+
+            var commandMock = new Mock<IDbCommand>();
+            commandMock.SetupGet(_ => _.Parameters).Returns(ParamsMock.Object);
+            commandMock.Setup(m => m.CreateParameter()).Returns(NewParameter);
+            commandMock.Setup(m => m.ExecuteNonQuery()).Returns(() => data_is_set && id_is_set ? 1 : 0);
+            //commandMock.Setup(m => m.Dispose()).Callback(() => 
+            //{
+            //    Assert.True(data_is_set);
+            //    Assert.True(id_is_set);
+            //    ParamsMock.Verify();
+            //    commandMock.VerifyAll();
+            //});
+
+            var connectionMock = new Mock<IDbConnection>();
+            connectionMock.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
+            //connectionMock.Setup(m => m.Dispose()).Callback(() =>
+            //{
+            //    connectionMock.VerifyAll();
+            //});
+
+            return connectionMock;
+        }
+
         [Theory]
         [InlineData(SQLInfobase.DBMSType.PostgreSQL)]
         [InlineData(SQLInfobase.DBMSType.MSSQLServer)]
@@ -179,7 +243,7 @@ namespace PasswordChanger1C.Tests
             };
             var Expected = data.SQLUser;
 
-            var connectionMock = SetupConnectionMock(data);
+            var connectionMock = SetupConnectionMock_GetAll(data);
             var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
             var result = Users.GetAll();
 
@@ -194,6 +258,27 @@ namespace PasswordChanger1C.Tests
                 Assert.Equal(Test_Hashes.Item1, Actual.PassHash);
                 Assert.Equal(Test_Hashes.Item2, Actual.PassHash2);
             });
+        }
+
+        [Theory]
+        [InlineData(SQLInfobase.DBMSType.PostgreSQL)]
+        [InlineData(SQLInfobase.DBMSType.MSSQLServer)]
+        public void Update_Test(in SQLInfobase.DBMSType DBMSType)
+        {
+            var data = new SQLUser_MockData
+            {
+                DBMSType = DBMSType
+            };
+            var User = data.SQLUser;
+
+            var NewPassword = Guid.NewGuid().ToString();
+            SQLInfobase.UpdatePassword(ref User, NewPassword);
+
+            var connectionMock = SetupConnectionMock_Update(User);
+            var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
+            var is_ok = Users.Update(User);
+
+            Assert.True(is_ok);
         }
     }
 }
