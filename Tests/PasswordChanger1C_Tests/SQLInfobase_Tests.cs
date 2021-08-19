@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace PasswordChanger1C.Tests
 {
+    using static SQLInfobase;
+
     // https://stackoverflow.com/questions/58375054/mocking-sqlconnection-sqlcommand-and-sqlreader-in-c-sharp-using-mstest
     public class SQLInfobase_Tests
     {
@@ -24,19 +26,19 @@ namespace PasswordChanger1C.Tests
 
         private class SQLUser_MockData
         {
-            public SQLInfobase.SQLUser SQLUser
+            public SQLUser SQLUser
             {
                 get 
                 { 
-                    return new SQLInfobase.SQLUser {
+                    return new SQLUser {
                         ID = ID,
                         IDStr = IDStr,
                         Name = Name,
                         Descr = Descr,
                         Data = Data,
                         DataStr = DataStr,
-                        PassHash = PasswordHashes.Item1,
-                        PassHash2 = PasswordHashes.Item2,
+                        PassHash = PasswordHashes.Item1.Trim('\"'),
+                        PassHash2 = PasswordHashes.Item2.Trim('\"'),
                         AdmRole = AdmRole ? "\u2714" : "",
                         KeySize = KeySize,
                         KeyData = KeyData
@@ -44,7 +46,7 @@ namespace PasswordChanger1C.Tests
                 }
             }
 
-            public SQLInfobase.DBMSType DBMSType { get; set; }
+            public DBMSType DBMSType { get; set; }
             public byte[] ID { get; set; }
             public byte[] Data { get; set; }
             public string Name { get; set; }
@@ -82,9 +84,9 @@ namespace PasswordChanger1C.Tests
                 get 
                 {
                     string result = "";
-                    if (SQLInfobase.DBMSType.PostgreSQL == DBMSType)
+                    if (DBMSType.PostgreSQL == DBMSType)
                         result = BitConverter.ToString(ID).Replace("-", "").ToLower();
-                    else if (SQLInfobase.DBMSType.MSSQLServer == DBMSType)
+                    else if (DBMSType.MSSQLServer == DBMSType)
                         result = new Guid(ID).ToString();
                     return result;                    
                 } 
@@ -115,7 +117,11 @@ namespace PasswordChanger1C.Tests
                 Name = "TestName";
                 Descr = "TestDescr";
                 AdmRole = true;
-                DBMSType = SQLInfobase.DBMSType.PostgreSQL;
+                DBMSType = DBMSType.PostgreSQL;
+            }
+            public SQLUser_MockData(DBMSType _DBMSType) : this()
+            {
+                DBMSType = _DBMSType;
             }
         }
 
@@ -137,7 +143,7 @@ namespace PasswordChanger1C.Tests
                 .Returns(true)
                 .Returns(false);
 
-            if (SQLInfobase.DBMSType.PostgreSQL == data.DBMSType)
+            if (DBMSType.PostgreSQL == data.DBMSType)
             {
                 readerMock.Setup(reader => reader.GetValue(0)).Returns(data.ID);        //ID
                 readerMock.Setup(reader => reader.GetString(1)).Returns(data.IDStr);    //IDStr
@@ -146,7 +152,7 @@ namespace PasswordChanger1C.Tests
                 readerMock.Setup(reader => reader.GetValue(4)).Returns(data.Data);      //Data
                 readerMock.Setup(reader => reader.GetBoolean(5)).Returns(data.AdmRole); //AdmRole
             }
-            else if (SQLInfobase.DBMSType.MSSQLServer == data.DBMSType)
+            else if (DBMSType.MSSQLServer == data.DBMSType)
             {
                 byte[] AdmRole = BitConverter.GetBytes(data.AdmRole);
 
@@ -170,7 +176,7 @@ namespace PasswordChanger1C.Tests
             return connectionMock;
         }
 
-        private static Mock<IDbConnection> SetupConnectionMock_Update(in SQLInfobase.SQLUser ExpectedUser)
+        private static Mock<IDbConnection> SetupConnectionMock_Update(in SQLUser ExpectedUser)
         {
             var user = ExpectedUser;
             var data_is_set = false;
@@ -233,18 +239,15 @@ namespace PasswordChanger1C.Tests
         }
 
         [Theory]
-        [InlineData(SQLInfobase.DBMSType.PostgreSQL)]
-        [InlineData(SQLInfobase.DBMSType.MSSQLServer)]
-        public void GetAll_Test(in SQLInfobase.DBMSType DBMSType)
+        [InlineData(DBMSType.PostgreSQL)]
+        [InlineData(DBMSType.MSSQLServer)]
+        public void GetAll_Test(in DBMSType DBMSType)
         {
-            var data = new SQLUser_MockData
-            {
-                DBMSType = DBMSType
-            };
+            var data = new SQLUser_MockData(DBMSType);
             var Expected = data.SQLUser;
 
             var connectionMock = SetupConnectionMock_GetAll(data);
-            var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
+            var Users = new Users(DBMSType, () => connectionMock.Object);
             var result = Users.GetAll();
 
             connectionMock.VerifyAll();
@@ -262,22 +265,41 @@ namespace PasswordChanger1C.Tests
             });
         }
 
-        [Theory]
-        [InlineData(SQLInfobase.DBMSType.PostgreSQL)]
-        [InlineData(SQLInfobase.DBMSType.MSSQLServer)]
-        public void Update_Test(in SQLInfobase.DBMSType DBMSType)
+        [Fact]
+        public void UpdatePassword_ChangeHashes()
         {
-            var data = new SQLUser_MockData
-            {
-                DBMSType = DBMSType
-            };
+            var data = new SQLUser_MockData();
             var User = data.SQLUser;
-
             var NewPassword = Guid.NewGuid().ToString();
-            SQLInfobase.UpdatePassword(ref User, NewPassword);
 
-            var connectionMock = SetupConnectionMock_Update(User);
-            var Users = new SQLInfobase.Users(DBMSType, () => connectionMock.Object);
+            data.Password = NewPassword;
+            var ExpectedUser = data.SQLUser;
+
+            Assert.NotEqual(ExpectedUser.PassHash, User.PassHash);
+            Assert.NotEqual(ExpectedUser.PassHash2, User.PassHash2);
+
+            UpdatePassword(ref User, NewPassword);
+
+            Assert.Equal(ExpectedUser.PassHash, User.PassHash);
+            Assert.Equal(ExpectedUser.PassHash2, User.PassHash2);
+        }
+
+        [Theory]
+        [InlineData(DBMSType.PostgreSQL)]
+        [InlineData(DBMSType.MSSQLServer)]
+        public void Update_Test(in DBMSType DBMSType)
+        {
+            var data = new SQLUser_MockData(DBMSType);            
+            var User = data.SQLUser;
+            var NewPassword = Guid.NewGuid().ToString();
+
+            data.Password = NewPassword;
+            var ExpectedUser = data.SQLUser;
+
+            var connectionMock = SetupConnectionMock_Update(ExpectedUser);
+            var Users = new Users(DBMSType, () => connectionMock.Object);
+
+            UpdatePassword(ref User, NewPassword);
             var is_ok = Users.Update(User);
 
             connectionMock.VerifyAll();
