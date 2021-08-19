@@ -216,7 +216,7 @@ namespace PasswordChanger1C
             }
         }
 
-        private static byte[] GetCleanDataFromBlob(in int Dataindex, in int Datasize, in byte[] bytesBlock, [Optional, DefaultParameterValue(null)] ref int[] DataPositions)
+        private static byte[] GetCleanDataFromBlob(int Dataindex, int Datasize, in byte[] bytesBlock, [Optional, DefaultParameterValue(null)] ref int[] DataPositions)
         {
             int NextBlock = 999; // any number gt 0
             int Pos = Dataindex * 256;
@@ -255,7 +255,7 @@ namespace PasswordChanger1C
             return BytesTableStructure;
         }
 
-        private static AccessFunctions.PageParams ReadObjectPageDefinition(in byte[] Bytes, in int PageSize)
+        private static AccessFunctions.PageParams ReadObjectPageDefinition(in byte[] Bytes, int PageSize)
         {
 
             // struct {
@@ -307,7 +307,7 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void WritePasswordIntoInfoBaseIB(in string FileName, in AccessFunctions.PageParams PageHeader, in byte[] OldData, in byte[] NewData, in int DataPos, in int DataSize)
+        public static void WritePasswordIntoInfoBaseIB(in string FileName, in AccessFunctions.PageParams PageHeader, in byte[] OldData, in byte[] NewData, int DataPos, int DataSize)
         {
             int PageSize = PageHeader.PageSize;
             long BlockBlob = PageHeader.BlockBlob;
@@ -363,7 +363,7 @@ namespace PasswordChanger1C
             }
         }
 
-        public static void WritePasswordIntoInfoBaseRepo(in string FileName, in AccessFunctions.PageParams PageHeader, in int Offset, in string NewPass = null)
+        public static void WritePasswordIntoInfoBaseRepo(in string FileName, in AccessFunctions.PageParams PageHeader, int Offset, in string NewPass = null)
         {
             int PageSize = PageHeader.PageSize;
             AccessFunctions.PageParams DataPage;

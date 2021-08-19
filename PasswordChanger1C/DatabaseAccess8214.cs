@@ -125,7 +125,7 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void ReadDataFromTable(InfobaseBinaryReader reader, in long DB, ref AccessFunctions.PageParams PageHeader, in string TargetTableName)
+        public static void ReadDataFromTable(InfobaseBinaryReader reader, long DB, ref AccessFunctions.PageParams PageHeader, in string TargetTableName)
         {
             var PageBuffer = reader.ReadPage(DB);
 
@@ -217,7 +217,7 @@ namespace PasswordChanger1C
             ReadDataPage(ref PageHeader, BlockData, BlockBlob, reader);
         }
 
-        public static byte[] GetBlobData(in long BlockBlob, in int Dataindex, in int Datasize, InfobaseBinaryReader reader)
+        public static byte[] GetBlobData(long BlockBlob, int Dataindex, int Datasize, InfobaseBinaryReader reader)
         {
             var DataPageBuffer = reader.ReadPage(BlockBlob);
 
@@ -253,7 +253,7 @@ namespace PasswordChanger1C
             return ByteBlock;
         }
 
-        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, in long block, in long BlockBlob, InfobaseBinaryReader reader)
+        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, long block, long BlockBlob, InfobaseBinaryReader reader)
         {
             var DataPageBuffer = reader.ReadPage(block);
             var DataPage = ReadPage(reader, DataPageBuffer);

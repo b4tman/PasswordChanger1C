@@ -37,7 +37,7 @@ namespace PasswordChanger1C
             return Encoding.UTF8.GetString(BytesResult);
         }
 
-        public static byte[] EncodePasswordStructure(in string Str, in int KeySize, in byte[] KeyData)
+        public static byte[] EncodePasswordStructure(in string Str, int KeySize, in byte[] KeyData)
         {
             var bytes_Input = Encoding.UTF8.GetBytes(Str);
             int Base = KeySize;

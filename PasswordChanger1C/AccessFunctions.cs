@@ -190,7 +190,7 @@ namespace PasswordChanger1C
             return Param;
         }
 
-        public static void WritePasswordIntoInfoBaseRepo(in string FileName, in PageParams PageHeader, in int Offset, in string NewPass = null)
+        public static void WritePasswordIntoInfoBaseRepo(in string FileName, in PageParams PageHeader, int Offset, in string NewPass = null)
         {
             byte[] TargetDataBuffer;
             PageParams DataPage;
@@ -251,7 +251,7 @@ namespace PasswordChanger1C
             }
         }
 
-        public static void WritePasswordIntoInfoBaseIB(in string FileName, in PageParams PageHeader, in byte[] OldData, in byte[] NewData, in int DataPos, in int DataSize)
+        public static void WritePasswordIntoInfoBaseIB(in string FileName, in PageParams PageHeader, in byte[] OldData, in byte[] NewData, int DataPos, int DataSize)
         {
             if (PageHeader.DatabaseVersion.StartsWith("8.3"))
             {
