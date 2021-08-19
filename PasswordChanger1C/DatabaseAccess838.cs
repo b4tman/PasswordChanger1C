@@ -14,10 +14,10 @@ namespace PasswordChanger1C
         public static AccessFunctions.PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
         {
             // второй блок пропускаем
-            reader.BaseStream.Seek(reader.PageSize, SeekOrigin.Current);
+            //reader.BaseStream.Seek(reader.PageSize, SeekOrigin.Current);
 
             // корневой блок
-            var RootPageBuffer = reader.ReadPage();
+            var RootPageBuffer = reader.ReadPage(2);
             var TargetPage = FindTableDefinition(reader, RootPageBuffer, TargetTableName);
 
             if (TargetPage.TableName is not null) // if table found
@@ -81,8 +81,7 @@ namespace PasswordChanger1C
             long BlockBlob = PageHeader.BlockBlob;
             int PageSize = PageHeader.PageSize;
             PageHeader.Records = new List<Dictionary<string, object>>();
-            reader.BaseStream.Seek(FirstPage * (long)PageSize, SeekOrigin.Begin);
-            var DataPageBuffer = reader.ReadPage();
+            var DataPageBuffer = reader.ReadPage(FirstPage);
 
             var DataPage = ReadObjectPageDefinition(DataPageBuffer, PageSize);
             DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
@@ -148,9 +147,7 @@ namespace PasswordChanger1C
                                 Dict.Add("DATA_SIZE", DataSize);
                             }
 
-                            reader.BaseStream.Seek(BlockBlob * (long)PageSize, SeekOrigin.Begin);
-                            var BlobPageBuffer = reader.ReadPage();
-
+                            var BlobPageBuffer = reader.ReadPage(BlockBlob);
                             var BlobPage = ReadObjectPageDefinition(BlobPageBuffer, PageSize);
                             BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
                             int[] argDataPositions = null;
@@ -250,9 +247,7 @@ namespace PasswordChanger1C
             int i = 0;
             foreach (var blk in Page.PagesNum)
             {
-                reader.BaseStream.Seek(blk * (long)Page.PageSize, SeekOrigin.Begin);
-                var PageBuffer = reader.ReadPage();
-
+                var PageBuffer = reader.ReadPage(blk);
                 PageBuffer.AsMemory(0, Page.PageSize).CopyTo(BytesTableStructure.AsMemory(i, Page.PageSize));
                 i += Page.PageSize;
             }
@@ -323,10 +318,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new InfobaseBinaryReader(fs, PageHeader.PageSize);
-
-                reader.BaseStream.Seek(BlockBlob * (long)PageSize, SeekOrigin.Begin);
-                var BlobPageBuffer = reader.ReadPage();
-
+                var BlobPageBuffer = reader.ReadPage(BlockBlob);
                 BlobPage = ReadObjectPageDefinition(BlobPageBuffer, PageSize);
                 BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
             }
@@ -382,8 +374,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new AccessFunctions.InfobaseBinaryReader(fs, PageHeader.PageSize);
-                reader.BaseStream.Seek(PageHeader.BlockData * (long)PageSize, SeekOrigin.Begin);
-                var DataPageBuffer = reader.ReadPage();
+                var DataPageBuffer = reader.ReadPage(PageHeader.BlockData);
                 DataPage = ReadObjectPageDefinition(DataPageBuffer, PageSize);
                 DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
             }

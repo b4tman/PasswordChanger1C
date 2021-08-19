@@ -112,6 +112,16 @@ namespace PasswordChanger1C
                 PageSize = _PageSize;
             }
 
+            public long Seek(long offset, SeekOrigin origin)
+            {
+                return BaseStream.Seek(offset, origin);
+            }
+
+            public void SeekToPage(long PageNumber)
+            {
+                Seek(PageNumber * PageSize, SeekOrigin.Begin);
+            }
+
             public override byte[] ReadBytes(int count)
             {
                 var result = base.ReadBytes(count);
@@ -123,6 +133,12 @@ namespace PasswordChanger1C
             {
                 if (PageSize == 0) throw new PageSizeNotSetException();
                 return ReadBytes(PageSize);
+            }
+
+            public byte[] ReadPage(long PageNumber)
+            {
+                SeekToPage(PageNumber);
+                return ReadPage();
             }
 
         }
@@ -156,7 +172,6 @@ namespace PasswordChanger1C
             }
 
             reader.PageSize = PageSize;
-            reader.BaseStream.Seek(PageSize, SeekOrigin.Begin);
 
             PageParams Param;
             if ("8.3.8" == DatabaseVersion)
@@ -198,9 +213,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new InfobaseBinaryReader(fs, PageHeader.PageSize);
-
-                reader.BaseStream.Seek(PageHeader.BlockData * (long)PageHeader.PageSize, SeekOrigin.Begin);
-                var DataPageBuffer = reader.ReadPage();
+                var DataPageBuffer = reader.ReadPage(PageHeader.BlockData);
 
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
@@ -210,8 +223,7 @@ namespace PasswordChanger1C
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        reader.BaseStream.Seek(DB * (long)PageHeader.PageSize, SeekOrigin.Begin);
-                        var PageBuffer = reader.ReadPage();
+                        var PageBuffer = reader.ReadPage(DB);
                         PageBuffer.CopyTo(TargetDataBuffer.AsMemory(i));
                         i += PageBuffer.Length;
                     }
@@ -256,8 +268,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new InfobaseBinaryReader(fs, PageHeader.PageSize);
-                reader.BaseStream.Seek(PageHeader.BlockBlob * PageSize, SeekOrigin.Begin);
-                var DataPageBuffer = reader.ReadPage();                
+                var DataPageBuffer = reader.ReadPage(PageHeader.BlockBlob);                
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
                 TargetDataBuffer = new byte[PageSize * TotalBlocks];
@@ -266,8 +277,7 @@ namespace PasswordChanger1C
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
-                        var PageBuffer = reader.ReadPage();
+                        var PageBuffer = reader.ReadPage(DB);
                         PageBuffer.CopyTo(TargetDataBuffer.AsMemory(i));
                         i += PageBuffer.Length;
                     }
