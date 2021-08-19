@@ -26,6 +26,19 @@ namespace PasswordChanger1C
         }
     }
 
+    /// <summary>
+    ///  Error when Read returned not expected size of bytes
+    /// </summary>
+    public class PageReadException : IOException
+    {
+        public PageReadException(string message) : base(message)
+        {
+        }
+        public PageReadException(int PageSize, int ReadedSize) : base($"Read Page with size {PageSize} returned {ReadedSize} bytes")
+        {
+        }
+    }
+
     public static class AccessFunctions
     {
         private const string InfobaseFile_Sign = "1CDBMSV8";
@@ -69,28 +82,30 @@ namespace PasswordChanger1C
             public byte[] BinaryData;
         }
 
-        public static PageParams ReadInfoBase(in string FileName, in string TableNameUsers)
+        public static PageParams ReadInfoBase(in string FileName, in string TargetTableName)
         {
             using var fs = new FileStream(FileName, FileMode.Open, FileAccess.Read, FileShare.Read);
             using var reader = new BinaryReader(fs);
-            var bytesBlock = new byte[24];
-            reader.Read(bytesBlock, 0, 24);
+            const int HeaderSize = 24;
+            var HeaderBlock = reader.ReadBytes(HeaderSize);
+            if (HeaderBlock.Length != HeaderSize) throw new PageReadException(HeaderSize, HeaderBlock.Length);
+
             string Sign = "";
 
             try
             {
-                Sign = Encoding.ASCII.GetString(bytesBlock, 0, 8);
+                Sign = Encoding.ASCII.GetString(HeaderBlock, 0, 8);
             }
             catch { }
             if (InfobaseFile_Sign != Sign)
                 throw new WrongFileFormatException($"wrong infobase file format, expected \"{InfobaseFile_Sign}\", got \"{Sign}\"");
 
-            string V1 = bytesBlock[8].ToString();
-            string V2 = bytesBlock[9].ToString();
-            string V3 = bytesBlock[10].ToString();
+            string V1 = HeaderBlock[8].ToString();
+            string V2 = HeaderBlock[9].ToString();
+            string V3 = HeaderBlock[10].ToString();
             string DatabaseVersion = $"{V1}.{V2}.{V3}";
-            //int DBSize = BitConverter.ToInt32(bytesBlock, 12);
-            int PageSize = BitConverter.ToInt32(bytesBlock, 20);
+            //int DBSize = BitConverter.ToInt32(HeaderBlock, 12);
+            int PageSize = BitConverter.ToInt32(HeaderBlock, 20);
             if (PageSize == 0)
             {
                 PageSize = 4096;
@@ -101,11 +116,11 @@ namespace PasswordChanger1C
             PageParams Param;
             if ("8.3.8" == DatabaseVersion)
             {
-                Param = DatabaseAccess838.ReadInfoBase(reader, TableNameUsers, PageSize);
+                Param = DatabaseAccess838.ReadInfoBase(reader, TargetTableName, PageSize);
             }
             else if ("8.2.14" == DatabaseVersion)
             {
-                Param = DatabaseAccess8214.ReadInfoBase(reader, TableNameUsers);
+                Param = DatabaseAccess8214.ReadInfoBase(reader, TargetTableName);
             } else
             {
                 throw new NotSupportedException($"Infobase file version \"{DatabaseVersion}\" not supported");
@@ -117,7 +132,7 @@ namespace PasswordChanger1C
 
         public static void WritePasswordIntoInfoBaseRepo(in string FileName, in PageParams PageHeader, in int Offset, in string NewPass = null)
         {
-            byte[] bytesBlock;
+            byte[] TargetDataBuffer;
             PageParams DataPage;
             long TotalBlocks;
             int i;
@@ -139,27 +154,28 @@ namespace PasswordChanger1C
             {
                 using var reader = new BinaryReader(fs);
 
-                var bytesBlock1 = new byte[PageHeader.PageSize];
                 reader.BaseStream.Seek(PageHeader.BlockData * (long)PageHeader.PageSize, SeekOrigin.Begin);
-                reader.Read(bytesBlock1, 0, PageHeader.PageSize);
-                DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
+                var DataPageBuffer = reader.ReadBytes(PageHeader.PageSize);
+                if (DataPageBuffer.Length != PageHeader.PageSize) throw new PageReadException(PageHeader.PageSize, DataPageBuffer.Length);
+
+                DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
-                bytesBlock = new byte[PageHeader.PageSize * TotalBlocks];
+                TargetDataBuffer = new byte[PageHeader.PageSize * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        var TempBlock = new byte[PageHeader.PageSize];
                         reader.BaseStream.Seek(DB * (long)PageHeader.PageSize, SeekOrigin.Begin);
-                        reader.Read(TempBlock, 0, PageHeader.PageSize);
-                        TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
-                        i += TempBlock.Length;
+                        var PageBuffer = reader.ReadBytes(PageHeader.PageSize);
+                        if (PageBuffer.Length != PageHeader.PageSize) throw new PageReadException(PageHeader.PageSize, PageBuffer.Length);
+                        PageBuffer.CopyTo(TargetDataBuffer.AsMemory(i));
+                        i += PageBuffer.Length;
                     }
                 }
             }
 
-            Pass.AsMemory().CopyTo(bytesBlock.AsMemory(Offset));
+            Pass.CopyTo(TargetDataBuffer.AsMemory(Offset));
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
@@ -170,7 +186,7 @@ namespace PasswordChanger1C
                     foreach (var DB in ST.DataBlocks)
                     {
                         var TempBlock = new byte[PageHeader.PageSize];
-                        bytesBlock.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
+                        TargetDataBuffer.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         i += TempBlock.Length;
 
                         writer.BaseStream.Seek(DB * (long)PageHeader.PageSize, SeekOrigin.Begin);
@@ -190,29 +206,31 @@ namespace PasswordChanger1C
 
             int i;
             long TotalBlocks;
-            byte[] bytesBlock;
+            byte[] TargetDataBuffer;
             int PageSize = PageHeader.PageSize;
-            var bytesBlock1 = new byte[PageSize];
             PageParams DataPage = default;
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new BinaryReader(fs);
                 reader.BaseStream.Seek(PageHeader.BlockBlob * PageSize, SeekOrigin.Begin);
-                reader.Read(bytesBlock1, 0, PageSize);
-                DataPage = DatabaseAccess8214.ReadPage(reader, bytesBlock1);
+                var DataPageBuffer = reader.ReadBytes(PageSize);
+                if (DataPageBuffer.Length != PageSize) throw new PageReadException(PageSize, DataPageBuffer.Length);
+                
+                DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
                 TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
-                bytesBlock = new byte[PageSize * TotalBlocks];
+                TargetDataBuffer = new byte[PageSize * TotalBlocks];
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        var TempBlock = new byte[PageSize];
                         reader.BaseStream.Seek(DB * PageSize, SeekOrigin.Begin);
-                        reader.Read(TempBlock, 0, PageSize);
-                        TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
-                        i += TempBlock.Length;
+                        var PageBuffer = reader.ReadBytes(PageSize);
+                        if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
+                        
+                        PageBuffer.CopyTo(TargetDataBuffer.AsMemory(i));
+                        i += PageBuffer.Length;
                     }
                 }
             }
@@ -222,10 +240,10 @@ namespace PasswordChanger1C
             int ii = 0;
             while (NextBlock > 0)
             {
-                NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
-                short BlockSize = BitConverter.ToInt16(bytesBlock, Pos + 4);
+                NextBlock = BitConverter.ToInt32(TargetDataBuffer, Pos);
+                short BlockSize = BitConverter.ToInt16(TargetDataBuffer, Pos + 4);
 
-                NewData.AsMemory(ii, BlockSize).CopyTo(bytesBlock.AsMemory(Pos + 6));
+                NewData.AsMemory(ii, BlockSize).CopyTo(TargetDataBuffer.AsMemory(Pos + 6));
                 ii += BlockSize;
 
                 Pos = NextBlock * 256;
@@ -240,7 +258,7 @@ namespace PasswordChanger1C
                     foreach (var DB in ST.DataBlocks)
                     {
                         var TempBlock = new byte[PageSize];
-                        bytesBlock.AsMemory(ii, TempBlock.Length).CopyTo(TempBlock.AsMemory());
+                        TargetDataBuffer.AsMemory(ii, TempBlock.Length).CopyTo(TempBlock.AsMemory());
                         ii += TempBlock.Length;
 
                         writer.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Current);

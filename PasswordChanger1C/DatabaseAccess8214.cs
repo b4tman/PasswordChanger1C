@@ -10,32 +10,32 @@ namespace PasswordChanger1C
     {
         const int PageSize = 4096;
 
-        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, in string TableNameUsers)
+        public static AccessFunctions.PageParams ReadInfoBase(BinaryReader reader, in string TargetTableName)
         {
-            var bytesBlock = new byte[PageSize];
-
             // второй блок пропускаем
             reader.BaseStream.Seek((long)PageSize, SeekOrigin.Current);
 
             // корневой блок
-            reader.Read(bytesBlock, 0, PageSize);
-            var Param = ReadPage(reader, bytesBlock);
-            Param.PageSize = PageSize;
+            var RootPageBuffer = reader.ReadBytes(PageSize);
+            if (RootPageBuffer.Length != PageSize) throw new PageReadException(PageSize, RootPageBuffer.Length);
+
+            var RootPage = ReadPage(reader, RootPageBuffer);
+            RootPage.PageSize = PageSize;
             string Language;
             int NumberOfTables;
             var HeaderTables = new List<long>();
             int i = 0;
-            foreach (var ST in Param.StorageTables)
+            foreach (var ST in RootPage.StorageTables)
             {
                 var bytesStorageTables = new byte[PageSize * ST.DataBlocks.Count];
                 foreach (var DB in ST.DataBlocks)
                 {
-                    var TempBlock = new byte[PageSize];
                     reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
-                    reader.Read(TempBlock, 0, PageSize);
+                    var PageBuffer = reader.ReadBytes(PageSize);
+                    if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
 
-                    TempBlock.AsMemory().CopyTo(bytesStorageTables.AsMemory(i));
-                    i += TempBlock.Length;
+                    PageBuffer.CopyTo(bytesStorageTables.AsMemory(i));
+                    i += PageBuffer.Length;
                 }
 
                 Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
@@ -51,16 +51,18 @@ namespace PasswordChanger1C
             foreach (var HT in HeaderTables)
             {
                 reader.BaseStream.Seek(HT * (long)PageSize, SeekOrigin.Begin);
-                reader.Read(bytesBlock, 0, PageSize);
-                var PageHeader = ReadPage(reader, bytesBlock);
+                var PageBuffer = reader.ReadBytes(PageSize);
+                if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
+
+                var PageHeader = ReadPage(reader, PageBuffer);
                 PageHeader.Fields = new List<AccessFunctions.TableFields>();
                 PageHeader.PageSize = PageSize;
                 foreach (var ST in PageHeader.StorageTables)
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        ReadDataFromTable(reader, DB, bytesBlock, ref PageHeader, TableNameUsers);
-                        if (PageHeader.TableName == TableNameUsers)
+                        ReadDataFromTable(reader, DB, ref PageHeader, TargetTableName);
+                        if (PageHeader.TableName == TargetTableName)
                         {
                             return PageHeader;
                         }
@@ -105,14 +107,15 @@ namespace PasswordChanger1C
                     Number = blk,
                     DataBlocks = new List<long>()
                 };
-                var bytesBlock = new byte[PageSize];
                 reader.BaseStream.Seek(blk * (long)PageSize, SeekOrigin.Begin);
-                reader.Read(bytesBlock, 0, PageSize);
-                int NumberOfPages = BitConverter.ToInt32(bytesBlock, 0);
+                var PageBuffer = reader.ReadBytes(PageSize);
+                if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
+
+                int NumberOfPages = BitConverter.ToInt32(PageBuffer, 0);
                 Index = 4;
                 for (int ii = 0; ii < NumberOfPages && Index <= PageSize - 4; ii++)
                 {
-                    long dp = BitConverter.ToInt32(bytesBlock, Index);
+                    long dp = BitConverter.ToInt32(PageBuffer, Index);
                     if (dp == 0)
                     {
                         break;
@@ -128,19 +131,21 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void ReadDataFromTable(BinaryReader reader, in long DB, byte[] bytesBlock, ref AccessFunctions.PageParams PageHeader, in string TableNameUsers)
+        public static void ReadDataFromTable(BinaryReader reader, in long DB, ref AccessFunctions.PageParams PageHeader, in string TargetTableName)
         {
             reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
-            reader.Read(bytesBlock, 0, PageSize);
+            var PageBuffer = reader.ReadBytes(PageSize);
+            if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
+
             string TableDescr = "";
             long descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
             for (int i = 0; i < descrLength; i++)
-                TableDescr += Encoding.UTF8.GetString(bytesBlock, i * 2, 1);
+                TableDescr += Encoding.UTF8.GetString(PageBuffer, i * 2, 1);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
             long RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
             PageHeader.TableName = TableName;
-            if (TableName != TableNameUsers)
+            if (TableName != TargetTableName)
             {
                 return;
             }
@@ -222,10 +227,11 @@ namespace PasswordChanger1C
 
         public static byte[] GetBlobData(in long BlockBlob, in int Dataindex, in int Datasize, BinaryReader reader)
         {
-            var bytesBlock1 = new byte[PageSize];
             reader.BaseStream.Seek(BlockBlob * (long)PageSize, SeekOrigin.Begin);
-            reader.Read(bytesBlock1, 0, PageSize);
-            var DataPage = ReadPage(reader, bytesBlock1);
+            var DataPageBuffer = reader.ReadBytes(PageSize);
+            if (DataPageBuffer.Length != PageSize) throw new PageReadException(PageSize, DataPageBuffer.Length);
+
+            var DataPage = ReadPage(reader, DataPageBuffer);
             int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
             var bytesBlock = new byte[PageSize * TotalBlocks];
             int i = 0;
@@ -233,11 +239,12 @@ namespace PasswordChanger1C
             {
                 foreach (var DB in ST.DataBlocks)
                 {
-                    var TempBlock = new byte[PageSize];
                     reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
-                    reader.Read(TempBlock, 0, PageSize);
-                    TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
-                    i += TempBlock.Length;
+                    var PageBuffer = reader.ReadBytes(PageSize);
+                    if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
+
+                    PageBuffer.CopyTo(bytesBlock.AsMemory(i));
+                    i += PageBuffer.Length;
                 }
             }
 
@@ -261,11 +268,12 @@ namespace PasswordChanger1C
 
         public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, in long block, in long BlockBlob, BinaryReader reader)
         {
-            PageHeader.Records = new List<Dictionary<string, object>>();
-            var bytesBlock1 = new byte[PageSize];
             reader.BaseStream.Seek(block * (long)PageSize, SeekOrigin.Begin);
-            reader.Read(bytesBlock1, 0, PageSize);
-            var DataPage = ReadPage(reader, bytesBlock1);
+            var DataPageBuffer = reader.ReadBytes(PageSize);
+            if (DataPageBuffer.Length != PageSize) throw new PageReadException(PageSize, DataPageBuffer.Length);
+            var DataPage = ReadPage(reader, DataPageBuffer);
+
+            PageHeader.Records = new List<Dictionary<string, object>>();
             int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
             var bytesBlock = new byte[PageSize * TotalBlocks];
             int i = 0;
@@ -273,11 +281,12 @@ namespace PasswordChanger1C
             {
                 foreach (var DB in ST.DataBlocks)
                 {
-                    var TempBlock = new byte[PageSize];
                     reader.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Begin);
-                    reader.Read(TempBlock, 0, PageSize);
-                    TempBlock.AsMemory().CopyTo(bytesBlock.AsMemory(i));
-                    i += TempBlock.Length;
+                    var PageBuffer = reader.ReadBytes(PageSize);
+                    if (PageBuffer.Length != PageSize) throw new PageReadException(PageSize, PageBuffer.Length);
+
+                    PageBuffer.CopyTo(bytesBlock.AsMemory(i));
+                    i += PageBuffer.Length;
                 }
             }
 
