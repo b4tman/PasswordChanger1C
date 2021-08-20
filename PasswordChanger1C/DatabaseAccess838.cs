@@ -248,7 +248,7 @@ namespace PasswordChanger1C
             foreach (var blk in Page.PagesNum)
             {
                 var PageBuffer = reader.ReadPage(blk);
-                PageBuffer.AsMemory(0, Page.PageSize).CopyTo(BytesTableStructure.AsMemory(i, Page.PageSize));
+                PageBuffer.CopyTo(BytesTableStructure.AsMemory(i, Page.PageSize));
                 i += Page.PageSize;
             }
 
