@@ -26,7 +26,19 @@ namespace PasswordChanger1C
         }
     }
 
-    
+    /// <summary>
+    ///  Error when PageSize not set
+    /// </summary>
+    public class PageSizeNotSetException : IOException
+    {
+        public PageSizeNotSetException(string message) : base(message)
+        {
+        }
+        public PageSizeNotSetException() : this("PageSize not set")
+        {
+        }
+    }
+
     public static partial class AccessFunctions
     {
         private const string InfobaseFile_Sign = "1CDBMSV8";

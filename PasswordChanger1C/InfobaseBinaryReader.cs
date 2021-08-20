@@ -19,19 +19,6 @@ namespace PasswordChanger1C
                 }
             }
 
-            /// <summary>
-            ///  Error when PageSize not set
-            /// </summary>
-            public class PageSizeNotSetException : IOException
-            {
-                public PageSizeNotSetException(string message) : base(message)
-                {
-                }
-                public PageSizeNotSetException() : this("PageSize not set")
-                {
-                }
-            }
-
             public int PageSize { get; set; }
 
             public InfobaseBinaryReader(Stream input): base(input)
