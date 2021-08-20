@@ -28,14 +28,7 @@ namespace PasswordChanger1C
             int i = 0;
             foreach (var ST in RootPage.StorageTables)
             {
-                var bytesStorageTables = new byte[PageSize * ST.DataBlocks.Count];
-                foreach (var DB in ST.DataBlocks)
-                {
-                    var PageBuffer = reader.ReadPage(DB);
-
-                    PageBuffer.CopyTo(bytesStorageTables.AsMemory(i));
-                    i += PageBuffer.Length;
-                }
+                var bytesStorageTables = reader.ReadPages(ST.DataBlocks);
 
                 Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
                 NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32);
@@ -222,23 +215,12 @@ namespace PasswordChanger1C
             var DataPageBuffer = reader.ReadPage(BlockBlob);
 
             var DataPage = ReadPage(reader, DataPageBuffer);
-            int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
-            var bytesBlock = new byte[PageSize * TotalBlocks];
+            var bytesBlock = reader.ReadPages(DataPage);
+            
             int i = 0;
-            foreach (var ST in DataPage.StorageTables)
-            {
-                foreach (var DB in ST.DataBlocks)
-                {
-                    var PageBuffer = reader.ReadPage(DB);
-                    PageBuffer.CopyTo(bytesBlock.AsMemory(i));
-                    i += PageBuffer.Length;
-                }
-            }
-
             int NextBlock = Dataindex;
             int Pos = Dataindex * 256;
             var ByteBlock = new byte[Datasize];
-            i = 0;
             while (NextBlock > 0)
             {
                 NextBlock = BitConverter.ToInt32(bytesBlock, Pos);
@@ -259,19 +241,9 @@ namespace PasswordChanger1C
             var DataPage = ReadPage(reader, DataPageBuffer);
 
             PageHeader.Records = new List<Dictionary<string, object>>();
-            int TotalBlocks = DataPage.StorageTables.Sum(ST => ST.DataBlocks.Count);
-            var bytesBlock = new byte[PageSize * TotalBlocks];
-            int i = 0;
-            foreach (var ST in DataPage.StorageTables)
-            {
-                foreach (var DB in ST.DataBlocks)
-                {
-                    var PageBuffer = reader.ReadPage(DB);
-                    PageBuffer.CopyTo(bytesBlock.AsMemory(i));
-                    i += PageBuffer.Length;
-                }
-            }
+            var bytesBlock = reader.ReadPages(DataPage);
 
+            int i;
             long Size = DataPage.Length / PageHeader.RowSize;
             for (i = 1; i < Size; i++)
             {

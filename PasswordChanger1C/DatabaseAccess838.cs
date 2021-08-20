@@ -79,11 +79,10 @@ namespace PasswordChanger1C
 
             long FirstPage = PageHeader.BlockData;
             long BlockBlob = PageHeader.BlockBlob;
-            int PageSize = PageHeader.PageSize;
             PageHeader.Records = new List<Dictionary<string, object>>();
             var DataPageBuffer = reader.ReadPage(FirstPage);
 
-            var DataPage = ReadObjectPageDefinition(DataPageBuffer, PageSize);
+            var DataPage = ReadObjectPageDefinition(DataPageBuffer, PageHeader.PageSize);
             DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
             var bytesBlock = DataPage.BinaryData;
             long Size = DataPage.Length / PageHeader.RowSize;
@@ -148,7 +147,7 @@ namespace PasswordChanger1C
                             }
 
                             var BlobPageBuffer = reader.ReadPage(BlockBlob);
-                            var BlobPage = ReadObjectPageDefinition(BlobPageBuffer, PageSize);
+                            var BlobPage = ReadObjectPageDefinition(BlobPageBuffer, PageHeader.PageSize);
                             BlobPage.BinaryData = ReadAllStoragePagesForObject(reader, BlobPage);
                             int[] argDataPositions = null;
                             var BytesValTemp = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, DataPositions: ref argDataPositions);
@@ -242,17 +241,7 @@ namespace PasswordChanger1C
 
         private static byte[] ReadAllStoragePagesForObject(InfobaseBinaryReader reader, in AccessFunctions.PageParams Page)
         {
-            int PagesCountTableStructure = Page.PagesNum.Count;
-            var BytesTableStructure = new byte[PagesCountTableStructure * Page.PageSize];
-            int i = 0;
-            foreach (var blk in Page.PagesNum)
-            {
-                var PageBuffer = reader.ReadPage(blk);
-                PageBuffer.CopyTo(BytesTableStructure.AsMemory(i, Page.PageSize));
-                i += Page.PageSize;
-            }
-
-            return BytesTableStructure;
+            return reader.ReadPages(Page.PagesNum);
         }
 
         private static AccessFunctions.PageParams ReadObjectPageDefinition(in byte[] Bytes, int PageSize)

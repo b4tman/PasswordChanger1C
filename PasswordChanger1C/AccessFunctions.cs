@@ -135,7 +135,6 @@ namespace PasswordChanger1C
         {
             byte[] TargetDataBuffer;
             PageParams DataPage;
-            long TotalBlocks;
             int i;
             string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
             var Pass = Encoding.Unicode.GetBytes(PassStr);
@@ -157,18 +156,7 @@ namespace PasswordChanger1C
                 var DataPageBuffer = reader.ReadPage(PageHeader.BlockData);
 
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
-                TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
-                TargetDataBuffer = new byte[PageHeader.PageSize * TotalBlocks];
-                i = 0;
-                foreach (var ST in DataPage.StorageTables)
-                {
-                    foreach (var DB in ST.DataBlocks)
-                    {
-                        var PageBuffer = reader.ReadPage(DB);
-                        PageBuffer.CopyTo(TargetDataBuffer.AsMemory(i));
-                        i += PageBuffer.Length;
-                    }
-                }
+                TargetDataBuffer = reader.ReadPages(DataPage);
             }
 
             Pass.CopyTo(TargetDataBuffer.AsMemory(Offset));
@@ -196,8 +184,6 @@ namespace PasswordChanger1C
                 return;
             }
 
-            int i;
-            long TotalBlocks;
             byte[] TargetDataBuffer;
             int PageSize = PageHeader.PageSize;
             PageParams DataPage = default;
@@ -207,18 +193,7 @@ namespace PasswordChanger1C
                 using var reader = new InfobaseBinaryReader(fs, PageHeader.PageSize);
                 var DataPageBuffer = reader.ReadPage(PageHeader.BlockBlob);                
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
-                TotalBlocks = DataPage.StorageTables.Sum(ST => (long)ST.DataBlocks.Count);
-                TargetDataBuffer = new byte[PageSize * TotalBlocks];
-                i = 0;
-                foreach (var ST in DataPage.StorageTables)
-                {
-                    foreach (var DB in ST.DataBlocks)
-                    {
-                        var PageBuffer = reader.ReadPage(DB);
-                        PageBuffer.CopyTo(TargetDataBuffer.AsMemory(i));
-                        i += PageBuffer.Length;
-                    }
-                }
+                TargetDataBuffer = reader.ReadPages(DataPage);
             }
 
             int NextBlock = DataPos;

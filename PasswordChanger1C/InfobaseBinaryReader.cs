@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Linq;
+using System.IO;
+using System.Collections.Generic;
 
 namespace PasswordChanger1C
 {
@@ -15,6 +18,19 @@ namespace PasswordChanger1C
                 {
                 }
                 public PageReadException(int PageSize, int ReadedSize) : base($"Read Page with size {PageSize} returned {ReadedSize} bytes")
+                {
+                }
+            }
+
+            /// <summary>
+            ///  Error when buffer length not enought
+            /// </summary>
+            public class ReadBufferLengthException : IOException
+            {
+                public ReadBufferLengthException(string message) : base(message)
+                {
+                }
+                public ReadBufferLengthException(int ExpectedSize, int ActualSize) : base($"Attempted to read {ExpectedSize} bytes to buffer with length {ActualSize} bytes")
                 {
                 }
             }
@@ -59,6 +75,62 @@ namespace PasswordChanger1C
                 return ReadPage();
             }
 
+            /// <summary>
+            /// Read Page to buffer, starting at index (of buffer)
+            /// </summary>
+            /// <param name="PageNumber"></param>
+            /// <param name="buffer">output buffer</param>
+            /// <param name="index">buffer offset</param>
+            public void ReadPageTo(long PageNumber, ref byte[] buffer, int index)
+            {
+                if (buffer.Length - index < PageSize) throw new ReadBufferLengthException(PageSize, buffer.Length - index);
+                var PageBuffer = ReadPage(PageNumber);
+                PageBuffer.CopyTo(buffer.AsMemory(index));
+            }
+
+            /// <summary>
+            /// read all pages from list to a new buffer
+            /// </summary>
+            /// <param name="Pages">list of pages</param>
+            /// <returns>readed bytes</returns>
+            public byte[] ReadPages(in List<long> Pages)
+            {
+                byte[] buffer = new byte[Pages.Count * PageSize];
+                int offset = 0;
+                foreach (long Page in Pages)
+                {
+                    ReadPageTo(Page, ref buffer, offset);
+                    offset += PageSize;
+                }
+                return buffer;
+            }
+
+            /// <summary>
+            /// read all pages from list of storage tables (StorageTables[]->DataBlocks[])
+            /// </summary>
+            /// <param name="StorageTables">list of storage tables</param>
+            /// <returns>readed bytes</returns>
+            public byte[] ReadPages(in List<StorageTable> StorageTables)
+            {
+                var Pages = StorageTables.Aggregate(new List<long>(),
+                    (Pages, ST) =>
+                    {
+                        Pages.AddRange(ST.DataBlocks);
+                        return Pages;
+                    }
+                );
+                return ReadPages(Pages);
+            }
+
+            /// <summary>
+            /// Read all pages from header page (HeaderPage->StorageTables[]->DataBlocks[])
+            /// </summary>
+            /// <param name="HeaderPage"></param>
+            /// <returns>readed bytes</returns>
+            public byte[] ReadPages(in PageParams HeaderPage)
+            {
+                return ReadPages(HeaderPage.StorageTables);
+            }
         }
     }
 }
