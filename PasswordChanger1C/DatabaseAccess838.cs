@@ -340,16 +340,12 @@ namespace PasswordChanger1C
 
                     // Blob page(s) has been modified. Let's write it back to database
                     using var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
-                    using var writer = new BinaryWriter(fs);
+                    using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
                     CurrentByte = 0;
                     foreach (var Position in BlobPage.PagesNum)
                     {
-                        var TempBlock = new byte[PageSize];
-                        BlobPage.BinaryData.AsMemory(CurrentByte, PageSize).CopyTo(TempBlock.AsMemory());
+                        writer.WritePage(Position, BlobPage.BinaryData, CurrentByte);
                         CurrentByte += PageSize;
-
-                        writer.BaseStream.Seek(Position * (long)PageSize, SeekOrigin.Begin);
-                        writer.Write(TempBlock);
                     }
                 }
                 else
@@ -385,16 +381,12 @@ namespace PasswordChanger1C
             // Data page(s) has been modified. Let's write it back to database
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
-                using var writer = new BinaryWriter(fs);
+                using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
                 CurrentByte = 0;
                 foreach (var Position in DataPage.PagesNum)
                 {
-                    var TempBlock = new byte[PageSize];
-                    DataPage.BinaryData.AsMemory(CurrentByte, PageSize).CopyTo(TempBlock.AsMemory());
+                    writer.WritePage(Position, DataPage.BinaryData, CurrentByte);
                     CurrentByte += PageSize;
-
-                    writer.BaseStream.Seek(Position * (long)PageSize, SeekOrigin.Begin);
-                    writer.Write(TempBlock);
                 }
             }
         }

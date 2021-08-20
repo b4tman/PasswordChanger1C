@@ -175,18 +175,14 @@ namespace PasswordChanger1C
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
-                using var writer = new BinaryWriter(fs);
+                using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
                 i = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        var TempBlock = new byte[PageHeader.PageSize];
-                        TargetDataBuffer.AsMemory(i, TempBlock.Length).CopyTo(TempBlock.AsMemory());
-                        i += TempBlock.Length;
-
-                        writer.BaseStream.Seek(DB * (long)PageHeader.PageSize, SeekOrigin.Begin);
-                        writer.Write(TempBlock);
+                        writer.WritePage(DB, TargetDataBuffer, i);
+                        i += PageHeader.PageSize;
                     }
                 }
             }
@@ -241,18 +237,14 @@ namespace PasswordChanger1C
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
-                using var writer = new BinaryWriter(fs);
+                using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
                 ii = 0;
                 foreach (var ST in DataPage.StorageTables)
                 {
                     foreach (var DB in ST.DataBlocks)
                     {
-                        var TempBlock = new byte[PageSize];
-                        TargetDataBuffer.AsMemory(ii, TempBlock.Length).CopyTo(TempBlock.AsMemory());
-                        ii += TempBlock.Length;
-
-                        writer.BaseStream.Seek(DB * (long)PageSize, SeekOrigin.Current);
-                        writer.Write(TempBlock);
+                        writer.WritePage(DB, TargetDataBuffer, ii);
+                        ii += PageHeader.PageSize;
                     }
                 }
             }
