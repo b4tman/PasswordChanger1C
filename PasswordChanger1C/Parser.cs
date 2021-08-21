@@ -21,14 +21,11 @@ namespace PasswordChanger1C.ParserServices
 
         public override string ToString()
         {
-            if (!IsList)
+            return IsList switch
             {
-                return ItemValue;
-            }
-            else
-            {
-                return base.ToString();
-            }
+                false => ItemValue,
+                true => string.Concat("{", string.Join(",", this), "}")
+            };
         }
 
         public bool IsList
