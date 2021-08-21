@@ -135,7 +135,6 @@ namespace PasswordChanger1C
         {
             byte[] TargetDataBuffer;
             PageParams DataPage;
-            int i;
             string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
             var Pass = Encoding.Unicode.GetBytes(PassStr);
             if (Pass.Length != 64) throw new RepoPasswordLengthException($"password length should be 64 unicode bytes, but got {Pass.Length} bytes");
@@ -164,15 +163,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                i = 0;
-                foreach (var ST in DataPage.StorageTables)
-                {
-                    foreach (var DB in ST.DataBlocks)
-                    {
-                        writer.WritePage(DB, TargetDataBuffer, i);
-                        i += PageHeader.PageSize;
-                    }
-                }
+                writer.WritePages(DataPage.StorageTables, TargetDataBuffer);
             }
         }
 
@@ -213,15 +204,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                ii = 0;
-                foreach (var ST in DataPage.StorageTables)
-                {
-                    foreach (var DB in ST.DataBlocks)
-                    {
-                        writer.WritePage(DB, TargetDataBuffer, ii);
-                        ii += PageHeader.PageSize;
-                    }
-                }
+                writer.WritePages(DataPage.StorageTables, TargetDataBuffer);
             }
         }
     }

@@ -330,12 +330,7 @@ namespace PasswordChanger1C
                     // Blob page(s) has been modified. Let's write it back to database
                     using var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
                     using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                    CurrentByte = 0;
-                    foreach (var Position in BlobPage.PagesNum)
-                    {
-                        writer.WritePage(Position, BlobPage.BinaryData, CurrentByte);
-                        CurrentByte += PageSize;
-                    }
+                    writer.WritePages(BlobPage.PagesNum, BlobPage.BinaryData);
                 }
                 else
                 {
@@ -354,8 +349,7 @@ namespace PasswordChanger1C
             AccessFunctions.PageParams DataPage;
             string PassStr = string.IsNullOrEmpty(NewPass) ? AccessFunctions.InfoBaseRepo_EmptyPassword : NewPass;
             var Pass = Encoding.Unicode.GetBytes(PassStr);
-            int CurrentByte;
-
+            
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new AccessFunctions.InfobaseBinaryReader(fs, PageHeader.PageSize);
@@ -371,12 +365,7 @@ namespace PasswordChanger1C
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                CurrentByte = 0;
-                foreach (var Position in DataPage.PagesNum)
-                {
-                    writer.WritePage(Position, DataPage.BinaryData, CurrentByte);
-                    CurrentByte += PageSize;
-                }
+                writer.WritePages(DataPage.PagesNum, DataPage.BinaryData);
             }
         }
     }
