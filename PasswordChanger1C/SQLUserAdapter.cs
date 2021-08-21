@@ -21,6 +21,7 @@ namespace PasswordChanger1C
             public abstract string UpdateSQL { get; }
 
             public abstract SQLUser ReadUser(IDataReader reader);
+
             public abstract void SetUpdateParams(IDbCommand command, in SQLUser SQLUser);
 
             protected static void ParseData(ref SQLUser SQLUser)
@@ -47,6 +48,7 @@ namespace PasswordChanger1C
             {
                 get { return _SelectSQL; }
             }
+
             public override string UpdateSQL
             {
                 get { return _UpdateSQL; }
@@ -94,15 +96,17 @@ namespace PasswordChanger1C
                    data,
                    admrole
             FROM public.v8users";
+
             private const string _UpdateSQL = @"
-            UPDATE public.v8users 
-            SET data = @NewData 
+            UPDATE public.v8users
+            SET data = @NewData
             WHERE id = decode(@id, 'hex')";
 
             public override string SelectSQL
             {
                 get { return _SelectSQL; }
             }
+
             public override string UpdateSQL
             {
                 get { return _UpdateSQL; }

@@ -1,6 +1,6 @@
-﻿using Xunit;
-using System;
+﻿using System;
 using System.IO;
+using Xunit;
 
 namespace PasswordChanger1C.Tests
 {
@@ -156,7 +156,7 @@ namespace PasswordChanger1C.Tests
                 // check data
                 Assert.Equal(Row["NAME"].ToString(), Row_New["NAME"].ToString());
                 Assert.NotEqual(Row["PASSWORD"].ToString(), Row_New["PASSWORD"].ToString());
-                Assert.Equal(AccessFunctions.InfoBaseRepo_EmptyPassword, Row_New["PASSWORD"].ToString());                
+                Assert.Equal(AccessFunctions.InfoBaseRepo_EmptyPassword, Row_New["PASSWORD"].ToString());
             }
         }
     }

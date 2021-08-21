@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace PasswordChanger1C
 {
     public static partial class AccessFunctions
     {
-        public class InfobaseBinaryReader: BinaryReader
+        public class InfobaseBinaryReader : BinaryReader
         {
             /// <summary>
             ///  Error when Read returned not expected size of bytes
@@ -17,6 +17,7 @@ namespace PasswordChanger1C
                 public PageReadException(string message) : base(message)
                 {
                 }
+
                 public PageReadException(int PageSize, int ReadedSize) : base($"Read Page with size {PageSize} returned {ReadedSize} bytes")
                 {
                 }
@@ -30,6 +31,7 @@ namespace PasswordChanger1C
                 public ReadBufferLengthException(string message) : base(message)
                 {
                 }
+
                 public ReadBufferLengthException(int ExpectedSize, int ActualSize) : base($"Attempted to read {ExpectedSize} bytes to buffer with length {ActualSize} bytes")
                 {
                 }
@@ -37,8 +39,8 @@ namespace PasswordChanger1C
 
             public int PageSize { get; set; }
 
-            public InfobaseBinaryReader(Stream input): base(input)
-            {                    
+            public InfobaseBinaryReader(Stream input) : base(input)
+            {
             }
 
             public InfobaseBinaryReader(Stream input, int _PageSize) : base(input)

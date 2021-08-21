@@ -46,7 +46,6 @@ namespace PasswordChanger1C
 
         private static bool ShowWarning()
         {
-
             var Rez = MessageBox.Show("Запрещается использование приложения для несанкционированного доступа к данным!" + Environment.NewLine +
                                       "Используя данное приложение Вы подтверждаете, что базы данных, к которым будет предоставлен доступ, принадлежат Вашей организации " + Environment.NewLine +
                                       "и Вы являетесь Администратором с неограниченным доступом к информации этих баз данных." + Environment.NewLine +
@@ -236,7 +235,6 @@ namespace PasswordChanger1C
             }
 
             GetUsers_SQLInfobase(dbms_type);
-
 
             if (is_Success)
             {

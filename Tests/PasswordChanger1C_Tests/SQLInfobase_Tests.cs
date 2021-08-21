@@ -2,8 +2,6 @@
 using System;
 using System.Data;
 using Xunit;
-using System.Collections;
-using System.Linq;
 
 namespace PasswordChanger1C.Tests
 {
@@ -13,24 +11,26 @@ namespace PasswordChanger1C.Tests
     public class SQLInfobase_Tests
     {
         private const string Test_Password = "test_password_123";
-        private readonly static byte[] Test_Id = FromBase64("k42MsT0XVTlFDlfbSk/naQ==");
+        private static readonly byte[] Test_Id = FromBase64("k42MsT0XVTlFDlfbSk/naQ==");
 
-        private readonly static byte[] Test_Data = FromBase64(@"
+        private static readonly byte[] Test_Data = FromBase64(@"
                 GPJBHWrITsJOq25wcpiLMoP5YTI4Nr85ER36ohH8L/YozllGS7W+BeebTAYNBtoUKMF5eUfwLaB/mApBRa2+AbrVQ+Kq5g/
                 okCPOP0bqoX3ziUJSogpbglJ4sL0aGo8JIcJxLVr4Y/J+m15dQqi7Aq7JUQIIG48JIcJxLVr4fvJ+m0J9eOO6HredUwoAVI
                 1dPMMgf1nlevN9kkMREPvoH7efA1cPB90BJJZ0fxfkLaR9nwxCE62mCrXJVx8MVIoAPJB1LgzleaR7yQ9AS/27ArDLTQMUB
                 5MVId5xMUiGGa0U4F0bJuvOStavUQJhQdAIVscrcT+DBbFziUJSPM/kaMjKCmZLc8dsR8JxRB2nf4V7wQIlOdP4D6HVUx4J
                 Go0JI8NxJVr6f/p7mFpFXqinAq/0a0kIS5MIPf9LZlq1YvNim0JBXrqpTw=="
         );
-        private readonly static Tuple<string, string> Test_Hashes = CommonModule.GeneratePasswordHashes(Test_Password);
+
+        private static readonly Tuple<string, string> Test_Hashes = CommonModule.GeneratePasswordHashes(Test_Password);
 
         private class SQLUser_MockData
         {
             public SQLUser SQLUser
             {
-                get 
-                { 
-                    return new SQLUser {
+                get
+                {
+                    return new SQLUser
+                    {
                         ID = ID,
                         IDStr = IDStr,
                         Name = Name,
@@ -42,7 +42,7 @@ namespace PasswordChanger1C.Tests
                         AdmRole = AdmRole ? "\u2714" : "",
                         KeySize = KeySize,
                         KeyData = KeyData
-                    }; 
+                    };
                 }
             }
 
@@ -50,12 +50,12 @@ namespace PasswordChanger1C.Tests
             public byte[] ID { get; set; }
             public byte[] Data { get; set; }
             public string Name { get; set; }
-            public string Descr { get; set; }            
+            public string Descr { get; set; }
             public bool AdmRole { get; set; }
             private int KeySize { get; set; }
             private byte[] KeyData { get; set; }
 
-            public Tuple<string,string> PasswordHashes
+            public Tuple<string, string> PasswordHashes
             {
                 get
                 {
@@ -65,7 +65,8 @@ namespace PasswordChanger1C.Tests
             }
 
             private string _Password;
-            public string Password 
+
+            public string Password
             {
                 get
                 {
@@ -76,20 +77,20 @@ namespace PasswordChanger1C.Tests
                     _Password = value;
                     var NewHashes = CommonModule.GeneratePasswordHashes(_Password);
                     DataStr = CommonModule.ReplaceHashes(DataStr, PasswordHashes, NewHashes);
-                } 
+                }
             }
 
             public string IDStr
-            { 
-                get 
+            {
+                get
                 {
                     string result = "";
                     if (DBMSType.PostgreSQL == DBMSType)
                         result = BitConverter.ToString(ID).Replace("-", "").ToLower();
                     else if (DBMSType.MSSQLServer == DBMSType)
                         result = new Guid(ID).ToString();
-                    return result;                    
-                } 
+                    return result;
+                }
             }
 
             public string DataStr
@@ -119,6 +120,7 @@ namespace PasswordChanger1C.Tests
                 AdmRole = true;
                 DBMSType = DBMSType.PostgreSQL;
             }
+
             public SQLUser_MockData(DBMSType _DBMSType) : this()
             {
                 DBMSType = _DBMSType;
@@ -186,23 +188,27 @@ namespace PasswordChanger1C.Tests
             {
                 var ParamMock = new Mock<IDbDataParameter>();
                 ParamMock.SetupAllProperties();
-                ParamMock.SetupSet(_ => _.Value = It.IsAny<byte[]>()).Callback<object>(data => {
+                ParamMock.SetupSet(_ => _.Value = It.IsAny<byte[]>()).Callback<object>(data =>
+                {
                     // check if new Data param value is equal with testing user Data
 
                     var b = (byte[])data;
                     bool is_data = b.Length > 20;
-                    if (is_data) {
+                    if (is_data)
+                    {
                         Assert.False(data_is_set);
                         Assert.Equal(user.Data, b);
                         data_is_set = true;
-                    } else // check ID (MSSQLServer)
+                    }
+                    else // check ID (MSSQLServer)
                     {
                         Assert.False(id_is_set);
                         Assert.Equal(user.ID, b);
                         id_is_set = true;
                     }
                 });
-                ParamMock.SetupSet(_ => _.Value = It.IsAny<string>()).Callback<object>(val => {
+                ParamMock.SetupSet(_ => _.Value = It.IsAny<string>()).Callback<object>(val =>
+                {
                     // check if new IDStr param value is equal with testing user IDStr (PostgreSQL)
 
                     var s = (string)val;
@@ -220,7 +226,7 @@ namespace PasswordChanger1C.Tests
             commandMock.SetupGet(_ => _.Parameters).Returns(ParamsMock.Object);
             commandMock.Setup(m => m.CreateParameter()).Returns(NewParameter);
             commandMock.Setup(m => m.ExecuteNonQuery()).Returns(() => data_is_set && id_is_set ? 1 : 0);
-            //commandMock.Setup(m => m.Dispose()).Callback(() => 
+            //commandMock.Setup(m => m.Dispose()).Callback(() =>
             //{
             //    Assert.True(data_is_set);
             //    Assert.True(id_is_set);
@@ -289,7 +295,7 @@ namespace PasswordChanger1C.Tests
         [InlineData(DBMSType.MSSQLServer)]
         public void Update_Test(in DBMSType DBMSType)
         {
-            var data = new SQLUser_MockData(DBMSType);            
+            var data = new SQLUser_MockData(DBMSType);
             var User = data.SQLUser;
             var NewPassword = Guid.NewGuid().ToString();
 

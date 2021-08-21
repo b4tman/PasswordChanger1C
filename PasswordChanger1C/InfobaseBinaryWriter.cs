@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace PasswordChanger1C
 {
@@ -17,6 +16,7 @@ namespace PasswordChanger1C
                 public WritePageSizeException(string message) : base(message)
                 {
                 }
+
                 public WritePageSizeException(int PageSize, int DataLength) : base($"Attempted to write data with size {DataLength} to page with size {PageSize}")
                 {
                 }
@@ -30,6 +30,7 @@ namespace PasswordChanger1C
                 public WriteFullPageSizeException(string message) : base(message)
                 {
                 }
+
                 public WriteFullPageSizeException(int PageSize, int DataLength) : base($"Attempted to write full page data from buffer with size {DataLength} to page with size {PageSize}")
                 {
                 }

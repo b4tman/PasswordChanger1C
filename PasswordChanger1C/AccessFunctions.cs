@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace PasswordChanger1C
@@ -34,6 +33,7 @@ namespace PasswordChanger1C
         public PageSizeNotSetException(string message) : base(message)
         {
         }
+
         public PageSizeNotSetException() : this("PageSize not set")
         {
         }
@@ -122,7 +122,8 @@ namespace PasswordChanger1C
             else if ("8.2.14" == DatabaseVersion)
             {
                 Param = DatabaseAccess8214.ReadInfoBase(reader, TargetTableName);
-            } else
+            }
+            else
             {
                 throw new NotSupportedException($"Infobase file version \"{DatabaseVersion}\" not supported");
             }
@@ -176,19 +177,18 @@ namespace PasswordChanger1C
             }
 
             byte[] TargetDataBuffer;
-            int PageSize = PageHeader.PageSize;
             PageParams DataPage = default;
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new InfobaseBinaryReader(fs, PageHeader.PageSize);
-                var DataPageBuffer = reader.ReadPage(PageHeader.BlockBlob);                
+                var DataPageBuffer = reader.ReadPage(PageHeader.BlockBlob);
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
                 TargetDataBuffer = reader.ReadPages(DataPage.StorageTables);
             }
 
             int NextBlock = DataPos;
-            int Pos = (int)DataPos * 256;
+            int Pos = DataPos * 256;
             int ii = 0;
             while (NextBlock > 0)
             {

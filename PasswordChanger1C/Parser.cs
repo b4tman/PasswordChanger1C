@@ -54,7 +54,7 @@ namespace PasswordChanger1C.ParserServices
 
         private static ParserList ParseStringInternal(string[] Arr, ref int Position, int ArrLength)
         {
-            // TODO - не обрабатываются ситуации с двойными кавычками и переносами строк в тексте 
+            // TODO - не обрабатываются ситуации с двойными кавычками и переносами строк в тексте
 
             var List = new ParserList();
             while (Position < ArrLength)

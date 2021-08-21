@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace PasswordChanger1C
 {
     using static AccessFunctions;
 
-    static class DatabaseAccess8214
+    internal static class DatabaseAccess8214
     {
-        const int PageSize = PageSize82;
+        private const int PageSize = PageSize82;
 
         public static AccessFunctions.PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
         {
@@ -76,7 +74,7 @@ namespace PasswordChanger1C
                 StorageTables = new List<AccessFunctions.StorageTable>()
             };
 
-            // Получим номера страниц размещения 
+            // Получим номера страниц размещения
             while (Index <= PageSize - 4)
             {
                 long blk = BitConverter.ToInt32(Bytes, Index);
@@ -216,7 +214,7 @@ namespace PasswordChanger1C
 
             var DataPage = ReadPage(reader, DataPageBuffer);
             var bytesBlock = reader.ReadPages(DataPage.StorageTables);
-            
+
             int i = 0;
             int NextBlock = Dataindex;
             int Pos = Dataindex * 256;

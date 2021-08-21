@@ -38,7 +38,7 @@ namespace PasswordChanger1C
             {
             }
         }
-        
+
         public class Users
         {
             private Func<IDbConnection> Factory { get; }
@@ -83,7 +83,7 @@ namespace PasswordChanger1C
         {
             var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
             var OldHashes = Tuple.Create(SQLUser.PassHash, SQLUser.PassHash2);
-            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);            
+            string NewData = CommonModule.ReplaceHashes(SQLUser.DataStr, OldHashes, NewHashes);
             var NewBytes = CommonModule.EncodePasswordStructure(NewData, SQLUser.KeySize, SQLUser.KeyData);
             SQLUser.PassHash = NewHashes.Item1;
             SQLUser.PassHash2 = NewHashes.Item2;

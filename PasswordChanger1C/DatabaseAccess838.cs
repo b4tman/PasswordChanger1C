@@ -9,7 +9,7 @@ namespace PasswordChanger1C
 {
     using static AccessFunctions;
 
-    static class DatabaseAccess838
+    internal static class DatabaseAccess838
     {
         public static AccessFunctions.PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
         {
@@ -246,14 +246,13 @@ namespace PasswordChanger1C
 
         private static AccessFunctions.PageParams ReadObjectPageDefinition(in byte[] Bytes, int PageSize)
         {
-
             // struct {
-            // unsigned int object_type; //0xFD1C или 0x01FD1C 
-            // unsigned Int version1; 
-            // unsigned Int version2; 
-            // unsigned Int version3; 
-            // unsigned Long int length; //64-разрядное целое! 
-            // unsigned Int pages[]; 
+            // unsigned int object_type; //0xFD1C или 0x01FD1C
+            // unsigned Int version1;
+            // unsigned Int version2;
+            // unsigned Int version3;
+            // unsigned Long int length; //64-разрядное целое!
+            // unsigned Int pages[];
             // }
 
             var Page = new AccessFunctions.PageParams() { PageSize = PageSize };
@@ -276,7 +275,7 @@ namespace PasswordChanger1C
             int Index = 24;
             Page.PagesNum = new List<long>();
 
-            // Получим номера страниц размещения 
+            // Получим номера страниц размещения
             while (true)
             {
                 int blk = BitConverter.ToInt32(Bytes, Index);
@@ -338,7 +337,6 @@ namespace PasswordChanger1C
                 using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
                 writer.WritePages(BlobPage.PagesNum, BlobPage.BinaryData);
             }
-
         }
 
         public static void WritePasswordIntoInfoBaseRepo(in string FileName, in AccessFunctions.PageParams PageHeader, int Offset, in string NewPass = null)
@@ -347,7 +345,7 @@ namespace PasswordChanger1C
             AccessFunctions.PageParams DataPage;
             string PassStr = string.IsNullOrEmpty(NewPass) ? AccessFunctions.InfoBaseRepo_EmptyPassword : NewPass;
             var Pass = Encoding.Unicode.GetBytes(PassStr);
-            
+
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var reader = new AccessFunctions.InfobaseBinaryReader(fs, PageHeader.PageSize);
