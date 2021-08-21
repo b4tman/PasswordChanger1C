@@ -46,12 +46,12 @@ namespace PasswordChanger1C
 
             public override string SelectSQL
             {
-                get { return _SelectSQL; }
+                get => _SelectSQL;
             }
 
             public override string UpdateSQL
             {
-                get { return _UpdateSQL; }
+                get => _UpdateSQL;
             }
 
             public override SQLUser ReadUser(IDataReader reader)
@@ -104,12 +104,12 @@ namespace PasswordChanger1C
 
             public override string SelectSQL
             {
-                get { return _SelectSQL; }
+                get => _SelectSQL;
             }
 
             public override string UpdateSQL
             {
-                get { return _UpdateSQL; }
+                get => _UpdateSQL;
             }
 
             public override SQLUser ReadUser(IDataReader reader)

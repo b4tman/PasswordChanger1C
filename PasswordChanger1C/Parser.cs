@@ -30,10 +30,7 @@ namespace PasswordChanger1C.ParserServices
 
         public bool IsList
         {
-            get
-            {
-                return Is_List;
-            }
+            get => Is_List;
         }
 
         public void Add(string itemValue)

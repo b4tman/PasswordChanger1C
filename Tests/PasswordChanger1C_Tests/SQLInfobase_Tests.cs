@@ -27,23 +27,20 @@ namespace PasswordChanger1C.Tests
         {
             public SQLUser SQLUser
             {
-                get
+                get => new SQLUser
                 {
-                    return new SQLUser
-                    {
-                        ID = ID,
-                        IDStr = IDStr,
-                        Name = Name,
-                        Descr = Descr,
-                        Data = Data,
-                        DataStr = DataStr,
-                        PassHash = PasswordHashes.Item1.Trim('\"'),
-                        PassHash2 = PasswordHashes.Item2.Trim('\"'),
-                        AdmRole = AdmRole ? "\u2714" : "",
-                        KeySize = KeySize,
-                        KeyData = KeyData
-                    };
-                }
+                    ID = ID,
+                    IDStr = IDStr,
+                    Name = Name,
+                    Descr = Descr,
+                    Data = Data,
+                    DataStr = DataStr,
+                    PassHash = PasswordHashes.Item1.Trim('\"'),
+                    PassHash2 = PasswordHashes.Item2.Trim('\"'),
+                    AdmRole = AdmRole ? "\u2714" : "",
+                    KeySize = KeySize,
+                    KeyData = KeyData
+                };
             }
 
             public DBMSType DBMSType { get; set; }
@@ -68,10 +65,7 @@ namespace PasswordChanger1C.Tests
 
             public string Password
             {
-                get
-                {
-                    return _Password;
-                }
+                get => _Password;
                 set
                 {
                     _Password = value;
