@@ -215,7 +215,7 @@ namespace PasswordChanger1C
             var DataPageBuffer = reader.ReadPage(BlockBlob);
 
             var DataPage = ReadPage(reader, DataPageBuffer);
-            var bytesBlock = reader.ReadPages(DataPage);
+            var bytesBlock = reader.ReadPages(DataPage.StorageTables);
             
             int i = 0;
             int NextBlock = Dataindex;
@@ -241,7 +241,7 @@ namespace PasswordChanger1C
             var DataPage = ReadPage(reader, DataPageBuffer);
 
             PageHeader.Records = new List<Dictionary<string, object>>();
-            var bytesBlock = reader.ReadPages(DataPage);
+            var bytesBlock = reader.ReadPages(DataPage.StorageTables);
 
             int i;
             long Size = DataPage.Length / PageHeader.RowSize;

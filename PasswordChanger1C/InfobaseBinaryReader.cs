@@ -121,16 +121,6 @@ namespace PasswordChanger1C
                 );
                 return ReadPages(Pages);
             }
-
-            /// <summary>
-            /// Read all pages from header page (HeaderPage->StorageTables[]->DataBlocks[])
-            /// </summary>
-            /// <param name="HeaderPage"></param>
-            /// <returns>readed bytes</returns>
-            public byte[] ReadPages(in PageParams HeaderPage)
-            {
-                return ReadPages(HeaderPage.StorageTables);
-            }
         }
     }
 }

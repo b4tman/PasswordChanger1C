@@ -156,7 +156,7 @@ namespace PasswordChanger1C
                 var DataPageBuffer = reader.ReadPage(PageHeader.BlockData);
 
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
-                TargetDataBuffer = reader.ReadPages(DataPage);
+                TargetDataBuffer = reader.ReadPages(DataPage.StorageTables);
             }
 
             Pass.CopyTo(TargetDataBuffer.AsMemory(Offset));
@@ -193,7 +193,7 @@ namespace PasswordChanger1C
                 using var reader = new InfobaseBinaryReader(fs, PageHeader.PageSize);
                 var DataPageBuffer = reader.ReadPage(PageHeader.BlockBlob);                
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
-                TargetDataBuffer = reader.ReadPages(DataPage);
+                TargetDataBuffer = reader.ReadPages(DataPage.StorageTables);
             }
 
             int NextBlock = DataPos;
