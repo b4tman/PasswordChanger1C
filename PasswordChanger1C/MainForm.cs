@@ -223,7 +223,7 @@ namespace PasswordChanger1C
                 {
                     var User = SelectedUser;
                     SQLInfobase.UpdatePassword(ref User, NewPassword);
-                    is_Success = Users.Update(User);
+                    is_Success = is_Success && Users.Update(User);
                 }
             }
             catch (Exception ex)
@@ -232,15 +232,21 @@ namespace PasswordChanger1C
                                 ex.Message,
                                 "Ошибка работы с базой данных", MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
+                return;
             }
-
-            GetUsers_SQLInfobase(dbms_type);
 
             if (is_Success)
             {
                 MessageBox.Show("Успешно установлен пароль '" + NewPassword + "' для пользователей:" + Environment.NewLine + UserNames,
                                 "Операция успешно выполнена", MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
+                GetUsers_SQLInfobase(dbms_type);
+            }
+            else
+            {
+                MessageBox.Show("Не удалось установить пароль '" + NewPassword + "' пользователям:" + Environment.NewLine + UserNames,
+                                "Ошибка установки пароля", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
             }
         }
 
@@ -289,19 +295,13 @@ namespace PasswordChanger1C
 
                 var G = new Guid((byte[])Row["USERID"]);
                 var itemUserList = new ListViewItem(G.ToString());
-                Row.Add("UserGuidStr", G.ToString());
-                itemUserList.SubItems.Add(Row["NAME"].ToString());
-                if (Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword)
-                {
-                    itemUserList.SubItems.Add("<нет>");
-                }
-                else
-                {
-                    itemUserList.SubItems.Add("пароль установлен");
-                }
-
                 int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
                 bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
+                bool isPasswordEmpty = Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword;
+
+                Row.Add("UserGuidStr", G.ToString());
+                itemUserList.SubItems.Add(Row["NAME"].ToString());
+                itemUserList.SubItems.Add(isPasswordEmpty ? "<нет>" : "пароль установлен");
                 itemUserList.SubItems.Add(CommonModule.Format_AdmRole(AdmRole));
 
                 RepoUserList.Items.Add(itemUserList);
@@ -315,46 +315,45 @@ namespace PasswordChanger1C
                 MessageBox.Show("Не выделены строки с пользователями для установки нового пароля!",
                                 "Не выделены строки с пользователями", MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
+                return;
             }
-            else
+
+            var Rez = MessageBox.Show("Внесение изменений в файл хранилища конфигурации может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine +
+                        "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
+                        "Установить пустой пароль выбранным пользователям?",
+                        "Уверены?", MessageBoxButtons.YesNo);
+            if (Rez != DialogResult.Yes)
             {
-                var Rez = MessageBox.Show("Внесение изменений в файл хранилища конфигурации может привести к непредсказуемым последствиям, вплоть до полного разрушения базы. " + Environment.NewLine +
-                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
-                            "Установить пустой пароль выбранным пользователям?",
-                            "Уверены?", MessageBoxButtons.YesNo);
-                if (Rez != DialogResult.Yes)
-                {
-                    return;
-                }
+                return;
+            }
 
-                try
-                {
-                    string Str = "";
-                    foreach (ListViewItem item in RepoUserList.SelectedItems)
-                    {
-                        foreach (var Row in TableParams.Records)
-                        {
-                            if (Row["UserGuidStr"].ToString() == item.Text)
-                            {
-                                Str = Str + Environment.NewLine + Row["NAME"].ToString();
-                                AccessFunctions.WritePasswordIntoInfoBaseRepo(Repo1C.Text, TableParams, Convert.ToInt32(Row["OFFSET_PASSWORD"]));
-                            }
-                        }
-                    }
+            List<string> Selected_ID = new();
+            foreach (ListViewItem item in RepoUserList.SelectedItems) Selected_ID.Add(item.Text);
 
-                    GetUsersRepoUsers();
-                    MessageBox.Show("Успешно установлены пустые пароли для пользователей:" + Str,
-                                "Операция успешно выполнена", MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
+            var SelectedRows = TableParams.Records.FindAll(Row => Selected_ID.Contains(Row["UserGuidStr"].ToString()));
+            var UserNames = string.Join(", ", SelectedRows.Select(Row => Row["NAME"].ToString()));
+
+            try
+            {
+                foreach (var Row in SelectedRows)
                 {
-                    MessageBox.Show("Ошибка при попытке записи данных в файл хранилища:" + Environment.NewLine +
-                                ex.Message,
-                                "Ошибка работы с файлом", MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                    AccessFunctions.WritePasswordIntoInfoBaseRepo(Repo1C.Text, TableParams, Convert.ToInt32(Row["OFFSET_PASSWORD"]));
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при попытке записи данных в файл хранилища:" + Environment.NewLine +
+                            ex.Message,
+                            "Ошибка работы с файлом", MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                return;
+            }
+
+            MessageBox.Show("Успешно установлены пустые пароли для пользователей:" + Environment.NewLine + UserNames,
+                    "Операция успешно выполнена", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+            GetUsersRepoUsers();
         }
 
         private void ButtonChangePwdFileDB_Click(object sender, EventArgs e)
@@ -364,52 +363,50 @@ namespace PasswordChanger1C
                 MessageBox.Show("Не выделены строки с пользователями для сброса пароля!",
                                 "Не выделены строки с пользователями", MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
+                return;
             }
-            else
+
+            var Rez = MessageBox.Show("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Environment.NewLine +
+                        "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
+                        "Установить новый пароль выбранным пользователям?",
+                        "ВНИМАНИЕ!", MessageBoxButtons.YesNo);
+            if (Rez != DialogResult.Yes)
             {
-                var Rez = MessageBox.Show("Внесение изменений в файл информационной базы может привести к непредсказуемым последствиям, вплоть до полного разрушения базы! " + Environment.NewLine +
-                            "Продолжая операцию Вы осознаете это и понимаете, что восстановление будет возможно только из резервной копии." + Environment.NewLine +
-                            "Установить новый пароль выбранным пользователям?",
-                            "ВНИМАНИЕ!", MessageBoxButtons.YesNo);
-                if (Rez != DialogResult.Yes)
-                {
-                    return;
-                }
+                return;
+            }
 
-                try
-                {
-                    string Str = "";
-                    foreach (ListViewItem item in ListViewUsers.SelectedItems)
-                    {
-                        foreach (var Row in TableParams.Records)
-                        {
-                            if (Row["UserGuidStr"].ToString() == item.Text)
-                            {
-                                Str = Str + Environment.NewLine + Row["NAME"].ToString();
-                                var OldDataBinary = Row["DATA_BINARY"];
-                                string OldData = Row["DATA"].ToString();
-                                var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword.Text.Trim());
-                                var OldHashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
-                                string NewData = CommonModule.ReplaceHashes(OldData, OldHashes, NewHashes);
-                                var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
-                                AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
-                            }
-                        }
-                    }
+            List<string> Selected_ID = new();
+            foreach (ListViewItem item in ListViewUsers.SelectedItems) Selected_ID.Add(item.Text);
 
-                    GetUsers();
-                    MessageBox.Show("Успешно установлен пароль '" + NewPassword.Text.Trim() + "' для пользователей:" + Str,
-                                "Операция успешно выполнена", MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
+            var SelectedRows = TableParams.Records.FindAll(Row => Selected_ID.Contains(Row["UserGuidStr"].ToString()));
+            var UserNames = string.Join(", ", SelectedRows.Select(Row => Row["NAME"].ToString()));
+
+            try
+            {
+                foreach (var Row in SelectedRows)
                 {
-                    MessageBox.Show("Ошибка при попытке записи данных в файл информационной базы:" + Environment.NewLine +
-                                ex.Message,
-                                "Ошибка работы с файлом", MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                    var OldDataBinary = Row["DATA_BINARY"];
+                    string OldData = Row["DATA"].ToString();
+                    var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword.Text.Trim());
+                    var OldHashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
+                    string NewData = CommonModule.ReplaceHashes(OldData, OldHashes, NewHashes);
+                    var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
+                    AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при попытке записи данных в файл информационной базы:" + Environment.NewLine +
+                            ex.Message,
+                            "Ошибка работы с файлом", MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                return;
+            }
+
+            MessageBox.Show("Успешно установлен пароль '" + NewPassword.Text.Trim() + "' для пользователей:" + UserNames,
+                            "Операция успешно выполнена", MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+            GetUsers();
         }
 
         private void LinkLabel2_Click(object sender, EventArgs e)
