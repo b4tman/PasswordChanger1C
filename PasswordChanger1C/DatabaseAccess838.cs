@@ -313,34 +313,32 @@ namespace PasswordChanger1C
             }
 
             TargetData = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, ref DataPositions);
-            if (TargetData.SequenceEqual(OldData))
-            {
-                if (OldData.Count() == NewData.Count())
-                {
-                    int CurrentByte = 0;
-                    // Data is stored in 256 bytes blocks (6 bytes reserved for next block number and size)
-                    foreach (var Position in DataPositions)
-                    {
-                        int CopyCount = Math.Min(250, NewData.Count() - CurrentByte);
-                        NewData.AsMemory(CurrentByte, CopyCount)
-                            .CopyTo(BlobPage.BinaryData.AsMemory(Position));
-                        CurrentByte += CopyCount;
-                    }
-
-                    // Blob page(s) has been modified. Let's write it back to database
-                    using var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write);
-                    using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                    writer.WritePages(BlobPage.PagesNum, BlobPage.BinaryData);
-                }
-                else
-                {
-                    throw new Exception("Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины)." + Environment.NewLine + "Сообщите пожалуйста об этой ошибке!");
-                }
-            }
-            else
+            if (!TargetData.SequenceEqual(OldData))
             {
                 throw new Exception("Информация в БД была изменена другим процессом! Прочитайте список пользователей заново.");
             }
+
+            if (OldData.Count() != NewData.Count())
+            {
+                throw new Exception("Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины)." + Environment.NewLine + "Сообщите пожалуйста об этой ошибке!");
+            }
+
+            int CurrentByte = 0;
+            // Data is stored in 256 bytes blocks (6 bytes reserved for next block number and size)
+            foreach (var Position in DataPositions)
+            {
+                int CopyCount = Math.Min(250, NewData.Count() - CurrentByte);
+                NewData.AsMemory(CurrentByte, CopyCount).CopyTo(BlobPage.BinaryData.AsMemory(Position));
+                CurrentByte += CopyCount;
+            }
+
+            // Blob page(s) has been modified. Let's write it back to database
+            using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
+            {
+                using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
+                writer.WritePages(BlobPage.PagesNum, BlobPage.BinaryData);
+            }
+
         }
 
         public static void WritePasswordIntoInfoBaseRepo(in string FileName, in AccessFunctions.PageParams PageHeader, int Offset, in string NewPass = null)
