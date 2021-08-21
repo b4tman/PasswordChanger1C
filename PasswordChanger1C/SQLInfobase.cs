@@ -8,7 +8,7 @@ namespace PasswordChanger1C
 {
     public static partial class SQLInfobase
     {
-        public enum DBMSType
+        public enum DBMSType: byte
         {
             MSSQLServer,
             PostgreSQL

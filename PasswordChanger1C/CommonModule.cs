@@ -8,6 +8,11 @@ namespace PasswordChanger1C
 {
     public static class CommonModule
     {
+        public static string Format_AdmRole(in bool AdmRole)
+        {
+            return AdmRole ? "\u2714" : ""; // ✔
+        }
+
         public static string DecodePasswordStructure(in byte[] bytes_Input, ref int KeySize, ref byte[] KeyData)
         {
             short Base = bytes_Input[0];

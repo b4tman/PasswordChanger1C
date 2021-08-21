@@ -3,6 +3,8 @@ using System.Data;
 
 namespace PasswordChanger1C
 {
+    using static CommonModule;
+
     public static partial class SQLInfobase
     {
         private abstract class SQLUserAdapter
@@ -26,16 +28,11 @@ namespace PasswordChanger1C
 
             protected static void ParseData(ref SQLUser SQLUser)
             {
-                SQLUser.DataStr = CommonModule.DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
+                SQLUser.DataStr = DecodePasswordStructure(SQLUser.Data, ref SQLUser.KeySize, ref SQLUser.KeyData);
                 var AuthStructure = ParserServices.ParsesClass.ParseString(SQLUser.DataStr);
-                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure[0]);
+                var Hashes = GetPasswordHashTuple(AuthStructure[0]);
                 SQLUser.PassHash = Hashes.Item1.Trim('"');
                 SQLUser.PassHash2 = Hashes.Item2.Trim('"');
-            }
-
-            protected static string Format_AdmRole(in bool AdmRole)
-            {
-                return AdmRole ? "\u2714" : ""; // ✔
             }
         }
 

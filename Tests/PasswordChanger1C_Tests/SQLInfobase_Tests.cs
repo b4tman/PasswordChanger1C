@@ -37,7 +37,7 @@ namespace PasswordChanger1C.Tests
                     DataStr = DataStr,
                     PassHash = PasswordHashes.Item1.Trim('\"'),
                     PassHash2 = PasswordHashes.Item2.Trim('\"'),
-                    AdmRole = AdmRole ? "\u2714" : "",
+                    AdmRole = CommonModule.Format_AdmRole(AdmRole),
                     KeySize = KeySize,
                     KeyData = KeyData
                 };

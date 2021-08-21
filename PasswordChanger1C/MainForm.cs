@@ -114,7 +114,7 @@ namespace PasswordChanger1C
                 itemUserList.SubItems.Add(Row["NAME"].ToString());
                 itemUserList.SubItems.Add(Row["DESCR"].ToString());
                 itemUserList.SubItems.Add(PassHash);
-                itemUserList.SubItems.Add(Convert.ToBoolean(Row["ADMROLE"]) ? "Да" : "");
+                itemUserList.SubItems.Add(CommonModule.Format_AdmRole(Convert.ToBoolean(Row["ADMROLE"])));
                 ListViewUsers.Items.Add(itemUserList);
             }
         }
@@ -301,10 +301,8 @@ namespace PasswordChanger1C
                 }
 
                 int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
-                if (RIGHTS == 0xFFFF || RIGHTS == 0x8005)
-                {
-                    itemUserList.SubItems.Add("Да");
-                }
+                bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
+                itemUserList.SubItems.Add(CommonModule.Format_AdmRole(AdmRole));
 
                 RepoUserList.Items.Add(itemUserList);
             }
@@ -426,20 +424,12 @@ namespace PasswordChanger1C
 
         private void CbDBType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (cbDBType.SelectedIndex)
+            ConnectionString.Text = Selected_DBMSType() switch
             {
-                case 0:
-                    {
-                        ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup";
-                        break;
-                    }
-
-                case 1:
-                    {
-                        ConnectionString.Text = "Host=localhost;Username=postgres;Password=password;Database=database";
-                        break;
-                    }
-            }
+                SQLInfobase.DBMSType.MSSQLServer => "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup",
+                SQLInfobase.DBMSType.PostgreSQL => "Host=localhost;Username=postgres;Password=password;Database=database",
+                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
+            };
         }
     }
 }
