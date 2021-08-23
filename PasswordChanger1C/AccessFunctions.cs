@@ -234,5 +234,36 @@ namespace PasswordChanger1C
                 Row.Add("UserPassHash2", Hashes.Item2);
             }
         }
+
+        public static void ParseUsersData_Repo(ref List<Dictionary<string, object>> Records)
+        {
+            if (Records is null)
+            {
+                return;
+            }
+
+            foreach (var Row in Records)
+            {
+                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
+                {
+                    Row.Add("UserGuidStr", "");
+                    Row.Add("UserPassHash", "");
+                    Row.Add("UserPassHash2", "");
+                    Row.Add("EMPTY_PASS", true);
+                    Row.Add("ADMROLE", false);
+                    continue;
+                }
+
+                var G = new Guid((byte[])Row["USERID"]);
+                int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
+                bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
+                bool isPasswordEmpty = Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword;
+                Row.Add("UserGuidStr", G.ToString());
+                Row.Add("UserPassHash", Row["PASSWORD"].ToString());
+                Row.Add("UserPassHash2", Row["PASSWORD"].ToString());
+                Row.Add("ADMROLE", AdmRole);
+                Row.Add("EMPTY_PASS", isPasswordEmpty);
+            }
+        }
     }
 }

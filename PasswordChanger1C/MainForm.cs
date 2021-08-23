@@ -135,28 +135,7 @@ namespace PasswordChanger1C
                 return;
             }
 
-            foreach (var Row in TableParams.Records)
-            {
-                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
-                {
-                    Row.Add("UserGuidStr", "");
-                    Row.Add("UserPassHash", "");
-                    Row.Add("UserPassHash2", "");
-                    Row.Add("EMPTY_PASS", true);
-                    Row.Add("ADMROLE", false);
-                    continue;
-                }
-
-                var G = new Guid((byte[])Row["USERID"]);
-                int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
-                bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
-                bool isPasswordEmpty = Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword;
-                Row.Add("UserGuidStr", G.ToString());
-                Row.Add("UserPassHash", Row["PASSWORD"].ToString());
-                Row.Add("UserPassHash2", Row["PASSWORD"].ToString());
-                Row.Add("ADMROLE", AdmRole);
-                Row.Add("EMPTY_PASS", isPasswordEmpty);
-            }
+            AccessFunctions.ParseUsersData_Repo(ref TableParams.Records);
 
             Fill_itemUserList_Repo();
         }
