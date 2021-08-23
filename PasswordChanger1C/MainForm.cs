@@ -198,7 +198,7 @@ namespace PasswordChanger1C
 
         public void SetUsers_SQLInfobase(in SQLInfobase.DBMSType dbms_type)
         {
-            bool is_Success = false;
+            bool is_Success = true;
             string NewPassword = NewPassSQL.Text.Trim();
             List<string> Selected_ID = new();
             foreach (ListViewItem item in SQLUserList.SelectedItems) Selected_ID.Add(item.Text);
