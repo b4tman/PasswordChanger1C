@@ -64,14 +64,33 @@ namespace PasswordChanger1C
             GetUsers();
         }
 
+        private void ButtonRepo_Click(object sender, EventArgs e)
+        {
+            OpenFileDialogRepo.FileName = Repo1C.Text;
+            OpenFileDialogRepo.ShowDialog();
+            Repo1C.Text = OpenFileDialogRepo.FileName;
+            GetUsersRepoUsers();
+        }
+
+        private void ButtonGetRepoUsers_Click(object sender, EventArgs e)
+        {
+            GetUsersRepoUsers();
+        }
+
         private void ButtonGetUsers_Click(object sender, EventArgs e)
         {
             GetUsers();
         }
 
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            GetUsers_SQLInfobase(Selected_DBMSType());
+        }
+
         public void GetUsers()
         {
             ListViewUsers.Items.Clear();
+
             try
             {
                 TableParams = AccessFunctions.ReadInfoBase(FileIB.Text, "V8USERS");
@@ -94,6 +113,7 @@ namespace PasswordChanger1C
 
             foreach (var Row in TableParams.Records)
             {
+                Row.Add("EMPTY_PASS", false);
                 if (string.IsNullOrEmpty(Row["NAME"].ToString()))
                 {
                     Row.Add("UserGuidStr", "");
@@ -104,19 +124,63 @@ namespace PasswordChanger1C
 
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
                 var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
-                string PassHash = Hashes.Item1;
                 var G = new Guid((byte[])Row["ID"]);
                 Row.Add("UserGuidStr", G.ToString());
                 Row.Add("UserPassHash", Hashes.Item1);
                 Row.Add("UserPassHash2", Hashes.Item2);
-
-                var itemUserList = new ListViewItem(G.ToString());
-                itemUserList.SubItems.Add(Row["NAME"].ToString());
-                itemUserList.SubItems.Add(Row["DESCR"].ToString());
-                itemUserList.SubItems.Add(PassHash);
-                itemUserList.SubItems.Add(CommonModule.Format_AdmRole(Convert.ToBoolean(Row["ADMROLE"])));
-                ListViewUsers.Items.Add(itemUserList);
             }
+
+            Fill_itemUserList_IB();
+        }
+
+        public void GetUsersRepoUsers()
+        {
+            RepoUserList.Items.Clear();
+
+            try
+            {
+                TableParams = AccessFunctions.ReadInfoBase(Repo1C.Text, "USERS");
+                LabelDatabaseVersionRepo.Text = "Internal database version: " + TableParams.DatabaseVersion;
+            }
+            catch (Exception ex)
+            {
+                TableParams = default;
+                MessageBox.Show("Ошибка при попытке чтения данных из файла хранилища:" + Environment.NewLine +
+                                ex.Message,
+                                "Ошибка работы с файлом", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                return;
+            }
+
+            if (TableParams.Records is null)
+            {
+                return;
+            }
+
+            foreach (var Row in TableParams.Records)
+            {
+                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
+                {
+                    Row.Add("UserGuidStr", "");
+                    Row.Add("UserPassHash", "");
+                    Row.Add("UserPassHash2", "");
+                    Row.Add("EMPTY_PASS", true);
+                    Row.Add("ADMROLE", false);
+                    continue;
+                }
+
+                var G = new Guid((byte[])Row["USERID"]);
+                int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
+                bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
+                bool isPasswordEmpty = Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword;
+                Row.Add("UserGuidStr", G.ToString());
+                Row.Add("UserPassHash", Row["PASSWORD"].ToString());
+                Row.Add("UserPassHash2", Row["PASSWORD"].ToString());
+                Row.Add("ADMROLE", AdmRole);
+                Row.Add("EMPTY_PASS", isPasswordEmpty);
+            }
+
+            Fill_itemUserList_Repo();
         }
 
         private SQLInfobase.DBMSType Selected_DBMSType()
@@ -127,11 +191,6 @@ namespace PasswordChanger1C
                 1 => SQLInfobase.DBMSType.PostgreSQL,
                 _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
             };
-        }
-
-        private void Button2_Click(object sender, EventArgs e)
-        {
-            GetUsers_SQLInfobase(Selected_DBMSType());
         }
 
         private void ButtonChangePassSQL_Click(object sender, EventArgs e)
@@ -158,9 +217,10 @@ namespace PasswordChanger1C
 
         public void GetUsers_SQLInfobase(in SQLInfobase.DBMSType dbms_type)
         {
+            SQLUserList.Items.Clear();
+
             var factory = SQLInfobase.CreateConnectionFactory(dbms_type, ConnectionString.Text);
 
-            SQLUserList.Items.Clear();
             try
             {
                 var Users = new SQLInfobase.Users(dbms_type, factory);
@@ -175,10 +235,10 @@ namespace PasswordChanger1C
                 return;
             }
 
-            Fill_SQLUserList();
+            Fill_itemUserList_SQL();
         }
 
-        private void Fill_SQLUserList()
+        private void Fill_itemUserList_SQL()
         {
             foreach (var Row in SQLUsers)
             {
@@ -193,6 +253,42 @@ namespace PasswordChanger1C
                 itemUserList.SubItems.Add(Row.PassHash);
                 itemUserList.SubItems.Add(Row.AdmRole);
                 SQLUserList.Items.Add(itemUserList);
+            }
+        }
+
+        private void Fill_itemUserList_IB()
+        {
+            foreach (var Row in TableParams.Records)
+            {
+                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
+                {
+                    continue;
+                }
+
+                var itemUserList = new ListViewItem(Row["UserGuidStr"].ToString());
+                itemUserList.SubItems.Add(Row["NAME"].ToString());
+                itemUserList.SubItems.Add(Row["DESCR"].ToString());
+                itemUserList.SubItems.Add(Row["UserPassHash"].ToString());
+                itemUserList.SubItems.Add(CommonModule.Format_AdmRole((bool)Row["ADMROLE"]));
+                ListViewUsers.Items.Add(itemUserList);
+            }
+        }
+
+        private void Fill_itemUserList_Repo()
+        {
+            RepoUserList.Items.Clear();
+            foreach (var Row in TableParams.Records)
+            {
+                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
+                {
+                    continue;
+                }
+
+                var itemUserList = new ListViewItem(Row["UserGuidStr"].ToString());
+                itemUserList.SubItems.Add(Row["NAME"].ToString());
+                itemUserList.SubItems.Add((bool)Row["EMPTY_PASS"] ? "<нет>" : "пароль установлен");
+                itemUserList.SubItems.Add(CommonModule.Format_AdmRole((bool)Row["ADMROLE"]));
+                RepoUserList.Items.Add(itemUserList);
             }
         }
 
@@ -249,65 +345,7 @@ namespace PasswordChanger1C
                                 MessageBoxIcon.Error);
             }
         }
-
-        private void ButtonRepo_Click(object sender, EventArgs e)
-        {
-            OpenFileDialogRepo.FileName = Repo1C.Text;
-            OpenFileDialogRepo.ShowDialog();
-            Repo1C.Text = OpenFileDialogRepo.FileName;
-            GetUsersRepoUsers();
-        }
-
-        private void ButtonGetRepoUsers_Click(object sender, EventArgs e)
-        {
-            GetUsersRepoUsers();
-        }
-
-        public void GetUsersRepoUsers()
-        {
-            RepoUserList.Items.Clear();
-            try
-            {
-                TableParams = AccessFunctions.ReadInfoBase(Repo1C.Text, "USERS");
-                LabelDatabaseVersionRepo.Text = "Internal database version: " + TableParams.DatabaseVersion;
-            }
-            catch (Exception ex)
-            {
-                TableParams = default;
-                MessageBox.Show("Ошибка при попытке чтения данных из файла хранилища:" + Environment.NewLine +
-                                ex.Message,
-                                "Ошибка работы с файлом", MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
-                return;
-            }
-
-            if (TableParams.Records is null)
-            {
-                return;
-            }
-
-            foreach (var Row in TableParams.Records)
-            {
-                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
-                {
-                    continue;
-                }
-
-                var G = new Guid((byte[])Row["USERID"]);
-                var itemUserList = new ListViewItem(G.ToString());
-                int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
-                bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
-                bool isPasswordEmpty = Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword;
-
-                Row.Add("UserGuidStr", G.ToString());
-                itemUserList.SubItems.Add(Row["NAME"].ToString());
-                itemUserList.SubItems.Add(isPasswordEmpty ? "<нет>" : "пароль установлен");
-                itemUserList.SubItems.Add(CommonModule.Format_AdmRole(AdmRole));
-
-                RepoUserList.Items.Add(itemUserList);
-            }
-        }
-
+        
         private void ButtonSetRepoPassword_Click(object sender, EventArgs e)
         {
             if (RepoUserList.SelectedItems.Count == 0)
