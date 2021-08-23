@@ -109,9 +109,8 @@ namespace PasswordChanger1C
 
             var Hashes = AuthStructure
                  .Where(Item => !Item.IsList)
-                 .Select(Item => Item.ToString())
+                 .Select(Item => Item.ToString().Trim('"'))
                  .Where(Item => IsPasswordHash(Item))
-                 .Select(Item => Item.Trim('"'))
                  .Take(2);
 
             int i = 0;
