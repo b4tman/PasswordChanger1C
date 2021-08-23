@@ -5,6 +5,6 @@ image:
 configuration: Release
 platform: x64
 before_build:
-- ps: dotnet restore PasswordChanger1C.sln
+- ps: nuget restore PasswordChanger1C.sln
 build:
   verbosity: normal
