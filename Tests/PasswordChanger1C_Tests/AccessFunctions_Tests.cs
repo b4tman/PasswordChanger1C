@@ -37,27 +37,26 @@ namespace PasswordChanger1C.Tests
         [InlineData(File8214)]
         public void ReadInfoBase_TestPasswords(string filename)
         {
-            // from MainForm.cs
             var TableParams = AccessFunctions.ReadInfoBase(filename, "V8USERS");
-            foreach (var Row in TableParams.Records)
-            {
-                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
+            Assert.NotNull(TableParams.Records);
+
+            AccessFunctions.ParseUsersData_IB(ref TableParams.Records);
+
+            string Password = (TableParams.DatabaseVersion == "8.3.8") ? Password838 : Password8214;
+            var ExpectedHashes = CommonModule.GeneratePasswordHashes(Password);
+
+            Assert.Collection(TableParams.Records, 
+                (Row) => 
                 {
-                    continue; // skip default user
+                    Assert.Equal("", Row["NAME"]);
+                },
+                (Row) =>
+                {
+                    Assert.NotEqual("", Row["NAME"].ToString());
+                    Assert.Equal(ExpectedHashes.Item1, Row["UserPassHash"].ToString());
+                    Assert.Equal(ExpectedHashes.Item2, Row["UserPassHash2"].ToString());
                 }
-                var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
-                string PassHash = Hashes.Item1.Trim('"');
-                string PassHash2 = Hashes.Item2.Trim('"');
-
-                string Password = (TableParams.DatabaseVersion == "8.3.8") ? Password838 : Password8214;
-                var ExpectedHashes = CommonModule.GeneratePasswordHashes(Password);
-
-                Assert.Equal(ExpectedHashes.Item1, PassHash);
-                Assert.Equal(ExpectedHashes.Item2, PassHash2);
-
-                break; // first user only
-            }
+            );
         }
 
         [Theory]
@@ -98,9 +97,11 @@ namespace PasswordChanger1C.Tests
 
                 // read infobase
                 var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
+                Assert.NotNull(TableParams.Records);
+                AccessFunctions.ParseUsersData_IB(ref TableParams.Records);
+
                 var Row = TableParams.Records[1];
-                var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
-                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
+                var Hashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
 
                 var OldDataBinary = Row["DATA_BINARY"];
                 string OldData = Row["DATA"].ToString();
@@ -114,15 +115,15 @@ namespace PasswordChanger1C.Tests
 
                 // read new infobase
                 var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
+                Assert.NotNull(TableParams_New.Records);
+                AccessFunctions.ParseUsersData_IB(ref TableParams_New.Records);
+
                 var Row_New = TableParams_New.Records[1];
-                var AuthStructure_New = ParserServices.ParsesClass.ParseString(Row_New["DATA"].ToString())[0];
-                var Hashes_New = CommonModule.GetPasswordHashTuple(AuthStructure_New);
-                string PassHash_New = Hashes_New.Item1.Trim('"');
-                string PassHash2_New = Hashes_New.Item2.Trim('"');
+                var Hashes_New = Tuple.Create(Row_New["UserPassHash"].ToString(), Row_New["UserPassHash2"].ToString());
 
                 // check passwords
-                Assert.Equal(NewHashes.Item1, PassHash_New);
-                Assert.Equal(NewHashes.Item2, PassHash2_New);
+                Assert.Equal(NewHashes.Item1, Hashes_New.Item1);
+                Assert.Equal(NewHashes.Item2, Hashes_New.Item2);
             }
         }
 
