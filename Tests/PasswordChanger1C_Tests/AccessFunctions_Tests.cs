@@ -48,7 +48,7 @@ namespace PasswordChanger1C.Tests
             Assert.Collection(TableParams.Records, 
                 (Row) => 
                 {
-                    Assert.Equal("", Row["NAME"]);
+                    Assert.Equal("", Row["NAME"].ToString());
                 },
                 (Row) =>
                 {
@@ -67,18 +67,20 @@ namespace PasswordChanger1C.Tests
             var TableParams = AccessFunctions.ReadInfoBase(filename, "USERS");
             Assert.NotNull(TableParams.Records);
 
-            foreach (var Row in TableParams.Records)
-            {
-                string username = Row["NAME"].ToString();
-                if ("TestNoPassword" == username)
+            AccessFunctions.ParseUsersData_Repo(ref TableParams.Records);
+
+            Assert.Collection(TableParams.Records,
+                (Row) =>
                 {
-                    Assert.Equal(AccessFunctions.InfoBaseRepo_EmptyPassword, Row["PASSWORD"].ToString());
-                }
-                else if ("Test" == username)
+                    Assert.Equal("Test", Row["NAME"].ToString());
+                    Assert.False((bool)Row["EMPTY_PASS"]);
+                },
+                (Row) =>
                 {
-                    Assert.NotEqual(AccessFunctions.InfoBaseRepo_EmptyPassword, Row["PASSWORD"].ToString());
+                    Assert.Equal("TestNoPassword", Row["NAME"].ToString());
+                    Assert.True((bool)Row["EMPTY_PASS"]);
                 }
-            }
+            );
         }
 
         [Theory]
@@ -138,26 +140,28 @@ namespace PasswordChanger1C.Tests
                 string tmp_filename = Path.Join(tmp_folder, "test.1cd");
                 File.Copy(original_filename, tmp_filename);
 
-                string NewPassword = "test123";
-                var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
-
                 // read infobase
                 var TableParams = AccessFunctions.ReadInfoBase(tmp_filename, "USERS");
+                Assert.NotNull(TableParams.Records);
+                AccessFunctions.ParseUsersData_Repo(ref TableParams.Records);
+
                 var Row = TableParams.Records[0];
                 Assert.Equal("Test", Row["NAME"].ToString());
-                Assert.NotEqual(AccessFunctions.InfoBaseRepo_EmptyPassword, Row["PASSWORD"].ToString());
+                Assert.False((bool)Row["EMPTY_PASS"]);
 
                 // write
                 AccessFunctions.WritePasswordIntoInfoBaseRepo(tmp_filename, TableParams, Convert.ToInt32(Row["OFFSET_PASSWORD"]));
 
                 // read new infobase
                 var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "USERS");
-                var Row_New = TableParams_New.Records[0];
+                Assert.NotNull(TableParams_New.Records);
+                AccessFunctions.ParseUsersData_Repo(ref TableParams_New.Records);
 
                 // check data
+                var Row_New = TableParams_New.Records[0];
                 Assert.Equal(Row["NAME"].ToString(), Row_New["NAME"].ToString());
+                Assert.True((bool)Row_New["EMPTY_PASS"]);
                 Assert.NotEqual(Row["PASSWORD"].ToString(), Row_New["PASSWORD"].ToString());
-                Assert.Equal(AccessFunctions.InfoBaseRepo_EmptyPassword, Row_New["PASSWORD"].ToString());
             }
         }
     }
