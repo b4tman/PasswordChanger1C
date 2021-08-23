@@ -111,6 +111,7 @@ namespace PasswordChanger1C
                  .Where(Item => !Item.IsList)
                  .Select(Item => Item.ToString())
                  .Where(Item => IsPasswordHash(Item))
+                 .Select(Item => Item.Trim('"'))
                  .Take(2);
 
             int i = 0;
