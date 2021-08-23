@@ -102,18 +102,13 @@ namespace PasswordChanger1C.Tests
                 Assert.NotNull(TableParams.Records);
                 AccessFunctions.ParseUsersData_IB(ref TableParams.Records);
 
-                var Row = TableParams.Records[1];
-                var Hashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
-
-                var OldDataBinary = Row["DATA_BINARY"];
-                string OldData = Row["DATA"].ToString();
+                var Row = TableParams.Records[1];                
 
                 // change value
-                string NewData = CommonModule.ReplaceHashes(OldData, Hashes, NewHashes);
-                var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
+                AccessFunctions.UpdatePassword_IB(ref Row, NewPassword);
 
                 // write
-                AccessFunctions.WritePasswordIntoInfoBaseIB(tmp_filename, TableParams, (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
+                AccessFunctions.WritePasswordIntoInfoBaseIB(tmp_filename, TableParams, Row);
 
                 // read new infobase
                 var TableParams_New = AccessFunctions.ReadInfoBase(tmp_filename, "V8USERS");
