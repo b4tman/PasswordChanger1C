@@ -207,5 +207,32 @@ namespace PasswordChanger1C
                 writer.WritePages(DataPage.StorageTables, TargetDataBuffer);
             }
         }
+
+        public static void ParseUsersData_IB(ref List<Dictionary<string, object>> Records)
+        {
+            if (Records is null)
+            {
+                return;
+            }
+
+            foreach (var Row in Records)
+            {
+                Row.Add("EMPTY_PASS", false);
+                if (string.IsNullOrEmpty(Row["NAME"].ToString()))
+                {
+                    Row.Add("UserGuidStr", "");
+                    Row.Add("UserPassHash", "");
+                    Row.Add("UserPassHash2", "");
+                    continue;
+                }
+
+                var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
+                var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
+                var G = new Guid((byte[])Row["ID"]);
+                Row.Add("UserGuidStr", G.ToString());
+                Row.Add("UserPassHash", Hashes.Item1);
+                Row.Add("UserPassHash2", Hashes.Item2);
+            }
+        }
     }
 }
