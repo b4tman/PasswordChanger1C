@@ -240,21 +240,21 @@ namespace PasswordChanger1C
 
             foreach (var Row in Records)
             {
-                Row.Add("EMPTY_PASS", false);
+                Row["EMPTY_PASS"] = false;
                 if (string.IsNullOrEmpty(Row["NAME"].ToString()))
                 {
-                    Row.Add("UserGuidStr", "");
-                    Row.Add("UserPassHash", "");
-                    Row.Add("UserPassHash2", "");
+                    Row["UserGuidStr"] = "";
+                    Row["UserPassHash"] = "";
+                    Row["UserPassHash2"] = "";
                     continue;
                 }
 
                 var AuthStructure = ParserServices.ParsesClass.ParseString(Row["DATA"].ToString())[0];
                 var Hashes = CommonModule.GetPasswordHashTuple(AuthStructure);
                 var G = new Guid((byte[])Row["ID"]);
-                Row.Add("UserGuidStr", G.ToString());
-                Row.Add("UserPassHash", Hashes.Item1);
-                Row.Add("UserPassHash2", Hashes.Item2);
+                Row["UserGuidStr"] = G.ToString();
+                Row["UserPassHash"] = Hashes.Item1;
+                Row["UserPassHash2"] = Hashes.Item2;
             }
         }
 
@@ -269,11 +269,11 @@ namespace PasswordChanger1C
             {
                 if (string.IsNullOrEmpty(Row["NAME"].ToString()))
                 {
-                    Row.Add("UserGuidStr", "");
-                    Row.Add("UserPassHash", "");
-                    Row.Add("UserPassHash2", "");
-                    Row.Add("EMPTY_PASS", true);
-                    Row.Add("ADMROLE", false);
+                    Row["UserGuidStr"] = "";
+                    Row["UserPassHash"] = "";
+                    Row["UserPassHash2"] = "";
+                    Row["EMPTY_PASS"] = true;
+                    Row["ADMROLE"] = false;
                     continue;
                 }
 
@@ -281,11 +281,12 @@ namespace PasswordChanger1C
                 int RIGHTS = BitConverter.ToInt32((byte[])Row["RIGHTS"], 0);
                 bool AdmRole = RIGHTS == 0xFFFF || RIGHTS == 0x8005;
                 bool isPasswordEmpty = Row["PASSWORD"].ToString() == AccessFunctions.InfoBaseRepo_EmptyPassword;
-                Row.Add("UserGuidStr", G.ToString());
-                Row.Add("UserPassHash", Row["PASSWORD"].ToString());
-                Row.Add("UserPassHash2", Row["PASSWORD"].ToString());
-                Row.Add("ADMROLE", AdmRole);
-                Row.Add("EMPTY_PASS", isPasswordEmpty);
+
+                Row["UserGuidStr"] = G.ToString();
+                Row["UserPassHash"] = Row["PASSWORD"].ToString();
+                Row["UserPassHash2"] = Row["PASSWORD"].ToString();
+                Row["ADMROLE"] = AdmRole;
+                Row["EMPTY_PASS"] = isPasswordEmpty;
             }
         }
     }
