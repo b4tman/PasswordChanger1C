@@ -208,6 +208,29 @@ namespace PasswordChanger1C
             }
         }
 
+        public static void WritePasswordIntoInfoBaseIB(in string FileName, in PageParams PageHeader, in Dictionary<string, object> Row)
+        {
+            WritePasswordIntoInfoBaseIB(FileName, PageHeader, (byte[])Row["OLD_DATA_BINARY"], (byte[])Row["DATA_BINARY"], (int)Row["DATA_POS"], (int)Row["DATA_SIZE"]);
+        }
+
+
+        public static void UpdatePassword_IB(ref Dictionary<string, object> Row, in string NewPassword)
+        {
+            var OldDataBinary = (byte[])Row["DATA_BINARY"];
+            string OldData = Row["DATA"].ToString();
+
+            Row["OLD_DATA_BINARY"] = OldDataBinary;
+            Row["OLD_DATA"] = OldData;
+
+            var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword);
+            var OldHashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
+            string NewData = CommonModule.ReplaceHashes(OldData, OldHashes, NewHashes);
+            var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
+
+            Row["DATA"] = NewData;
+            Row["DATA_BINARY"] = NewBytes;
+        }
+
         public static void ParseUsersData_IB(ref List<Dictionary<string, object>> Records)
         {
             if (Records is null)

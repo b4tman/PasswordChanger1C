@@ -380,13 +380,9 @@ namespace PasswordChanger1C
             {
                 foreach (var Row in SelectedRows)
                 {
-                    var OldDataBinary = Row["DATA_BINARY"];
-                    string OldData = Row["DATA"].ToString();
-                    var NewHashes = CommonModule.GeneratePasswordHashes(NewPassword.Text.Trim());
-                    var OldHashes = Tuple.Create(Row["UserPassHash"].ToString(), Row["UserPassHash2"].ToString());
-                    string NewData = CommonModule.ReplaceHashes(OldData, OldHashes, NewHashes);
-                    var NewBytes = CommonModule.EncodePasswordStructure(NewData, Convert.ToInt32(Row["DATA_KEYSIZE"]), (byte[])Row["DATA_KEY"]);
-                    AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, (byte[])OldDataBinary, NewBytes, Convert.ToInt32(Row["DATA_POS"]), Convert.ToInt32(Row["DATA_SIZE"]));
+                    var Current_Row = Row;
+                    AccessFunctions.UpdatePassword_IB(ref Current_Row, NewPassword.Text.Trim());
+                    AccessFunctions.WritePasswordIntoInfoBaseIB(FileIB.Text, TableParams, Current_Row);
                 }
             }
             catch (Exception ex)
