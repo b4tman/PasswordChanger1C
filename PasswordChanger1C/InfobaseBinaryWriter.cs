@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -130,6 +131,69 @@ namespace PasswordChanger1C
                     }
                 );
                 WritePages(Pages, buffer, index);
+            }
+
+            /// <summary>
+            /// Write data from bufer(starting at buffer_index) to pages, starting at pages_offset
+            /// (to patch data in pages)
+            /// </summary>
+            /// <param name="Pages">list of page numbers</param>
+            /// <param name="pages_offset">offset in pages</param>
+            /// <param name="buffer">data buffer</param>
+            /// <param name="buffer_index">optional: data buffer start index</param>
+            /// <param name="count">optional: count of data to write</param>
+            /// <example> 
+            /// input  = (stream_data = "1234567890", page_size=2, pages={1,2,3}, offset=3, buffer="---")
+            /// output = (stream_data = "12345---90")
+            /// -- pages data: {"12", "34", "56", "78", "90"}
+            /// -- start page = 2           ^
+            /// -- start page offset = 1      ^
+            /// </example>
+            public void WriteToPagesAt(in List<long> Pages, int pages_offset, in byte[] buffer, int buffer_index=0, int count=0)
+            {
+                if (0 == count) count = buffer.Length - buffer_index;
+                int size_pages = PageSize * Pages.Count - pages_offset;
+                if (count > size_pages) throw new WritePageSizeException(size_pages, count);
+
+
+                int cur_page_offset = pages_offset % PageSize;
+                int pages_count = Math.Max(1, count / PageSize + (cur_page_offset > 0 ? 1 : 0));
+                var pages_changed = Pages.Skip(pages_offset / PageSize).Take(pages_count);
+
+                foreach (var Page in pages_changed)
+                {
+                    int chunk = Math.Min(count, PageSize - cur_page_offset);
+                    
+                    SeekToPage(Page);
+                    if (cur_page_offset > 0) Seek(cur_page_offset, SeekOrigin.Current);
+                    
+                    Write(buffer, buffer_index, chunk);
+                    
+                    buffer_index += chunk;
+                    count -= chunk;
+                    cur_page_offset = 0;
+                }
+            }
+
+            /// <summary>
+            /// Write data from bufer(starting at buffer_index) to pages(from list of storage tables (StorageTables[]->DataBlocks[])),
+            /// starting at pages_offset (to patch data in pages)
+            /// </summary>
+            /// <param name="StorageTables"></param>
+            /// <param name="pages_offset">offset in pages</param>
+            /// <param name="buffer">data buffer</param>
+            /// <param name="buffer_index">optional: data buffer start index</param>
+            /// <param name="count">optional: count of data to write</param>
+            public void WriteToPagesAt(in List<StorageTable> StorageTables, int pages_offset, in byte[] buffer, int buffer_index = 0, int count = 0)
+            {
+                var Pages = StorageTables.Aggregate(new List<long>(),
+                    (Pages, ST) =>
+                    {
+                        Pages.AddRange(ST.DataBlocks);
+                        return Pages;
+                    }
+                );
+                WriteToPagesAt(Pages, pages_offset, buffer, buffer_index, count);
             }
         }
     }
