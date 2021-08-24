@@ -26,7 +26,7 @@ namespace PasswordChanger1C.Tests
         }
 
         [Fact()]
-        public void WriteToPagesAt_Test()
+        public void WriteToPagesAt_Seq()
         {
             string Output;
             const int PageSize = 10;
@@ -56,6 +56,42 @@ namespace PasswordChanger1C.Tests
                 (Page) => Assert.Equal("@@@@@@@@##", Page),
                 (Page) => Assert.Equal(BlankPage, Page),
                 (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal(BlankPage, Page)
+            );
+        }
+
+        [Fact()]
+        public void WriteToPagesAt_SkipPage()
+        {
+            string Output;
+            const int PageSize = 10;
+            const int PagesCount = 10;
+            const int offset = PageSize + PageSize / 2;
+            const int PatchSize = PageSize * 2 + 3;
+            long[] changePages = { 2, 3, 5, 7 };
+
+            string BlankPage = new String('#', PageSize);
+            string Blank = string.Concat(Enumerable.Repeat(BlankPage, PagesCount));
+            string Patch = new String('@', PatchSize);
+            var Patch_bin = System.Text.Encoding.ASCII.GetBytes(Patch);
+
+            using (var test_stream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes(Blank)))
+            {
+                using var writer = new InfobaseBinaryWriter(test_stream, PageSize);
+                writer.WriteToPagesAt(changePages.ToList(), offset, Patch_bin);
+                Output = streamToString(test_stream);
+            }
+
+            Assert.Collection(SplitByLength(Output, PageSize),
+                (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal("#####@@@@@", Page),
+                (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal("@@@@@@@@@@", Page),
+                (Page) => Assert.Equal(BlankPage, Page),
+                (Page) => Assert.Equal("@@@@@@@@##", Page),   
                 (Page) => Assert.Equal(BlankPage, Page),
                 (Page) => Assert.Equal(BlankPage, Page)
             );

@@ -148,6 +148,8 @@ namespace PasswordChanger1C
             /// -- pages data: {"12", "34", "56", "78", "90"}
             /// -- start page = 2           ^
             /// -- start page offset = 1      ^
+            /// input  = (stream_data = "1234567890", page_size=2, pages={0,2,4}, offset=3, buffer="---")
+            /// output = (stream_data = "12345-78--")
             /// </example>
             public void WriteToPagesAt(in List<long> Pages, int pages_offset, in byte[] buffer, int buffer_index=0, int count=0)
             {
