@@ -63,7 +63,7 @@ namespace PasswordChanger1C
             /// </summary>
             /// <param name="PageNumber">page number</param>
             /// <param name="buffer">data bufer</param>
-            public void WriteToPage(long PageNumber, byte[] buffer)
+            public void WriteToPage(long PageNumber, in byte[] buffer)
             {
                 if (PageSize == 0) throw new PageSizeNotSetException();
                 if (buffer.Length > PageSize) throw new WritePageSizeException(PageSize, buffer.Length);
@@ -79,7 +79,7 @@ namespace PasswordChanger1C
             /// <param name="buffer">data buffer</param>
             /// <param name="index">data buffer start index</param>
             /// <param name="count">count of data to write</param>
-            public void WriteToPage(long PageNumber, byte[] buffer, int index, int count)
+            public void WriteToPage(long PageNumber, in byte[] buffer, int index, int count)
             {
                 if (PageSize == 0) throw new PageSizeNotSetException();
                 if (count > PageSize) throw new WritePageSizeException(PageSize, count);
@@ -94,7 +94,7 @@ namespace PasswordChanger1C
             /// <param name="PageNumber">page number</param>
             /// <param name="buffer">data buffer</param>
             /// <param name="index">data buffer start index</param>
-            public void WritePage(long PageNumber, byte[] buffer, int index)
+            public void WritePage(long PageNumber, in byte[] buffer, int index)
             {
                 if (buffer.Length - index < PageSize) throw new WritePageSizeException(PageSize, buffer.Length - index);
                 WriteToPage(PageNumber, buffer, index, PageSize);
@@ -106,7 +106,7 @@ namespace PasswordChanger1C
             /// <param name="Pages">list of page numbers</param>
             /// <param name="buffer">data buffer</param>
             /// <param name="index">data buffer start index</param>
-            public void WritePages(in List<long> Pages, byte[] buffer, int index = 0)
+            public void WritePages(in List<long> Pages, in byte[] buffer, int index = 0)
             {
                 foreach (var Page in Pages)
                 {
@@ -121,7 +121,7 @@ namespace PasswordChanger1C
             /// <param name="StorageTables"></param>
             /// <param name="buffer">data buffer</param>
             /// <param name="index">data buffer start index</param>
-            public void WritePages(in List<StorageTable> StorageTables, byte[] buffer, int index = 0)
+            public void WritePages(in List<StorageTable> StorageTables, in byte[] buffer, int index = 0)
             {
                 var Pages = StorageTables.Aggregate(new List<long>(),
                     (Pages, ST) =>
