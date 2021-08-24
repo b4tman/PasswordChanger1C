@@ -134,7 +134,6 @@ namespace PasswordChanger1C
 
         public static void WritePasswordIntoInfoBaseRepo(in string FileName, in PageParams PageHeader, int Offset, in string NewPass = null)
         {
-            byte[] TargetDataBuffer;
             PageParams DataPage;
             string PassStr = string.IsNullOrEmpty(NewPass) ? InfoBaseRepo_EmptyPassword : NewPass;
             var Pass = Encoding.Unicode.GetBytes(PassStr);
@@ -156,15 +155,12 @@ namespace PasswordChanger1C
                 var DataPageBuffer = reader.ReadPage(PageHeader.BlockData);
 
                 DataPage = DatabaseAccess8214.ReadPage(reader, DataPageBuffer);
-                TargetDataBuffer = reader.ReadPages(DataPage.StorageTables);
             }
-
-            Pass.CopyTo(TargetDataBuffer.AsMemory(Offset));
 
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                writer.WritePages(DataPage.StorageTables, TargetDataBuffer);
+                writer.WriteToPagesAt(DataPage.StorageTables, Offset, Pass);
             }
         }
 

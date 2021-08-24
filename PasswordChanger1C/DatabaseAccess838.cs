@@ -351,17 +351,12 @@ namespace PasswordChanger1C
                 using var reader = new AccessFunctions.InfobaseBinaryReader(fs, PageHeader.PageSize);
                 var DataPageBuffer = reader.ReadPage(PageHeader.BlockData);
                 DataPage = ReadObjectPageDefinition(DataPageBuffer, PageSize);
-                DataPage.BinaryData = ReadAllStoragePagesForObject(reader, DataPage);
             }
-            //Encoding.Unicode.GetString(DataPage.BinaryData, Offset, Pass.Length)
-
-            Pass.CopyTo(DataPage.BinaryData.AsMemory(Offset, Pass.Length));
-
-            // Data page(s) has been modified. Let's write it back to database
+            
             using (var fs = new FileStream(FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.Write))
             {
                 using var writer = new InfobaseBinaryWriter(fs, PageHeader.PageSize);
-                writer.WritePages(DataPage.PagesNum, DataPage.BinaryData);
+                writer.WriteToPagesAt(DataPage.PagesNum, Offset, Pass);
             }
         }
     }
