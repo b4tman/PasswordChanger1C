@@ -3,3 +3,14 @@ before_build:
 - ps: nuget restore PasswordChanger1C.sln
 build:
   verbosity: minimal
+after_build:
+- ps: |
+    if (!$env:Configuration) {$env:Configuration="Debug"};
+    7z a PasswordChanger1C.zip `
+      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.dll `
+      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.exe `
+      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.exe.config `
+      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.pdb
+artifacts:
+- path: PasswordChanger1C.zip
+  name: PasswordChanger1C
