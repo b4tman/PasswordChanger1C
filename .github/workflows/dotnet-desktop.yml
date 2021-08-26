@@ -65,7 +65,7 @@ jobs:
         7z a PasswordChanger1C.zip `
         $env:BinDir\*.exe `
         $env:BinDir\*.exe.config `
-        $env:BinDir\*.pdb '
+        $env:BinDir\*.pdb `
         $env:BinDir\*.dll
       env:
         BinDir: PasswordChanger1C\bin\${{ matrix.configuration }}
