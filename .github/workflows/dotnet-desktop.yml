@@ -1,0 +1,70 @@
+name: .NET Desktop
+
+on:
+  push:
+    branches: [ master, csharp ]
+  pull_request:
+    branches: [ master, csharp ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    env:
+      Solution_Name: PasswordChanger1C.sln
+      Test_Project_Path: Tests\PasswordChanger1C_Tests\PasswordChanger1C_Tests.csproj
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+
+    # Add MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+    
+    # Install NuGet
+    - name: Setup NuGet.exe
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-version: latest
+
+    # Restore NuGet packages
+    - name: Restore packages
+      run: nuget restore $env:Solution_Name
+
+    # Build the application
+    - name: Build the application
+      run: msbuild $env:Solution_Name /t:Build /p:Configuration=$env:Configuration /verbosity:minimal
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Execute unit tests
+    - name: Execute unit tests
+      run: dotnet test $env:Test_Project_Path --configuration $env:Configuration --no-build
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Upload application: https://github.com/actions/upload-artifact
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      if: matrix.configuration == 'Release'
+      with:
+        name: PasswordChanger1C
+        path: |
+           PasswordChanger1C\bin\${{ matrix.configuration }}\
+           !PasswordChanger1C\bin\${{ matrix.configuration }}\*.xml
