@@ -33,12 +33,12 @@ jobs:
       with:
         dotnet-version: 3.1.x
 
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    # Add MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
     
-    # install nuget
-    - name: Setup NuGet
+    # Install NuGet
+    - name: Setup NuGet.exe
       uses: nuget/setup-nuget@v1
       with:
         nuget-version: latest
@@ -59,20 +59,11 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-    # Create the app package
-    - name: Create the app package
-      run: |
-        7z a PasswordChanger1C.zip `
-        $env:BinDir\*.exe `
-        $env:BinDir\*.exe.config `
-        $env:BinDir\*.pdb `
-        $env:BinDir\*.dll
-      env:
-        BinDir: PasswordChanger1C\bin\${{ matrix.configuration }}
-
-    # Upload the ZIP package: https://github.com/marketplace/actions/upload-artifact
+    # Upload application: https://github.com/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ZIP Package
-        path: PasswordChanger1C.zip
+        name: PasswordChanger1C
+        path: |
+           PasswordChanger1C\bin\${{ matrix.configuration }}\
+           !PasswordChanger1C\bin\${{ matrix.configuration }}\*.xml
