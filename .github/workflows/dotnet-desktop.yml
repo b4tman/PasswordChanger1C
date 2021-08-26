@@ -62,6 +62,7 @@ jobs:
     # Upload application: https://github.com/actions/upload-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
+      if: matrix.configuration == 'Release'
       with:
         name: PasswordChanger1C
         path: |
