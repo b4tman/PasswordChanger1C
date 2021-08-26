@@ -36,6 +36,16 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
+    
+    # install nuget
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-version: latest
+
+    # Restore NuGet packages
+    - name: Restore packages
+      run: nuget restore $env:Solution_Name
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
