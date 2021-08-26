@@ -1,0 +1,66 @@
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ master, csharp ]
+  pull_request:
+    branches: [ master, csharp ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    env:
+      Solution_Name: PasswordChanger1C.sln
+      Test_Project_Path: Tests\PasswordChanger1C_Tests\PasswordChanger1C_Tests.csproj
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test
+
+    # Restore the application to populate the obj folder with RuntimeIdentifiers
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Create the app package
+    - name: Create the app package
+      run: |
+        7z a PasswordChanger1C.zip `
+        $env:BinDir\*.exe `
+        $env:BinDir\*.exe.config `
+        $env:BinDir\*.pdb '
+        $env:BinDir\*.dll
+      env:
+        BinDir: PasswordChanger1C\bin\${{ matrix.configuration }}
+
+    # Upload the ZIP package: https://github.com/marketplace/actions/upload-artifact
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ZIP Package
+        path: PasswordChanger1C.zip
