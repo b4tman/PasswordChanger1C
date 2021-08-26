@@ -47,13 +47,15 @@ jobs:
     - name: Restore packages
       run: nuget restore $env:Solution_Name
 
-    # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test
+    # Build the application
+    - name: Build the application
+      run: msbuild $env:Solution_Name /t:Build /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
 
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+    # Execute unit tests
+    - name: Execute unit tests
+      run: dotnet test $env:Test_Project_Path --configuration $env:Configuration --no-build
       env:
         Configuration: ${{ matrix.configuration }}
 
