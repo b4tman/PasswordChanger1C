@@ -124,7 +124,7 @@ namespace PasswordChanger1C
             // 
             // OpenFileDialog
             // 
-            OpenFileDialog.Filter = "1C DB files|*.1cd";
+            OpenFileDialog.Filter = "1CD files|*.1cd; *.1CD; *.1Cd; *.1cD|All files (*.*)|*.*";
             OpenFileDialog.RestoreDirectory = true;
             OpenFileDialog.Title = "Выберите файл информационной базы 1С";
             // 
@@ -228,7 +228,7 @@ namespace PasswordChanger1C
             // OpenFileDialogRepo
             // 
             OpenFileDialogRepo.FileName = "OpenFileDialogRepo";
-            OpenFileDialogRepo.Filter = "1C DB files|*.1cd";
+            OpenFileDialogRepo.Filter = "1CD files|*.1cd; *.1CD; *.1Cd; *.1cD|All files (*.*)|*.*";
             OpenFileDialogRepo.Title = "Выберите файл хранилища 1С";
             // 
             // ButtonGetRepoUsers
