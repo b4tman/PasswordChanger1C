@@ -106,6 +106,11 @@ namespace PasswordChanger1C
                 return;
             }
 
+            if (TableParams.Records is null)
+            {
+                return;
+            }
+
             AccessFunctions.ParseUsersData_IB(ref TableParams.Records);
 
             Fill_itemUserList_IB();
