@@ -35,586 +35,613 @@ namespace PasswordChanger1C
         [DebuggerStepThrough()]
         private void InitializeComponent()
         {
-            var resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            _Button6 = new Button();
-            _Button6.Click += new EventHandler(Button6_Click);
-            FileIB = new TextBox();
-            OpenFileDialog = new OpenFileDialog();
-            _ButtonGetUsers = new Button();
-            _ButtonGetUsers.Click += new EventHandler(ButtonGetUsers_Click);
-            ListViewUsers = new ListView();
-            UserGUID = new ColumnHeader();
-            UserName = new ColumnHeader();
-            UserDescr = new ColumnHeader();
-            UserPassHash = new ColumnHeader();
-            UserAdmRole = new ColumnHeader();
-            ConnectionString = new TextBox();
-            _Button2 = new Button();
-            _Button2.Click += new EventHandler(Button2_Click);
-            Label4 = new Label();
-            Repo1C = new TextBox();
-            _ButtonRepo = new Button();
-            _ButtonRepo.Click += new EventHandler(ButtonRepo_Click);
-            OpenFileDialogRepo = new OpenFileDialog();
-            _ButtonGetRepoUsers = new Button();
-            _ButtonGetRepoUsers.Click += new EventHandler(ButtonGetRepoUsers_Click);
-            _ButtonSetRepoPassword = new Button();
-            _ButtonSetRepoPassword.Click += new EventHandler(ButtonSetRepoPassword_Click);
-            TabControl1 = new TabControl();
-            TabPage1 = new TabPage();
-            LabelDatabaseVersion = new Label();
-            NewPassword = new TextBox();
-            Label2 = new Label();
-            TextBox3 = new TextBox();
-            _ButtonChangePwdFileDB = new Button();
-            _ButtonChangePwdFileDB.Click += new EventHandler(ButtonChangePwdFileDB_Click);
-            Label1 = new Label();
-            TabPage2 = new TabPage();
-            Label7 = new Label();
-            _cbDBType = new ComboBox();
-            _cbDBType.SelectedIndexChanged += new EventHandler(CbDBType_SelectedIndexChanged);
-            TextBox2 = new TextBox();
-            _ButtonChangePassSQL = new Button();
-            _ButtonChangePassSQL.Click += new EventHandler(ButtonChangePassSQL_Click);
-            Label6 = new Label();
-            NewPassSQL = new TextBox();
-            Label5 = new Label();
-            SQLUserList = new ListView();
-            ColumnHeader1 = new ColumnHeader();
-            ColumnHeader2 = new ColumnHeader();
-            ColumnHeader3 = new ColumnHeader();
-            ColumnHeader4 = new ColumnHeader();
-            ColumnHeader5 = new ColumnHeader();
-            TabPage3 = new TabPage();
-            LabelDatabaseVersionRepo = new Label();
-            TextBox1 = new TextBox();
-            RepoUserList = new ListView();
-            RepoUserGUID = new ColumnHeader();
-            RepoUserName = new ColumnHeader();
-            RepoHasPwd = new ColumnHeader();
-            RepoAdmin = new ColumnHeader();
-            _LinkLabel1 = new LinkLabel();
-            _LinkLabel1.Click += new EventHandler(LinkLabel1_Click);
-            Label3 = new Label();
-            _LinkLabel2 = new LinkLabel();
-            _LinkLabel2.Click += new EventHandler(LinkLabel2_Click);
-            TabControl1.SuspendLayout();
-            TabPage1.SuspendLayout();
-            TabPage2.SuspendLayout();
-            TabPage3.SuspendLayout();
-            SuspendLayout();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            this._Button6 = new System.Windows.Forms.Button();
+            this.FileIB = new System.Windows.Forms.TextBox();
+            this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this._ButtonGetUsers = new System.Windows.Forms.Button();
+            this.ListViewUsers = new System.Windows.Forms.ListView();
+            this.UserGUID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UserName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UserDescr = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UserPassHash = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UserAdmRole = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ConnectionString = new System.Windows.Forms.TextBox();
+            this._Button2 = new System.Windows.Forms.Button();
+            this.Label4 = new System.Windows.Forms.Label();
+            this.Repo1C = new System.Windows.Forms.TextBox();
+            this._ButtonRepo = new System.Windows.Forms.Button();
+            this.OpenFileDialogRepo = new System.Windows.Forms.OpenFileDialog();
+            this._ButtonGetRepoUsers = new System.Windows.Forms.Button();
+            this._ButtonSetRepoPassword = new System.Windows.Forms.Button();
+            this.TabControl1 = new System.Windows.Forms.TabControl();
+            this.TabPage1 = new System.Windows.Forms.TabPage();
+            this.LabelDatabaseVersion = new System.Windows.Forms.Label();
+            this.NewPassword = new System.Windows.Forms.TextBox();
+            this.Label2 = new System.Windows.Forms.Label();
+            this.TextBox3 = new System.Windows.Forms.TextBox();
+            this._ButtonChangePwdFileDB = new System.Windows.Forms.Button();
+            this.Label1 = new System.Windows.Forms.Label();
+            this.TabPage2 = new System.Windows.Forms.TabPage();
+            this.Label7 = new System.Windows.Forms.Label();
+            this._cbDBType = new System.Windows.Forms.ComboBox();
+            this.TextBox2 = new System.Windows.Forms.TextBox();
+            this._ButtonChangePassSQL = new System.Windows.Forms.Button();
+            this.Label6 = new System.Windows.Forms.Label();
+            this.NewPassSQL = new System.Windows.Forms.TextBox();
+            this.Label5 = new System.Windows.Forms.Label();
+            this.SQLUserList = new System.Windows.Forms.ListView();
+            this.ColumnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ColumnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ColumnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ColumnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ColumnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.TabPage3 = new System.Windows.Forms.TabPage();
+            this.LabelDatabaseVersionRepo = new System.Windows.Forms.Label();
+            this.TextBox1 = new System.Windows.Forms.TextBox();
+            this.RepoUserList = new System.Windows.Forms.ListView();
+            this.RepoUserGUID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.RepoUserName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.RepoHasPwd = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.RepoAdmin = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this._LinkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.Label3 = new System.Windows.Forms.Label();
+            this._LinkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.TabControl1.SuspendLayout();
+            this.TabPage1.SuspendLayout();
+            this.TabPage2.SuspendLayout();
+            this.TabPage3.SuspendLayout();
+            this.SuspendLayout();
             // 
-            // Button6
+            // _Button6
             // 
-            _Button6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _Button6.Location = new Point(636, 24);
-            _Button6.Name = "_Button6";
-            _Button6.Size = new Size(95, 22);
-            _Button6.TabIndex = 11;
-            _Button6.Text = "Выбрать файл";
-            _Button6.UseVisualStyleBackColor = true;
+            this._Button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._Button6.Location = new System.Drawing.Point(636, 24);
+            this._Button6.Name = "_Button6";
+            this._Button6.Size = new System.Drawing.Size(95, 22);
+            this._Button6.TabIndex = 11;
+            this._Button6.Text = "Выбрать файл";
+            this._Button6.UseVisualStyleBackColor = true;
+            this._Button6.Click += new System.EventHandler(this.Button6_Click);
             // 
             // FileIB
             // 
-            FileIB.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            FileIB.Location = new Point(9, 25);
-            FileIB.Name = "FileIB";
-            FileIB.Size = new Size(625, 20);
-            FileIB.TabIndex = 9;
+            this.FileIB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.FileIB.Location = new System.Drawing.Point(9, 25);
+            this.FileIB.Name = "FileIB";
+            this.FileIB.Size = new System.Drawing.Size(625, 20);
+            this.FileIB.TabIndex = 9;
             // 
             // OpenFileDialog
             // 
-            OpenFileDialog.Filter = "1CD files|*.1cd; *.1CD; *.1Cd; *.1cD|All files (*.*)|*.*";
-            OpenFileDialog.RestoreDirectory = true;
-            OpenFileDialog.Title = "Выберите файл информационной базы 1С";
+            this.OpenFileDialog.Filter = "1CD files|*.1cd; *.1CD; *.1Cd; *.1cD|All files (*.*)|*.*";
+            this.OpenFileDialog.RestoreDirectory = true;
+            this.OpenFileDialog.Title = "Выберите файл информационной базы 1С";
             // 
-            // ButtonGetUsers
+            // _ButtonGetUsers
             // 
-            _ButtonGetUsers.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _ButtonGetUsers.Location = new Point(733, 24);
-            _ButtonGetUsers.Name = "_ButtonGetUsers";
-            _ButtonGetUsers.Size = new Size(183, 22);
-            _ButtonGetUsers.TabIndex = 12;
-            _ButtonGetUsers.Text = "Получить список пользователей";
-            _ButtonGetUsers.UseVisualStyleBackColor = true;
+            this._ButtonGetUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._ButtonGetUsers.Location = new System.Drawing.Point(733, 24);
+            this._ButtonGetUsers.Name = "_ButtonGetUsers";
+            this._ButtonGetUsers.Size = new System.Drawing.Size(183, 22);
+            this._ButtonGetUsers.TabIndex = 12;
+            this._ButtonGetUsers.Text = "Получить список пользователей";
+            this._ButtonGetUsers.UseVisualStyleBackColor = true;
+            this._ButtonGetUsers.Click += new System.EventHandler(this.ButtonGetUsers_Click);
             // 
             // ListViewUsers
             // 
-            ListViewUsers.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-
-            ListViewUsers.Columns.AddRange(new ColumnHeader[] { UserGUID, UserName, UserDescr, UserPassHash, UserAdmRole });
-            ListViewUsers.FullRowSelect = true;
-            ListViewUsers.HideSelection = false;
-            ListViewUsers.Location = new Point(9, 50);
-            ListViewUsers.Name = "ListViewUsers";
-            ListViewUsers.Size = new Size(905, 343);
-            ListViewUsers.TabIndex = 14;
-            ListViewUsers.UseCompatibleStateImageBehavior = false;
-            ListViewUsers.View = View.Details;
+            this.ListViewUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ListViewUsers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.UserGUID,
+            this.UserName,
+            this.UserDescr,
+            this.UserPassHash,
+            this.UserAdmRole});
+            this.ListViewUsers.FullRowSelect = true;
+            this.ListViewUsers.HideSelection = false;
+            this.ListViewUsers.Location = new System.Drawing.Point(9, 50);
+            this.ListViewUsers.Name = "ListViewUsers";
+            this.ListViewUsers.Size = new System.Drawing.Size(905, 343);
+            this.ListViewUsers.TabIndex = 14;
+            this.ListViewUsers.UseCompatibleStateImageBehavior = false;
+            this.ListViewUsers.View = System.Windows.Forms.View.Details;
             // 
             // UserGUID
             // 
-            UserGUID.Text = "GUID";
-            UserGUID.Width = 158;
+            this.UserGUID.Text = "GUID";
+            this.UserGUID.Width = 158;
             // 
             // UserName
             // 
-            UserName.Text = "Имя";
-            UserName.Width = 164;
+            this.UserName.Text = "Имя";
+            this.UserName.Width = 164;
             // 
             // UserDescr
             // 
-            UserDescr.Text = "Полное имя";
-            UserDescr.Width = 147;
+            this.UserDescr.Text = "Полное имя";
+            this.UserDescr.Width = 147;
             // 
             // UserPassHash
             // 
-            UserPassHash.Text = "Хеш пароля";
-            UserPassHash.Width = 164;
+            this.UserPassHash.Text = "Хеш пароля";
+            this.UserPassHash.Width = 164;
             // 
             // UserAdmRole
             // 
-            UserAdmRole.Text = "Адм.роль";
-            UserAdmRole.Width = 66;
+            this.UserAdmRole.Text = "Адм.роль";
+            this.UserAdmRole.Width = 66;
             // 
             // ConnectionString
             // 
-            ConnectionString.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            ConnectionString.Font = new Font("Microsoft Sans Serif", 12.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
-            ConnectionString.Location = new Point(9, 48);
-            ConnectionString.Name = "ConnectionString";
-            ConnectionString.Size = new Size(734, 26);
-            ConnectionString.TabIndex = 9;
-            ConnectionString.Text = "Data Source=MSSQL1;Server=SERVER;Integrated Security=true;Database=DATABASE";
+            this.ConnectionString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ConnectionString.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ConnectionString.Location = new System.Drawing.Point(9, 48);
+            this.ConnectionString.Name = "ConnectionString";
+            this.ConnectionString.Size = new System.Drawing.Size(734, 26);
+            this.ConnectionString.TabIndex = 9;
+            this.ConnectionString.Text = "Data Source=MSSQL1;Server=SERVER;Integrated Security=true;Database=DATABASE";
             // 
-            // Button2
+            // _Button2
             // 
-            _Button2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _Button2.Location = new Point(745, 47);
-            _Button2.Name = "_Button2";
-            _Button2.Size = new Size(172, 22);
-            _Button2.TabIndex = 12;
-            _Button2.Text = "Получить пользователей";
-            _Button2.UseVisualStyleBackColor = true;
+            this._Button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._Button2.Location = new System.Drawing.Point(745, 47);
+            this._Button2.Name = "_Button2";
+            this._Button2.Size = new System.Drawing.Size(172, 22);
+            this._Button2.TabIndex = 12;
+            this._Button2.Text = "Получить пользователей";
+            this._Button2.UseVisualStyleBackColor = true;
+            this._Button2.Click += new System.EventHandler(this.Button2_Click);
             // 
             // Label4
             // 
-            Label4.AutoSize = true;
-            Label4.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Label4.Location = new Point(12, 6);
-            Label4.Name = "Label4";
-            Label4.Size = new Size(265, 16);
-            Label4.TabIndex = 10;
-            Label4.Text = "Файл хранилища конфигурации 1С";
+            this.Label4.AutoSize = true;
+            this.Label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Label4.Location = new System.Drawing.Point(12, 6);
+            this.Label4.Name = "Label4";
+            this.Label4.Size = new System.Drawing.Size(265, 16);
+            this.Label4.TabIndex = 10;
+            this.Label4.Text = "Файл хранилища конфигурации 1С";
             // 
             // Repo1C
             // 
-            Repo1C.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            Repo1C.Location = new Point(9, 25);
-            Repo1C.Name = "Repo1C";
-            Repo1C.Size = new Size(616, 20);
-            Repo1C.TabIndex = 9;
+            this.Repo1C.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.Repo1C.Location = new System.Drawing.Point(9, 25);
+            this.Repo1C.Name = "Repo1C";
+            this.Repo1C.Size = new System.Drawing.Size(616, 20);
+            this.Repo1C.TabIndex = 9;
             // 
-            // ButtonRepo
+            // _ButtonRepo
             // 
-            _ButtonRepo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _ButtonRepo.Location = new Point(627, 23);
-            _ButtonRepo.Name = "_ButtonRepo";
-            _ButtonRepo.Size = new Size(98, 23);
-            _ButtonRepo.TabIndex = 11;
-            _ButtonRepo.Text = "Выбрать файл";
-            _ButtonRepo.UseVisualStyleBackColor = true;
+            this._ButtonRepo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._ButtonRepo.Location = new System.Drawing.Point(627, 23);
+            this._ButtonRepo.Name = "_ButtonRepo";
+            this._ButtonRepo.Size = new System.Drawing.Size(98, 23);
+            this._ButtonRepo.TabIndex = 11;
+            this._ButtonRepo.Text = "Выбрать файл";
+            this._ButtonRepo.UseVisualStyleBackColor = true;
+            this._ButtonRepo.Click += new System.EventHandler(this.ButtonRepo_Click);
             // 
             // OpenFileDialogRepo
             // 
-            OpenFileDialogRepo.FileName = "OpenFileDialogRepo";
-            OpenFileDialogRepo.Filter = "1CD files|*.1cd; *.1CD; *.1Cd; *.1cD|All files (*.*)|*.*";
-            OpenFileDialogRepo.Title = "Выберите файл хранилища 1С";
+            this.OpenFileDialogRepo.FileName = "OpenFileDialogRepo";
+            this.OpenFileDialogRepo.Filter = "1CD files|*.1cd; *.1CD; *.1Cd; *.1cD|All files (*.*)|*.*";
+            this.OpenFileDialogRepo.Title = "Выберите файл хранилища 1С";
             // 
-            // ButtonGetRepoUsers
+            // _ButtonGetRepoUsers
             // 
-            _ButtonGetRepoUsers.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _ButtonGetRepoUsers.Location = new Point(725, 23);
-            _ButtonGetRepoUsers.Name = "_ButtonGetRepoUsers";
-            _ButtonGetRepoUsers.Size = new Size(192, 23);
-            _ButtonGetRepoUsers.TabIndex = 12;
-            _ButtonGetRepoUsers.Text = "Получить список пользователей";
-            _ButtonGetRepoUsers.UseVisualStyleBackColor = true;
+            this._ButtonGetRepoUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._ButtonGetRepoUsers.Location = new System.Drawing.Point(725, 23);
+            this._ButtonGetRepoUsers.Name = "_ButtonGetRepoUsers";
+            this._ButtonGetRepoUsers.Size = new System.Drawing.Size(192, 23);
+            this._ButtonGetRepoUsers.TabIndex = 12;
+            this._ButtonGetRepoUsers.Text = "Получить список пользователей";
+            this._ButtonGetRepoUsers.UseVisualStyleBackColor = true;
+            this._ButtonGetRepoUsers.Click += new System.EventHandler(this.ButtonGetRepoUsers_Click);
             // 
-            // ButtonSetRepoPassword
+            // _ButtonSetRepoPassword
             // 
-            _ButtonSetRepoPassword.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _ButtonSetRepoPassword.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            _ButtonSetRepoPassword.ForeColor = Color.FromArgb(0, 64, 0);
-            _ButtonSetRepoPassword.Location = new Point(625, 413);
-            _ButtonSetRepoPassword.Name = "_ButtonSetRepoPassword";
-            _ButtonSetRepoPassword.Size = new Size(289, 51);
-            _ButtonSetRepoPassword.TabIndex = 16;
-            _ButtonSetRepoPassword.Text = "Установить выбранным пользователям пустой пароль в хранилище";
-            _ButtonSetRepoPassword.UseVisualStyleBackColor = true;
+            this._ButtonSetRepoPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._ButtonSetRepoPassword.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._ButtonSetRepoPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this._ButtonSetRepoPassword.Location = new System.Drawing.Point(625, 413);
+            this._ButtonSetRepoPassword.Name = "_ButtonSetRepoPassword";
+            this._ButtonSetRepoPassword.Size = new System.Drawing.Size(289, 51);
+            this._ButtonSetRepoPassword.TabIndex = 16;
+            this._ButtonSetRepoPassword.Text = "Установить выбранным пользователям пустой пароль в хранилище";
+            this._ButtonSetRepoPassword.UseVisualStyleBackColor = true;
+            this._ButtonSetRepoPassword.Click += new System.EventHandler(this.ButtonSetRepoPassword_Click);
             // 
             // TabControl1
             // 
-            TabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-
-            TabControl1.Controls.Add(TabPage1);
-            TabControl1.Controls.Add(TabPage2);
-            TabControl1.Controls.Add(TabPage3);
-            TabControl1.Location = new Point(4, 4);
-            TabControl1.Name = "TabControl1";
-            TabControl1.SelectedIndex = 0;
-            TabControl1.Size = new Size(928, 496);
-            TabControl1.TabIndex = 17;
+            this.TabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TabControl1.Controls.Add(this.TabPage1);
+            this.TabControl1.Controls.Add(this.TabPage2);
+            this.TabControl1.Controls.Add(this.TabPage3);
+            this.TabControl1.Location = new System.Drawing.Point(4, 4);
+            this.TabControl1.Name = "TabControl1";
+            this.TabControl1.SelectedIndex = 0;
+            this.TabControl1.Size = new System.Drawing.Size(928, 496);
+            this.TabControl1.TabIndex = 17;
             // 
             // TabPage1
             // 
-            TabPage1.Controls.Add(LabelDatabaseVersion);
-            TabPage1.Controls.Add(NewPassword);
-            TabPage1.Controls.Add(Label2);
-            TabPage1.Controls.Add(TextBox3);
-            TabPage1.Controls.Add(_ButtonChangePwdFileDB);
-            TabPage1.Controls.Add(Label1);
-            TabPage1.Controls.Add(ListViewUsers);
-            TabPage1.Controls.Add(FileIB);
-            TabPage1.Controls.Add(_Button6);
-            TabPage1.Controls.Add(_ButtonGetUsers);
-            TabPage1.Location = new Point(4, 22);
-            TabPage1.Name = "TabPage1";
-            TabPage1.Padding = new Padding(3);
-            TabPage1.Size = new Size(920, 470);
-            TabPage1.TabIndex = 0;
-            TabPage1.Text = "Файловая ИБ";
-            TabPage1.UseVisualStyleBackColor = true;
+            this.TabPage1.Controls.Add(this.LabelDatabaseVersion);
+            this.TabPage1.Controls.Add(this.NewPassword);
+            this.TabPage1.Controls.Add(this.Label2);
+            this.TabPage1.Controls.Add(this.TextBox3);
+            this.TabPage1.Controls.Add(this._ButtonChangePwdFileDB);
+            this.TabPage1.Controls.Add(this.Label1);
+            this.TabPage1.Controls.Add(this.ListViewUsers);
+            this.TabPage1.Controls.Add(this.FileIB);
+            this.TabPage1.Controls.Add(this._Button6);
+            this.TabPage1.Controls.Add(this._ButtonGetUsers);
+            this.TabPage1.Location = new System.Drawing.Point(4, 22);
+            this.TabPage1.Name = "TabPage1";
+            this.TabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.TabPage1.Size = new System.Drawing.Size(920, 470);
+            this.TabPage1.TabIndex = 0;
+            this.TabPage1.Text = "Файловая ИБ";
+            this.TabPage1.UseVisualStyleBackColor = true;
             // 
             // LabelDatabaseVersion
             // 
-            LabelDatabaseVersion.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            LabelDatabaseVersion.AutoSize = true;
-            LabelDatabaseVersion.Location = new Point(11, 396);
-            LabelDatabaseVersion.Name = "LabelDatabaseVersion";
-            LabelDatabaseVersion.Size = new Size(132, 13);
-            LabelDatabaseVersion.TabIndex = 26;
-            LabelDatabaseVersion.Text = "Internal database version: ";
+            this.LabelDatabaseVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LabelDatabaseVersion.AutoSize = true;
+            this.LabelDatabaseVersion.Location = new System.Drawing.Point(11, 396);
+            this.LabelDatabaseVersion.Name = "LabelDatabaseVersion";
+            this.LabelDatabaseVersion.Size = new System.Drawing.Size(132, 13);
+            this.LabelDatabaseVersion.TabIndex = 26;
+            this.LabelDatabaseVersion.Text = "Internal database version: ";
             // 
             // NewPassword
             // 
-            NewPassword.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            NewPassword.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            NewPassword.Location = new Point(128, 443);
-            NewPassword.Name = "NewPassword";
-            NewPassword.Size = new Size(144, 22);
-            NewPassword.TabIndex = 24;
-            NewPassword.Text = "12345";
+            this.NewPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.NewPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewPassword.Location = new System.Drawing.Point(128, 443);
+            this.NewPassword.Name = "NewPassword";
+            this.NewPassword.Size = new System.Drawing.Size(144, 22);
+            this.NewPassword.TabIndex = 24;
+            this.NewPassword.Text = "12345";
             // 
             // Label2
             // 
-            Label2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            Label2.AutoSize = true;
-            Label2.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Label2.Location = new Point(9, 445);
-            Label2.Name = "Label2";
-            Label2.Size = new Size(113, 16);
-            Label2.TabIndex = 25;
-            Label2.Text = "Новый пароль";
+            this.Label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Label2.AutoSize = true;
+            this.Label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Label2.Location = new System.Drawing.Point(9, 445);
+            this.Label2.Name = "Label2";
+            this.Label2.Size = new System.Drawing.Size(113, 16);
+            this.Label2.TabIndex = 25;
+            this.Label2.Text = "Новый пароль";
             // 
             // TextBox3
             // 
-            TextBox3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            TextBox3.BorderStyle = BorderStyle.None;
-            TextBox3.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            TextBox3.Location = new Point(9, 413);
-            TextBox3.Multiline = true;
-            TextBox3.Name = "TextBox3";
-            TextBox3.Size = new Size(613, 29);
-            TextBox3.TabIndex = 23;
-            TextBox3.Text = "Файл информационной базы не должен быть открыт никакими другими приложениями.";
+            this.TextBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TextBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TextBox3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TextBox3.Location = new System.Drawing.Point(9, 413);
+            this.TextBox3.Multiline = true;
+            this.TextBox3.Name = "TextBox3";
+            this.TextBox3.Size = new System.Drawing.Size(613, 29);
+            this.TextBox3.TabIndex = 23;
+            this.TextBox3.Text = "Файл информационной базы не должен быть открыт никакими другими приложениями.";
             // 
-            // ButtonChangePwdFileDB
+            // _ButtonChangePwdFileDB
             // 
-            _ButtonChangePwdFileDB.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _ButtonChangePwdFileDB.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            _ButtonChangePwdFileDB.ForeColor = Color.FromArgb(0, 64, 0);
-            _ButtonChangePwdFileDB.Location = new Point(625, 414);
-            _ButtonChangePwdFileDB.Name = "_ButtonChangePwdFileDB";
-            _ButtonChangePwdFileDB.Size = new Size(289, 51);
-            _ButtonChangePwdFileDB.TabIndex = 22;
-            _ButtonChangePwdFileDB.Text = "Установить выбранным пользователям указанный пароль";
-            _ButtonChangePwdFileDB.UseVisualStyleBackColor = true;
+            this._ButtonChangePwdFileDB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._ButtonChangePwdFileDB.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._ButtonChangePwdFileDB.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this._ButtonChangePwdFileDB.Location = new System.Drawing.Point(625, 414);
+            this._ButtonChangePwdFileDB.Name = "_ButtonChangePwdFileDB";
+            this._ButtonChangePwdFileDB.Size = new System.Drawing.Size(289, 51);
+            this._ButtonChangePwdFileDB.TabIndex = 22;
+            this._ButtonChangePwdFileDB.Text = "Установить выбранным пользователям указанный пароль";
+            this._ButtonChangePwdFileDB.UseVisualStyleBackColor = true;
+            this._ButtonChangePwdFileDB.Click += new System.EventHandler(this.ButtonChangePwdFileDB_Click);
             // 
             // Label1
             // 
-            Label1.AutoSize = true;
-            Label1.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Label1.Location = new Point(10, 6);
-            Label1.Name = "Label1";
-            Label1.Size = new Size(244, 16);
-            Label1.TabIndex = 20;
-            Label1.Text = "Файл информационной базы 1С";
+            this.Label1.AutoSize = true;
+            this.Label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Label1.Location = new System.Drawing.Point(10, 6);
+            this.Label1.Name = "Label1";
+            this.Label1.Size = new System.Drawing.Size(244, 16);
+            this.Label1.TabIndex = 20;
+            this.Label1.Text = "Файл информационной базы 1С";
             // 
             // TabPage2
             // 
-            TabPage2.Controls.Add(Label7);
-            TabPage2.Controls.Add(_cbDBType);
-            TabPage2.Controls.Add(TextBox2);
-            TabPage2.Controls.Add(_ButtonChangePassSQL);
-            TabPage2.Controls.Add(Label6);
-            TabPage2.Controls.Add(NewPassSQL);
-            TabPage2.Controls.Add(Label5);
-            TabPage2.Controls.Add(ConnectionString);
-            TabPage2.Controls.Add(_Button2);
-            TabPage2.Controls.Add(SQLUserList);
-            TabPage2.Location = new Point(4, 22);
-            TabPage2.Name = "TabPage2";
-            TabPage2.Padding = new Padding(3);
-            TabPage2.Size = new Size(920, 470);
-            TabPage2.TabIndex = 1;
-            TabPage2.Text = "Клиент-серверная ИБ";
-            TabPage2.UseVisualStyleBackColor = true;
+            this.TabPage2.Controls.Add(this.Label7);
+            this.TabPage2.Controls.Add(this._cbDBType);
+            this.TabPage2.Controls.Add(this.TextBox2);
+            this.TabPage2.Controls.Add(this._ButtonChangePassSQL);
+            this.TabPage2.Controls.Add(this.Label6);
+            this.TabPage2.Controls.Add(this.NewPassSQL);
+            this.TabPage2.Controls.Add(this.Label5);
+            this.TabPage2.Controls.Add(this.ConnectionString);
+            this.TabPage2.Controls.Add(this._Button2);
+            this.TabPage2.Controls.Add(this.SQLUserList);
+            this.TabPage2.Location = new System.Drawing.Point(4, 22);
+            this.TabPage2.Name = "TabPage2";
+            this.TabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.TabPage2.Size = new System.Drawing.Size(920, 470);
+            this.TabPage2.TabIndex = 1;
+            this.TabPage2.Text = "Клиент-серверная ИБ";
+            this.TabPage2.UseVisualStyleBackColor = true;
             // 
             // Label7
             // 
-            Label7.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Label7.Location = new Point(9, 9);
-            Label7.Name = "Label7";
-            Label7.Size = new Size(166, 17);
-            Label7.TabIndex = 24;
-            Label7.Text = "Тип базы данных:";
+            this.Label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Label7.Location = new System.Drawing.Point(9, 9);
+            this.Label7.Name = "Label7";
+            this.Label7.Size = new System.Drawing.Size(166, 17);
+            this.Label7.TabIndex = 24;
+            this.Label7.Text = "Тип базы данных:";
             // 
-            // cbDBType
+            // _cbDBType
             // 
-            _cbDBType.DropDownStyle = ComboBoxStyle.DropDownList;
-            _cbDBType.FormattingEnabled = true;
-            _cbDBType.Items.AddRange(new object[] { "Microsoft SQL Server", "PostgreSQL Server" });
-            _cbDBType.Location = new Point(181, 7);
-            _cbDBType.Name = "_cbDBType";
-            _cbDBType.Size = new Size(185, 21);
-            _cbDBType.TabIndex = 23;
+            this._cbDBType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this._cbDBType.FormattingEnabled = true;
+            this._cbDBType.Items.AddRange(new object[] {
+            "Microsoft SQL Server",
+            "PostgreSQL Server"});
+            this._cbDBType.Location = new System.Drawing.Point(181, 7);
+            this._cbDBType.Name = "_cbDBType";
+            this._cbDBType.Size = new System.Drawing.Size(185, 21);
+            this._cbDBType.TabIndex = 23;
+            this._cbDBType.SelectedIndexChanged += new System.EventHandler(this.CbDBType_SelectedIndexChanged);
             // 
             // TextBox2
             // 
-            TextBox2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            TextBox2.BorderStyle = BorderStyle.None;
-            TextBox2.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            TextBox2.Location = new Point(9, 413);
-            TextBox2.Multiline = true;
-            TextBox2.Name = "TextBox2";
-            TextBox2.Size = new Size(610, 24);
-            TextBox2.TabIndex = 22;
-            TextBox2.Text = "Монопольного режима доступа к базе не требуется";
+            this.TextBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TextBox2.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TextBox2.Location = new System.Drawing.Point(9, 413);
+            this.TextBox2.Multiline = true;
+            this.TextBox2.Name = "TextBox2";
+            this.TextBox2.Size = new System.Drawing.Size(610, 24);
+            this.TextBox2.TabIndex = 22;
+            this.TextBox2.Text = "Монопольного режима доступа к базе не требуется";
             // 
-            // ButtonChangePassSQL
+            // _ButtonChangePassSQL
             // 
-            _ButtonChangePassSQL.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _ButtonChangePassSQL.Font = new Font("Arial", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            _ButtonChangePassSQL.ForeColor = Color.FromArgb(0, 64, 0);
-            _ButtonChangePassSQL.Location = new Point(625, 414);
-            _ButtonChangePassSQL.Name = "_ButtonChangePassSQL";
-            _ButtonChangePassSQL.Size = new Size(289, 51);
-            _ButtonChangePassSQL.TabIndex = 21;
-            _ButtonChangePassSQL.Text = "Установить выбранным пользователям указанный пароль";
-            _ButtonChangePassSQL.UseVisualStyleBackColor = true;
+            this._ButtonChangePassSQL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._ButtonChangePassSQL.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._ButtonChangePassSQL.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this._ButtonChangePassSQL.Location = new System.Drawing.Point(625, 414);
+            this._ButtonChangePassSQL.Name = "_ButtonChangePassSQL";
+            this._ButtonChangePassSQL.Size = new System.Drawing.Size(289, 51);
+            this._ButtonChangePassSQL.TabIndex = 21;
+            this._ButtonChangePassSQL.Text = "Установить выбранным пользователям указанный пароль";
+            this._ButtonChangePassSQL.UseVisualStyleBackColor = true;
+            this._ButtonChangePassSQL.Click += new System.EventHandler(this.ButtonChangePassSQL_Click);
             // 
             // Label6
             // 
-            Label6.AutoSize = true;
-            Label6.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Label6.Location = new Point(9, 29);
-            Label6.Name = "Label6";
-            Label6.Size = new Size(297, 16);
-            Label6.TabIndex = 19;
-            Label6.Text = "Строка соединения с базой данных 1С:";
+            this.Label6.AutoSize = true;
+            this.Label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Label6.Location = new System.Drawing.Point(9, 29);
+            this.Label6.Name = "Label6";
+            this.Label6.Size = new System.Drawing.Size(297, 16);
+            this.Label6.TabIndex = 19;
+            this.Label6.Text = "Строка соединения с базой данных 1С:";
             // 
             // NewPassSQL
             // 
-            NewPassSQL.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            NewPassSQL.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            NewPassSQL.Location = new Point(128, 443);
-            NewPassSQL.Name = "NewPassSQL";
-            NewPassSQL.Size = new Size(144, 22);
-            NewPassSQL.TabIndex = 17;
-            NewPassSQL.Text = "12345";
+            this.NewPassSQL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.NewPassSQL.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewPassSQL.Location = new System.Drawing.Point(128, 443);
+            this.NewPassSQL.Name = "NewPassSQL";
+            this.NewPassSQL.Size = new System.Drawing.Size(144, 22);
+            this.NewPassSQL.TabIndex = 17;
+            this.NewPassSQL.Text = "12345";
             // 
             // Label5
             // 
-            Label5.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            Label5.AutoSize = true;
-            Label5.Font = new Font("Microsoft Sans Serif", 9.75f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            Label5.Location = new Point(9, 445);
-            Label5.Name = "Label5";
-            Label5.Size = new Size(113, 16);
-            Label5.TabIndex = 18;
-            Label5.Text = "Новый пароль";
+            this.Label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Label5.AutoSize = true;
+            this.Label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Label5.Location = new System.Drawing.Point(9, 445);
+            this.Label5.Name = "Label5";
+            this.Label5.Size = new System.Drawing.Size(113, 16);
+            this.Label5.TabIndex = 18;
+            this.Label5.Text = "Новый пароль";
             // 
             // SQLUserList
             // 
-            SQLUserList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-
-            SQLUserList.Columns.AddRange(new ColumnHeader[] { ColumnHeader1, ColumnHeader2, ColumnHeader3, ColumnHeader4, ColumnHeader5 });
-            SQLUserList.FullRowSelect = true;
-            SQLUserList.HideSelection = false;
-            SQLUserList.Location = new Point(9, 76);
-            SQLUserList.Name = "SQLUserList";
-            SQLUserList.Size = new Size(905, 335);
-            SQLUserList.TabIndex = 20;
-            SQLUserList.UseCompatibleStateImageBehavior = false;
-            SQLUserList.View = View.Details;
+            this.SQLUserList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.SQLUserList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.ColumnHeader1,
+            this.ColumnHeader2,
+            this.ColumnHeader3,
+            this.ColumnHeader4,
+            this.ColumnHeader5});
+            this.SQLUserList.FullRowSelect = true;
+            this.SQLUserList.HideSelection = false;
+            this.SQLUserList.Location = new System.Drawing.Point(9, 76);
+            this.SQLUserList.Name = "SQLUserList";
+            this.SQLUserList.Size = new System.Drawing.Size(905, 335);
+            this.SQLUserList.TabIndex = 20;
+            this.SQLUserList.UseCompatibleStateImageBehavior = false;
+            this.SQLUserList.View = System.Windows.Forms.View.Details;
             // 
             // ColumnHeader1
             // 
-            ColumnHeader1.Text = "GUID";
-            ColumnHeader1.Width = 232;
+            this.ColumnHeader1.Text = "GUID";
+            this.ColumnHeader1.Width = 232;
             // 
             // ColumnHeader2
             // 
-            ColumnHeader2.Text = "Имя";
-            ColumnHeader2.Width = 183;
+            this.ColumnHeader2.Text = "Имя";
+            this.ColumnHeader2.Width = 183;
             // 
             // ColumnHeader3
             // 
-            ColumnHeader3.Text = "Полное имя";
-            ColumnHeader3.Width = 199;
+            this.ColumnHeader3.Text = "Полное имя";
+            this.ColumnHeader3.Width = 199;
             // 
             // ColumnHeader4
             // 
-            ColumnHeader4.Text = "Хеш пароля";
-            ColumnHeader4.Width = 220;
+            this.ColumnHeader4.Text = "Хеш пароля";
+            this.ColumnHeader4.Width = 220;
             // 
             // ColumnHeader5
             // 
-            ColumnHeader5.Text = "Адм.роль";
-            ColumnHeader5.Width = 66;
+            this.ColumnHeader5.Text = "Адм.роль";
+            this.ColumnHeader5.Width = 66;
             // 
             // TabPage3
             // 
-            TabPage3.Controls.Add(LabelDatabaseVersionRepo);
-            TabPage3.Controls.Add(TextBox1);
-            TabPage3.Controls.Add(RepoUserList);
-            TabPage3.Controls.Add(Label4);
-            TabPage3.Controls.Add(_ButtonSetRepoPassword);
-            TabPage3.Controls.Add(_ButtonGetRepoUsers);
-            TabPage3.Controls.Add(Repo1C);
-            TabPage3.Controls.Add(_ButtonRepo);
-            TabPage3.Location = new Point(4, 22);
-            TabPage3.Name = "TabPage3";
-            TabPage3.Padding = new Padding(3);
-            TabPage3.Size = new Size(920, 470);
-            TabPage3.TabIndex = 2;
-            TabPage3.Text = "Хранилище конфигурации";
-            TabPage3.UseVisualStyleBackColor = true;
+            this.TabPage3.Controls.Add(this.LabelDatabaseVersionRepo);
+            this.TabPage3.Controls.Add(this.TextBox1);
+            this.TabPage3.Controls.Add(this.RepoUserList);
+            this.TabPage3.Controls.Add(this.Label4);
+            this.TabPage3.Controls.Add(this._ButtonSetRepoPassword);
+            this.TabPage3.Controls.Add(this._ButtonGetRepoUsers);
+            this.TabPage3.Controls.Add(this.Repo1C);
+            this.TabPage3.Controls.Add(this._ButtonRepo);
+            this.TabPage3.Location = new System.Drawing.Point(4, 22);
+            this.TabPage3.Name = "TabPage3";
+            this.TabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.TabPage3.Size = new System.Drawing.Size(920, 470);
+            this.TabPage3.TabIndex = 2;
+            this.TabPage3.Text = "Хранилище конфигурации";
+            this.TabPage3.UseVisualStyleBackColor = true;
             // 
             // LabelDatabaseVersionRepo
             // 
-            LabelDatabaseVersionRepo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            LabelDatabaseVersionRepo.AutoSize = true;
-            LabelDatabaseVersionRepo.Location = new Point(12, 398);
-            LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo";
-            LabelDatabaseVersionRepo.Size = new Size(132, 13);
-            LabelDatabaseVersionRepo.TabIndex = 27;
-            LabelDatabaseVersionRepo.Text = "Internal database version: ";
+            this.LabelDatabaseVersionRepo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LabelDatabaseVersionRepo.AutoSize = true;
+            this.LabelDatabaseVersionRepo.Location = new System.Drawing.Point(12, 398);
+            this.LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo";
+            this.LabelDatabaseVersionRepo.Size = new System.Drawing.Size(132, 13);
+            this.LabelDatabaseVersionRepo.TabIndex = 27;
+            this.LabelDatabaseVersionRepo.Text = "Internal database version: ";
             // 
             // TextBox1
             // 
-            TextBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            TextBox1.BorderStyle = BorderStyle.None;
-            TextBox1.Font = new Font("Arial", 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0);
-            TextBox1.Location = new Point(6, 413);
-            TextBox1.Multiline = true;
-            TextBox1.Name = "TextBox1";
-            TextBox1.Size = new Size(613, 50);
-            TextBox1.TabIndex = 18;
-            TextBox1.Text = "Файл хранилища конфигурации не должен быть открыт никакими другими приложениями.";
+            this.TextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TextBox1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TextBox1.Location = new System.Drawing.Point(6, 413);
+            this.TextBox1.Multiline = true;
+            this.TextBox1.Name = "TextBox1";
+            this.TextBox1.Size = new System.Drawing.Size(613, 50);
+            this.TextBox1.TabIndex = 18;
+            this.TextBox1.Text = "Файл хранилища конфигурации не должен быть открыт никакими другими приложениями.";
             // 
             // RepoUserList
             // 
-            RepoUserList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-
-            RepoUserList.Columns.AddRange(new ColumnHeader[] { RepoUserGUID, RepoUserName, RepoHasPwd, RepoAdmin });
-            RepoUserList.FullRowSelect = true;
-            RepoUserList.HideSelection = false;
-            RepoUserList.Location = new Point(9, 50);
-            RepoUserList.Name = "RepoUserList";
-            RepoUserList.Size = new Size(905, 345);
-            RepoUserList.TabIndex = 17;
-            RepoUserList.UseCompatibleStateImageBehavior = false;
-            RepoUserList.View = View.Details;
+            this.RepoUserList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.RepoUserList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.RepoUserGUID,
+            this.RepoUserName,
+            this.RepoHasPwd,
+            this.RepoAdmin});
+            this.RepoUserList.FullRowSelect = true;
+            this.RepoUserList.HideSelection = false;
+            this.RepoUserList.Location = new System.Drawing.Point(9, 50);
+            this.RepoUserList.Name = "RepoUserList";
+            this.RepoUserList.Size = new System.Drawing.Size(905, 345);
+            this.RepoUserList.TabIndex = 17;
+            this.RepoUserList.UseCompatibleStateImageBehavior = false;
+            this.RepoUserList.View = System.Windows.Forms.View.Details;
             // 
             // RepoUserGUID
             // 
-            RepoUserGUID.Text = "GUID";
-            RepoUserGUID.Width = 221;
+            this.RepoUserGUID.Text = "GUID";
+            this.RepoUserGUID.Width = 221;
             // 
             // RepoUserName
             // 
-            RepoUserName.Text = "Имя";
-            RepoUserName.Width = 183;
+            this.RepoUserName.Text = "Имя";
+            this.RepoUserName.Width = 183;
             // 
             // RepoHasPwd
             // 
-            RepoHasPwd.Text = "Пароль установлен";
-            RepoHasPwd.Width = 134;
+            this.RepoHasPwd.Text = "Пароль установлен";
+            this.RepoHasPwd.Width = 134;
             // 
             // RepoAdmin
             // 
-            RepoAdmin.Text = "Это администратор";
-            RepoAdmin.Width = 115;
+            this.RepoAdmin.Text = "Это администратор";
+            this.RepoAdmin.Width = 115;
             // 
-            // LinkLabel1
+            // _LinkLabel1
             // 
-            _LinkLabel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            _LinkLabel1.AutoSize = true;
-            _LinkLabel1.Location = new Point(230, 501);
-            _LinkLabel1.Name = "_LinkLabel1";
-            _LinkLabel1.Size = new Size(282, 13);
-            _LinkLabel1.TabIndex = 18;
-            _LinkLabel1.TabStop = true;
-            _LinkLabel1.Text = "https://github.com/alekseybochkov/PasswordChanger1C";
+            this._LinkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this._LinkLabel1.AutoSize = true;
+            this._LinkLabel1.Location = new System.Drawing.Point(230, 501);
+            this._LinkLabel1.Name = "_LinkLabel1";
+            this._LinkLabel1.Size = new System.Drawing.Size(282, 13);
+            this._LinkLabel1.TabIndex = 18;
+            this._LinkLabel1.TabStop = true;
+            this._LinkLabel1.Text = "https://github.com/alekseybochkov/PasswordChanger1C";
+            this._LinkLabel1.Click += new System.EventHandler(this.LinkLabel1_Click);
             // 
             // Label3
             // 
-            Label3.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            Label3.AutoSize = true;
-            Label3.Location = new Point(3, 501);
-            Label3.Name = "Label3";
-            Label3.Size = new Size(227, 13);
-            Label3.TabIndex = 19;
-            Label3.Text = "Страница приложения для обратной связи:";
+            this.Label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Label3.AutoSize = true;
+            this.Label3.Location = new System.Drawing.Point(3, 501);
+            this.Label3.Name = "Label3";
+            this.Label3.Size = new System.Drawing.Size(227, 13);
+            this.Label3.TabIndex = 19;
+            this.Label3.Text = "Страница приложения для обратной связи:";
             // 
-            // LinkLabel2
+            // _LinkLabel2
             // 
-            _LinkLabel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _LinkLabel2.AutoSize = true;
-            _LinkLabel2.Location = new Point(831, 501);
-            _LinkLabel2.Name = "_LinkLabel2";
-            _LinkLabel2.Size = new Size(102, 13);
-            _LinkLabel2.TabIndex = 18;
-            _LinkLabel2.TabStop = true;
-            _LinkLabel2.Text = "© Aleksey.Bochkov";
+            this._LinkLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._LinkLabel2.AutoSize = true;
+            this._LinkLabel2.Location = new System.Drawing.Point(831, 501);
+            this._LinkLabel2.Name = "_LinkLabel2";
+            this._LinkLabel2.Size = new System.Drawing.Size(102, 13);
+            this._LinkLabel2.TabIndex = 18;
+            this._LinkLabel2.TabStop = true;
+            this._LinkLabel2.Text = "© Aleksey.Bochkov";
+            this._LinkLabel2.Click += new System.EventHandler(this.LinkLabel2_Click);
             // 
             // MainForm
             // 
-            AccessibleRole = AccessibleRole.Application;
-            AutoScaleDimensions = new SizeF(6.0f, 13.0f);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(934, 516);
-            Controls.Add(Label3);
-            Controls.Add(_LinkLabel2);
-            Controls.Add(_LinkLabel1);
-            Controls.Add(TabControl1);
-            HelpButton = true;
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "MainForm";
-            StartPosition = FormStartPosition.CenterScreen;
-            Text = "Изменение паролей для информационных баз и хранилища 1С";
-            TabControl1.ResumeLayout(false);
-            TabPage1.ResumeLayout(false);
-            TabPage1.PerformLayout();
-            TabPage2.ResumeLayout(false);
-            TabPage2.PerformLayout();
-            TabPage3.ResumeLayout(false);
-            TabPage3.PerformLayout();
-            Shown += new EventHandler(MainForm_Shown);
-            ResumeLayout(false);
-            PerformLayout();
+            this.AccessibleRole = System.Windows.Forms.AccessibleRole.Application;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(934, 516);
+            this.Controls.Add(this.Label3);
+            this.Controls.Add(this._LinkLabel2);
+            this.Controls.Add(this._LinkLabel1);
+            this.Controls.Add(this.TabControl1);
+            this.HelpButton = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Изменение паролей для информационных баз и хранилища 1С";
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
+            this.TabControl1.ResumeLayout(false);
+            this.TabPage1.ResumeLayout(false);
+            this.TabPage1.PerformLayout();
+            this.TabPage2.ResumeLayout(false);
+            this.TabPage2.PerformLayout();
+            this.TabPage3.ResumeLayout(false);
+            this.TabPage3.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         private Button _Button6;
