@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace PasswordChanger1C.ParserServices
 {
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class ParserList : List<ParserList>
     {
         private readonly string ItemValue;
@@ -36,6 +38,11 @@ namespace PasswordChanger1C.ParserServices
         public void Add(string itemValue)
         {
             Add(new ParserList(itemValue));
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return ToString();
         }
     }
 
