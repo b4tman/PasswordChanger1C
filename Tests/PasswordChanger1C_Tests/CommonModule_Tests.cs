@@ -82,5 +82,35 @@ namespace PasswordChanger1C.Tests
             Assert.Equal(KeySize, Test_Key.Length);
             Assert.Equal(KeyData, Test_Key);
         }
+
+        [Fact()]
+        public void GeneratePasswordHashes_Test()
+        {
+            var Hashes = GeneratePasswordHashes("teST1");
+            Assert.Equal("IgULlSR7RU6pXmqYPKARyoXwr+k=", Hashes.Item1);
+            Assert.Equal("/+tKGP8cN+WSkMhrkt8o9l21hNk=", Hashes.Item2);
+        }
+
+        [Fact()]
+        public void GetPasswordHashTuple_Test()
+        {
+            var AuthStructure = ParserServices.ParsesClass.ParseString(Test_DataStr)[0];
+            var Hashes = GetPasswordHashTuple(AuthStructure);
+            Assert.Equal("NWoZK3kTsExUV00Ywo1G5jlUKKs=", Hashes.Item1);
+            Assert.Equal("NWoZK3kTsExUV00Ywo1G5jlUKKs=", Hashes.Item2);
+        }
+
+        [Fact()]
+        public void ReplaceHashes_Test()
+        {
+            var OldHashes = Tuple.Create("NWoZK3kTsExUV00Ywo1G5jlUKKs=", "NWoZK3kTsExUV00Ywo1G5jlUKKs=");
+            var NewHashes = Tuple.Create("IgULlSR7RU6pXmqYPKARyoXwr+k=", "/+tKGP8cN+WSkMhrkt8o9l21hNk=");
+
+            string OldHashesStr = "\"NWoZK3kTsExUV00Ywo1G5jlUKKs=\",\"NWoZK3kTsExUV00Ywo1G5jlUKKs=\"";
+            string NewHashesStr = "\"IgULlSR7RU6pXmqYPKARyoXwr+k=\",\"/+tKGP8cN+WSkMhrkt8o9l21hNk=\"";
+            string Expected = Test_DataStr.Replace(OldHashesStr, NewHashesStr);
+
+            Assert.Equal(Expected, ReplaceHashes(Test_DataStr, OldHashes, NewHashes));
+        }
     }
 }
