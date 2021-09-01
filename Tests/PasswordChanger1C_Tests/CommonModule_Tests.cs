@@ -1,4 +1,5 @@
 ﻿using PasswordChanger1C;
+using System;
 using Xunit;
 
 namespace PasswordChanger1C.Tests
@@ -7,6 +8,32 @@ namespace PasswordChanger1C.Tests
 
     public class CommonModule_Tests
     {
+        private static readonly byte[] Test_Data = FromBase64(@"
+                GPJBHWrITsJOq25wcpiLMoP5YTI4Nr85ER36ohH8L/YozllGS7W+BeebTAYNBtoUKMF5eUfwLaB/mApBRa2+AbrVQ2dLU80
+                bPdCuotfqYuAKzh0TALqnArPJUQIIBo8UIcJxLUf4fvJ+hl5AQqimArPJUQIIBo8JIcJxMWfCNfNinwpCSqDpAOfUUFNaBZI
+                NIMF4MAuqLaFjnwgSF6+6ULvMBQdaS5Nad8F1f1ipe+92nV5GX6zpB7rUAwYLUJIOd8cjfFrxK/J+mFxcQ7S6Hq/JTQIUFPF
+                ufqgKLgGcPYc2/jhAQsH8XbK+VFhUY/RyYs9jMUiGGa0U4F0bJuvOStavUQJhQdAIVscrcT+DBbFziUJCXqmnALPLUAIABo0
+                IKcdyKV/kfu5+h2N6Caj2HrLVbDhDBsIVIN5xMVvkbOAz"
+        );
+
+        private const string Test_DataStr =
+            "﻿{4a4fe769-57db-450e-938d-8cb13d175539,\"User\",\"�\",\"Descr\",00000000-0000-0000-0000-000000000000,\r\n" +
+            "{1,4d288b2d-1ab3-4139-abcc-4fbe71b85d5b},cf34b2a5-8606-4b59-b43f-7f5ba09e0032,1,1,,0,0," +
+            "\"NWoZK3kTsExUV00Ywo1G5jlUKKs=\",\"NWoZK3kTsExUV00Ywo1G5jlUKKs=\",2,1,20210802185345,0,0,\r\n{0},1,\r\n{0},1,0,1,\"\"}\0";
+
+        private static readonly byte[] Test_Key = FromBase64("8kEdashOwk6rbnBymIsyg/lhMjg2vzkR");
+
+        private static byte[] FromBase64(in string data)
+        {
+            var replaces = "\n,\r, ,\t".Split(',');
+            string base64str = data;
+            foreach (var replace in replaces)
+            {
+                base64str = base64str.Replace(replace, "");
+            }
+            return Convert.FromBase64String(base64str);
+        }
+
         [Theory()]
         [InlineData("", "2jmj7l5rSw0yVb/vlWAYkK/YBwk=")]
         [InlineData("1", "NWoZK3kTsExUV00Ywo1G5jlUKKs=")]
@@ -36,6 +63,24 @@ namespace PasswordChanger1C.Tests
         public void IsPasswordHash_Test(string input, bool is_valid)
         {
             Assert.Equal(is_valid, IsPasswordHash(input));
+        }
+
+        [Fact()]
+        public void EncodePasswordStructure_Test()
+        {
+            byte[] result = EncodePasswordStructure(Test_DataStr, Test_Key.Length, Test_Key);
+            Assert.Equal(result, Test_Data);
+        }
+
+        [Fact()]
+        public void DecodePasswordStructure_Test()
+        {
+            int KeySize = 0;
+            byte[] KeyData = null;
+            string result = DecodePasswordStructure(Test_Data, ref KeySize, ref KeyData);
+            Assert.Equal(result, Test_DataStr);
+            Assert.Equal(KeySize, Test_Key.Length);
+            Assert.Equal(KeyData, Test_Key);
         }
     }
 }
