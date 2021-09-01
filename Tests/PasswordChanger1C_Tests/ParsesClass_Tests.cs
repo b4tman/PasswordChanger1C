@@ -1,7 +1,7 @@
 ﻿using Xunit;
 using PasswordChanger1C.ParserServices;
 
-namespace PasswordChanger1C.ParserServices.Tests
+namespace PasswordChanger1C.Tests
 {
     public class ParsesClass_Tests
     {
