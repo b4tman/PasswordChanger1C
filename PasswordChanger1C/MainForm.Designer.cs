@@ -41,11 +41,11 @@ namespace PasswordChanger1C
             this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this._ButtonGetUsers = new System.Windows.Forms.Button();
             this.ListViewUsers = new System.Windows.Forms.ListView();
-            this.UserGUID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.UserName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.UserDescr = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.UserPassHash = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.UserAdmRole = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UserGUID = new System.Windows.Forms.ColumnHeader();
+            this.UserName = new System.Windows.Forms.ColumnHeader();
+            this.UserDescr = new System.Windows.Forms.ColumnHeader();
+            this.UserPassHash = new System.Windows.Forms.ColumnHeader();
+            this.UserAdmRole = new System.Windows.Forms.ColumnHeader();
             this.ConnectionString = new System.Windows.Forms.TextBox();
             this._Button2 = new System.Windows.Forms.Button();
             this.Label4 = new System.Windows.Forms.Label();
@@ -71,19 +71,19 @@ namespace PasswordChanger1C
             this.NewPassSQL = new System.Windows.Forms.TextBox();
             this.Label5 = new System.Windows.Forms.Label();
             this.SQLUserList = new System.Windows.Forms.ListView();
-            this.ColumnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ColumnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ColumnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ColumnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ColumnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ColumnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.ColumnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.ColumnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.ColumnHeader4 = new System.Windows.Forms.ColumnHeader();
+            this.ColumnHeader5 = new System.Windows.Forms.ColumnHeader();
             this.TabPage3 = new System.Windows.Forms.TabPage();
             this.LabelDatabaseVersionRepo = new System.Windows.Forms.Label();
             this.TextBox1 = new System.Windows.Forms.TextBox();
             this.RepoUserList = new System.Windows.Forms.ListView();
-            this.RepoUserGUID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.RepoUserName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.RepoHasPwd = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.RepoAdmin = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.RepoUserGUID = new System.Windows.Forms.ColumnHeader();
+            this.RepoUserName = new System.Windows.Forms.ColumnHeader();
+            this.RepoHasPwd = new System.Windows.Forms.ColumnHeader();
+            this.RepoAdmin = new System.Windows.Forms.ColumnHeader();
             this._LinkLabel1 = new System.Windows.Forms.LinkLabel();
             this.Label3 = new System.Windows.Forms.Label();
             this._LinkLabel2 = new System.Windows.Forms.LinkLabel();
@@ -96,9 +96,10 @@ namespace PasswordChanger1C
             // _Button6
             // 
             this._Button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._Button6.Location = new System.Drawing.Point(636, 24);
+            this._Button6.Location = new System.Drawing.Point(742, 28);
+            this._Button6.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._Button6.Name = "_Button6";
-            this._Button6.Size = new System.Drawing.Size(95, 22);
+            this._Button6.Size = new System.Drawing.Size(111, 25);
             this._Button6.TabIndex = 11;
             this._Button6.Text = "Выбрать файл";
             this._Button6.UseVisualStyleBackColor = true;
@@ -108,9 +109,10 @@ namespace PasswordChanger1C
             // 
             this.FileIB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.FileIB.Location = new System.Drawing.Point(9, 25);
+            this.FileIB.Location = new System.Drawing.Point(10, 29);
+            this.FileIB.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.FileIB.Name = "FileIB";
-            this.FileIB.Size = new System.Drawing.Size(625, 20);
+            this.FileIB.Size = new System.Drawing.Size(728, 23);
             this.FileIB.TabIndex = 9;
             // 
             // OpenFileDialog
@@ -122,9 +124,10 @@ namespace PasswordChanger1C
             // _ButtonGetUsers
             // 
             this._ButtonGetUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._ButtonGetUsers.Location = new System.Drawing.Point(733, 24);
+            this._ButtonGetUsers.Location = new System.Drawing.Point(855, 28);
+            this._ButtonGetUsers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._ButtonGetUsers.Name = "_ButtonGetUsers";
-            this._ButtonGetUsers.Size = new System.Drawing.Size(183, 22);
+            this._ButtonGetUsers.Size = new System.Drawing.Size(214, 25);
             this._ButtonGetUsers.TabIndex = 12;
             this._ButtonGetUsers.Text = "Получить список пользователей";
             this._ButtonGetUsers.UseVisualStyleBackColor = true;
@@ -143,9 +146,10 @@ namespace PasswordChanger1C
             this.UserAdmRole});
             this.ListViewUsers.FullRowSelect = true;
             this.ListViewUsers.HideSelection = false;
-            this.ListViewUsers.Location = new System.Drawing.Point(9, 50);
+            this.ListViewUsers.Location = new System.Drawing.Point(10, 58);
+            this.ListViewUsers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.ListViewUsers.Name = "ListViewUsers";
-            this.ListViewUsers.Size = new System.Drawing.Size(905, 343);
+            this.ListViewUsers.Size = new System.Drawing.Size(1055, 395);
             this.ListViewUsers.TabIndex = 14;
             this.ListViewUsers.UseCompatibleStateImageBehavior = false;
             this.ListViewUsers.View = System.Windows.Forms.View.Details;
@@ -179,19 +183,21 @@ namespace PasswordChanger1C
             // 
             this.ConnectionString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ConnectionString.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ConnectionString.Location = new System.Drawing.Point(9, 48);
+            this.ConnectionString.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.ConnectionString.Location = new System.Drawing.Point(10, 55);
+            this.ConnectionString.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.ConnectionString.Name = "ConnectionString";
-            this.ConnectionString.Size = new System.Drawing.Size(734, 26);
+            this.ConnectionString.Size = new System.Drawing.Size(856, 26);
             this.ConnectionString.TabIndex = 9;
             this.ConnectionString.Text = "Data Source=MSSQL1;Server=SERVER;Integrated Security=true;Database=DATABASE";
             // 
             // _Button2
             // 
             this._Button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._Button2.Location = new System.Drawing.Point(745, 47);
+            this._Button2.Location = new System.Drawing.Point(869, 54);
+            this._Button2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._Button2.Name = "_Button2";
-            this._Button2.Size = new System.Drawing.Size(172, 22);
+            this._Button2.Size = new System.Drawing.Size(201, 25);
             this._Button2.TabIndex = 12;
             this._Button2.Text = "Получить пользователей";
             this._Button2.UseVisualStyleBackColor = true;
@@ -200,10 +206,11 @@ namespace PasswordChanger1C
             // Label4
             // 
             this.Label4.AutoSize = true;
-            this.Label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Label4.Location = new System.Drawing.Point(12, 6);
+            this.Label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Label4.Location = new System.Drawing.Point(14, 7);
+            this.Label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label4.Name = "Label4";
-            this.Label4.Size = new System.Drawing.Size(265, 16);
+            this.Label4.Size = new System.Drawing.Size(264, 16);
             this.Label4.TabIndex = 10;
             this.Label4.Text = "Файл хранилища конфигурации 1С";
             // 
@@ -211,17 +218,19 @@ namespace PasswordChanger1C
             // 
             this.Repo1C.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Repo1C.Location = new System.Drawing.Point(9, 25);
+            this.Repo1C.Location = new System.Drawing.Point(10, 29);
+            this.Repo1C.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Repo1C.Name = "Repo1C";
-            this.Repo1C.Size = new System.Drawing.Size(616, 20);
+            this.Repo1C.Size = new System.Drawing.Size(718, 23);
             this.Repo1C.TabIndex = 9;
             // 
             // _ButtonRepo
             // 
             this._ButtonRepo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._ButtonRepo.Location = new System.Drawing.Point(627, 23);
+            this._ButtonRepo.Location = new System.Drawing.Point(732, 27);
+            this._ButtonRepo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._ButtonRepo.Name = "_ButtonRepo";
-            this._ButtonRepo.Size = new System.Drawing.Size(98, 23);
+            this._ButtonRepo.Size = new System.Drawing.Size(114, 27);
             this._ButtonRepo.TabIndex = 11;
             this._ButtonRepo.Text = "Выбрать файл";
             this._ButtonRepo.UseVisualStyleBackColor = true;
@@ -236,9 +245,10 @@ namespace PasswordChanger1C
             // _ButtonGetRepoUsers
             // 
             this._ButtonGetRepoUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._ButtonGetRepoUsers.Location = new System.Drawing.Point(725, 23);
+            this._ButtonGetRepoUsers.Location = new System.Drawing.Point(846, 27);
+            this._ButtonGetRepoUsers.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._ButtonGetRepoUsers.Name = "_ButtonGetRepoUsers";
-            this._ButtonGetRepoUsers.Size = new System.Drawing.Size(192, 23);
+            this._ButtonGetRepoUsers.Size = new System.Drawing.Size(224, 27);
             this._ButtonGetRepoUsers.TabIndex = 12;
             this._ButtonGetRepoUsers.Text = "Получить список пользователей";
             this._ButtonGetRepoUsers.UseVisualStyleBackColor = true;
@@ -247,11 +257,12 @@ namespace PasswordChanger1C
             // _ButtonSetRepoPassword
             // 
             this._ButtonSetRepoPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._ButtonSetRepoPassword.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._ButtonSetRepoPassword.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this._ButtonSetRepoPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this._ButtonSetRepoPassword.Location = new System.Drawing.Point(625, 413);
+            this._ButtonSetRepoPassword.Location = new System.Drawing.Point(729, 477);
+            this._ButtonSetRepoPassword.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._ButtonSetRepoPassword.Name = "_ButtonSetRepoPassword";
-            this._ButtonSetRepoPassword.Size = new System.Drawing.Size(289, 51);
+            this._ButtonSetRepoPassword.Size = new System.Drawing.Size(337, 59);
             this._ButtonSetRepoPassword.TabIndex = 16;
             this._ButtonSetRepoPassword.Text = "Установить выбранным пользователям пустой пароль в хранилище";
             this._ButtonSetRepoPassword.UseVisualStyleBackColor = true;
@@ -265,10 +276,11 @@ namespace PasswordChanger1C
             this.TabControl1.Controls.Add(this.TabPage1);
             this.TabControl1.Controls.Add(this.TabPage2);
             this.TabControl1.Controls.Add(this.TabPage3);
-            this.TabControl1.Location = new System.Drawing.Point(4, 4);
+            this.TabControl1.Location = new System.Drawing.Point(5, 5);
+            this.TabControl1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TabControl1.Name = "TabControl1";
             this.TabControl1.SelectedIndex = 0;
-            this.TabControl1.Size = new System.Drawing.Size(928, 496);
+            this.TabControl1.Size = new System.Drawing.Size(1083, 572);
             this.TabControl1.TabIndex = 17;
             // 
             // TabPage1
@@ -283,10 +295,11 @@ namespace PasswordChanger1C
             this.TabPage1.Controls.Add(this.FileIB);
             this.TabPage1.Controls.Add(this._Button6);
             this.TabPage1.Controls.Add(this._ButtonGetUsers);
-            this.TabPage1.Location = new System.Drawing.Point(4, 22);
+            this.TabPage1.Location = new System.Drawing.Point(4, 24);
+            this.TabPage1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TabPage1.Name = "TabPage1";
-            this.TabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPage1.Size = new System.Drawing.Size(920, 470);
+            this.TabPage1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.TabPage1.Size = new System.Drawing.Size(1075, 544);
             this.TabPage1.TabIndex = 0;
             this.TabPage1.Text = "Файловая ИБ";
             this.TabPage1.UseVisualStyleBackColor = true;
@@ -295,19 +308,21 @@ namespace PasswordChanger1C
             // 
             this.LabelDatabaseVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LabelDatabaseVersion.AutoSize = true;
-            this.LabelDatabaseVersion.Location = new System.Drawing.Point(11, 396);
+            this.LabelDatabaseVersion.Location = new System.Drawing.Point(13, 457);
+            this.LabelDatabaseVersion.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelDatabaseVersion.Name = "LabelDatabaseVersion";
-            this.LabelDatabaseVersion.Size = new System.Drawing.Size(132, 13);
+            this.LabelDatabaseVersion.Size = new System.Drawing.Size(144, 15);
             this.LabelDatabaseVersion.TabIndex = 26;
             this.LabelDatabaseVersion.Text = "Internal database version: ";
             // 
             // NewPassword
             // 
             this.NewPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.NewPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewPassword.Location = new System.Drawing.Point(128, 443);
+            this.NewPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.NewPassword.Location = new System.Drawing.Point(149, 511);
+            this.NewPassword.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.NewPassword.Name = "NewPassword";
-            this.NewPassword.Size = new System.Drawing.Size(144, 22);
+            this.NewPassword.Size = new System.Drawing.Size(167, 22);
             this.NewPassword.TabIndex = 24;
             this.NewPassword.Text = "12345";
             // 
@@ -315,10 +330,11 @@ namespace PasswordChanger1C
             // 
             this.Label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Label2.AutoSize = true;
-            this.Label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Label2.Location = new System.Drawing.Point(9, 445);
+            this.Label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Label2.Location = new System.Drawing.Point(10, 513);
+            this.Label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label2.Name = "Label2";
-            this.Label2.Size = new System.Drawing.Size(113, 16);
+            this.Label2.Size = new System.Drawing.Size(112, 16);
             this.Label2.TabIndex = 25;
             this.Label2.Text = "Новый пароль";
             // 
@@ -327,22 +343,24 @@ namespace PasswordChanger1C
             this.TextBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TextBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TextBox3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TextBox3.Location = new System.Drawing.Point(9, 413);
+            this.TextBox3.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.TextBox3.Location = new System.Drawing.Point(10, 477);
+            this.TextBox3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TextBox3.Multiline = true;
             this.TextBox3.Name = "TextBox3";
-            this.TextBox3.Size = new System.Drawing.Size(613, 29);
+            this.TextBox3.Size = new System.Drawing.Size(715, 33);
             this.TextBox3.TabIndex = 23;
             this.TextBox3.Text = "Файл информационной базы не должен быть открыт никакими другими приложениями.";
             // 
             // _ButtonChangePwdFileDB
             // 
             this._ButtonChangePwdFileDB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._ButtonChangePwdFileDB.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._ButtonChangePwdFileDB.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this._ButtonChangePwdFileDB.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this._ButtonChangePwdFileDB.Location = new System.Drawing.Point(625, 414);
+            this._ButtonChangePwdFileDB.Location = new System.Drawing.Point(729, 478);
+            this._ButtonChangePwdFileDB.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._ButtonChangePwdFileDB.Name = "_ButtonChangePwdFileDB";
-            this._ButtonChangePwdFileDB.Size = new System.Drawing.Size(289, 51);
+            this._ButtonChangePwdFileDB.Size = new System.Drawing.Size(337, 59);
             this._ButtonChangePwdFileDB.TabIndex = 22;
             this._ButtonChangePwdFileDB.Text = "Установить выбранным пользователям указанный пароль";
             this._ButtonChangePwdFileDB.UseVisualStyleBackColor = true;
@@ -351,10 +369,11 @@ namespace PasswordChanger1C
             // Label1
             // 
             this.Label1.AutoSize = true;
-            this.Label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Label1.Location = new System.Drawing.Point(10, 6);
+            this.Label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Label1.Location = new System.Drawing.Point(12, 7);
+            this.Label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label1.Name = "Label1";
-            this.Label1.Size = new System.Drawing.Size(244, 16);
+            this.Label1.Size = new System.Drawing.Size(243, 16);
             this.Label1.TabIndex = 20;
             this.Label1.Text = "Файл информационной базы 1С";
             // 
@@ -370,20 +389,22 @@ namespace PasswordChanger1C
             this.TabPage2.Controls.Add(this.ConnectionString);
             this.TabPage2.Controls.Add(this._Button2);
             this.TabPage2.Controls.Add(this.SQLUserList);
-            this.TabPage2.Location = new System.Drawing.Point(4, 22);
+            this.TabPage2.Location = new System.Drawing.Point(4, 24);
+            this.TabPage2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TabPage2.Name = "TabPage2";
-            this.TabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPage2.Size = new System.Drawing.Size(920, 470);
+            this.TabPage2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.TabPage2.Size = new System.Drawing.Size(1075, 544);
             this.TabPage2.TabIndex = 1;
             this.TabPage2.Text = "Клиент-серверная ИБ";
             this.TabPage2.UseVisualStyleBackColor = true;
             // 
             // Label7
             // 
-            this.Label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Label7.Location = new System.Drawing.Point(9, 9);
+            this.Label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Label7.Location = new System.Drawing.Point(10, 10);
+            this.Label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label7.Name = "Label7";
-            this.Label7.Size = new System.Drawing.Size(166, 17);
+            this.Label7.Size = new System.Drawing.Size(194, 20);
             this.Label7.TabIndex = 24;
             this.Label7.Text = "Тип базы данных:";
             // 
@@ -394,9 +415,10 @@ namespace PasswordChanger1C
             this._cbDBType.Items.AddRange(new object[] {
             "Microsoft SQL Server",
             "PostgreSQL Server"});
-            this._cbDBType.Location = new System.Drawing.Point(181, 7);
+            this._cbDBType.Location = new System.Drawing.Point(211, 8);
+            this._cbDBType.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._cbDBType.Name = "_cbDBType";
-            this._cbDBType.Size = new System.Drawing.Size(185, 21);
+            this._cbDBType.Size = new System.Drawing.Size(215, 23);
             this._cbDBType.TabIndex = 23;
             this._cbDBType.SelectedIndexChanged += new System.EventHandler(this.CbDBType_SelectedIndexChanged);
             // 
@@ -405,22 +427,24 @@ namespace PasswordChanger1C
             this.TextBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TextBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TextBox2.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TextBox2.Location = new System.Drawing.Point(9, 413);
+            this.TextBox2.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.TextBox2.Location = new System.Drawing.Point(10, 477);
+            this.TextBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TextBox2.Multiline = true;
             this.TextBox2.Name = "TextBox2";
-            this.TextBox2.Size = new System.Drawing.Size(610, 24);
+            this.TextBox2.Size = new System.Drawing.Size(712, 28);
             this.TextBox2.TabIndex = 22;
             this.TextBox2.Text = "Монопольного режима доступа к базе не требуется";
             // 
             // _ButtonChangePassSQL
             // 
             this._ButtonChangePassSQL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this._ButtonChangePassSQL.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._ButtonChangePassSQL.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this._ButtonChangePassSQL.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this._ButtonChangePassSQL.Location = new System.Drawing.Point(625, 414);
+            this._ButtonChangePassSQL.Location = new System.Drawing.Point(729, 478);
+            this._ButtonChangePassSQL.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this._ButtonChangePassSQL.Name = "_ButtonChangePassSQL";
-            this._ButtonChangePassSQL.Size = new System.Drawing.Size(289, 51);
+            this._ButtonChangePassSQL.Size = new System.Drawing.Size(337, 59);
             this._ButtonChangePassSQL.TabIndex = 21;
             this._ButtonChangePassSQL.Text = "Установить выбранным пользователям указанный пароль";
             this._ButtonChangePassSQL.UseVisualStyleBackColor = true;
@@ -429,20 +453,22 @@ namespace PasswordChanger1C
             // Label6
             // 
             this.Label6.AutoSize = true;
-            this.Label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Label6.Location = new System.Drawing.Point(9, 29);
+            this.Label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Label6.Location = new System.Drawing.Point(10, 33);
+            this.Label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label6.Name = "Label6";
-            this.Label6.Size = new System.Drawing.Size(297, 16);
+            this.Label6.Size = new System.Drawing.Size(296, 16);
             this.Label6.TabIndex = 19;
             this.Label6.Text = "Строка соединения с базой данных 1С:";
             // 
             // NewPassSQL
             // 
             this.NewPassSQL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.NewPassSQL.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewPassSQL.Location = new System.Drawing.Point(128, 443);
+            this.NewPassSQL.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.NewPassSQL.Location = new System.Drawing.Point(149, 511);
+            this.NewPassSQL.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.NewPassSQL.Name = "NewPassSQL";
-            this.NewPassSQL.Size = new System.Drawing.Size(144, 22);
+            this.NewPassSQL.Size = new System.Drawing.Size(167, 22);
             this.NewPassSQL.TabIndex = 17;
             this.NewPassSQL.Text = "12345";
             // 
@@ -450,10 +476,11 @@ namespace PasswordChanger1C
             // 
             this.Label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Label5.AutoSize = true;
-            this.Label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Label5.Location = new System.Drawing.Point(9, 445);
+            this.Label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Label5.Location = new System.Drawing.Point(10, 513);
+            this.Label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label5.Name = "Label5";
-            this.Label5.Size = new System.Drawing.Size(113, 16);
+            this.Label5.Size = new System.Drawing.Size(112, 16);
             this.Label5.TabIndex = 18;
             this.Label5.Text = "Новый пароль";
             // 
@@ -470,9 +497,10 @@ namespace PasswordChanger1C
             this.ColumnHeader5});
             this.SQLUserList.FullRowSelect = true;
             this.SQLUserList.HideSelection = false;
-            this.SQLUserList.Location = new System.Drawing.Point(9, 76);
+            this.SQLUserList.Location = new System.Drawing.Point(10, 88);
+            this.SQLUserList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.SQLUserList.Name = "SQLUserList";
-            this.SQLUserList.Size = new System.Drawing.Size(905, 335);
+            this.SQLUserList.Size = new System.Drawing.Size(1055, 386);
             this.SQLUserList.TabIndex = 20;
             this.SQLUserList.UseCompatibleStateImageBehavior = false;
             this.SQLUserList.View = System.Windows.Forms.View.Details;
@@ -512,10 +540,11 @@ namespace PasswordChanger1C
             this.TabPage3.Controls.Add(this._ButtonGetRepoUsers);
             this.TabPage3.Controls.Add(this.Repo1C);
             this.TabPage3.Controls.Add(this._ButtonRepo);
-            this.TabPage3.Location = new System.Drawing.Point(4, 22);
+            this.TabPage3.Location = new System.Drawing.Point(4, 24);
+            this.TabPage3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TabPage3.Name = "TabPage3";
-            this.TabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPage3.Size = new System.Drawing.Size(920, 470);
+            this.TabPage3.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.TabPage3.Size = new System.Drawing.Size(1075, 544);
             this.TabPage3.TabIndex = 2;
             this.TabPage3.Text = "Хранилище конфигурации";
             this.TabPage3.UseVisualStyleBackColor = true;
@@ -524,9 +553,10 @@ namespace PasswordChanger1C
             // 
             this.LabelDatabaseVersionRepo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LabelDatabaseVersionRepo.AutoSize = true;
-            this.LabelDatabaseVersionRepo.Location = new System.Drawing.Point(12, 398);
+            this.LabelDatabaseVersionRepo.Location = new System.Drawing.Point(14, 459);
+            this.LabelDatabaseVersionRepo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelDatabaseVersionRepo.Name = "LabelDatabaseVersionRepo";
-            this.LabelDatabaseVersionRepo.Size = new System.Drawing.Size(132, 13);
+            this.LabelDatabaseVersionRepo.Size = new System.Drawing.Size(144, 15);
             this.LabelDatabaseVersionRepo.TabIndex = 27;
             this.LabelDatabaseVersionRepo.Text = "Internal database version: ";
             // 
@@ -535,11 +565,12 @@ namespace PasswordChanger1C
             this.TextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TextBox1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TextBox1.Location = new System.Drawing.Point(6, 413);
+            this.TextBox1.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.TextBox1.Location = new System.Drawing.Point(7, 477);
+            this.TextBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TextBox1.Multiline = true;
             this.TextBox1.Name = "TextBox1";
-            this.TextBox1.Size = new System.Drawing.Size(613, 50);
+            this.TextBox1.Size = new System.Drawing.Size(715, 58);
             this.TextBox1.TabIndex = 18;
             this.TextBox1.Text = "Файл хранилища конфигурации не должен быть открыт никакими другими приложениями.";
             // 
@@ -555,9 +586,10 @@ namespace PasswordChanger1C
             this.RepoAdmin});
             this.RepoUserList.FullRowSelect = true;
             this.RepoUserList.HideSelection = false;
-            this.RepoUserList.Location = new System.Drawing.Point(9, 50);
+            this.RepoUserList.Location = new System.Drawing.Point(10, 58);
+            this.RepoUserList.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.RepoUserList.Name = "RepoUserList";
-            this.RepoUserList.Size = new System.Drawing.Size(905, 345);
+            this.RepoUserList.Size = new System.Drawing.Size(1055, 397);
             this.RepoUserList.TabIndex = 17;
             this.RepoUserList.UseCompatibleStateImageBehavior = false;
             this.RepoUserList.View = System.Windows.Forms.View.Details;
@@ -586,9 +618,10 @@ namespace PasswordChanger1C
             // 
             this._LinkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._LinkLabel1.AutoSize = true;
-            this._LinkLabel1.Location = new System.Drawing.Point(230, 501);
+            this._LinkLabel1.Location = new System.Drawing.Point(268, 578);
+            this._LinkLabel1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this._LinkLabel1.Name = "_LinkLabel1";
-            this._LinkLabel1.Size = new System.Drawing.Size(282, 13);
+            this._LinkLabel1.Size = new System.Drawing.Size(312, 15);
             this._LinkLabel1.TabIndex = 18;
             this._LinkLabel1.TabStop = true;
             this._LinkLabel1.Text = "https://github.com/alekseybochkov/PasswordChanger1C";
@@ -598,9 +631,10 @@ namespace PasswordChanger1C
             // 
             this.Label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Label3.AutoSize = true;
-            this.Label3.Location = new System.Drawing.Point(3, 501);
+            this.Label3.Location = new System.Drawing.Point(4, 578);
+            this.Label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.Label3.Name = "Label3";
-            this.Label3.Size = new System.Drawing.Size(227, 13);
+            this.Label3.Size = new System.Drawing.Size(247, 15);
             this.Label3.TabIndex = 19;
             this.Label3.Text = "Страница приложения для обратной связи:";
             // 
@@ -608,9 +642,10 @@ namespace PasswordChanger1C
             // 
             this._LinkLabel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this._LinkLabel2.AutoSize = true;
-            this._LinkLabel2.Location = new System.Drawing.Point(831, 501);
+            this._LinkLabel2.Location = new System.Drawing.Point(969, 578);
+            this._LinkLabel2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this._LinkLabel2.Name = "_LinkLabel2";
-            this._LinkLabel2.Size = new System.Drawing.Size(102, 13);
+            this._LinkLabel2.Size = new System.Drawing.Size(110, 15);
             this._LinkLabel2.TabIndex = 18;
             this._LinkLabel2.TabStop = true;
             this._LinkLabel2.Text = "© Aleksey.Bochkov";
@@ -619,15 +654,16 @@ namespace PasswordChanger1C
             // MainForm
             // 
             this.AccessibleRole = System.Windows.Forms.AccessibleRole.Application;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(934, 516);
+            this.ClientSize = new System.Drawing.Size(1090, 595);
             this.Controls.Add(this.Label3);
             this.Controls.Add(this._LinkLabel2);
             this.Controls.Add(this._LinkLabel1);
             this.Controls.Add(this.TabControl1);
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Изменение паролей для информационных баз и хранилища 1С";
