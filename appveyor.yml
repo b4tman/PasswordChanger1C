@@ -1,5 +1,6 @@
 version: 1.0.{build}
 configuration: Release
+platform: x64
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
@@ -10,14 +11,21 @@ before_build:
 - ps: nuget restore PasswordChanger1C.sln
 build:
   verbosity: minimal
+  
 after_build:
 - ps: |
-    if (!$env:Configuration) {$env:Configuration="Debug"};
+    if (!$env:Configuration) {$env:Configuration="Debug"}
+    #
+    $PublishDir = "$env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\x64\$env:Configuration\net5.0-windows\publish"
+    dotnet msbuild -t:Restore,Build,Publish `
+      -p:Platform=x64,Configuration=$env:Configuration,PublishDir=$PublishDir,PublishProtocol=FileSystem,TargetFramework=net5.0-windows,SelfContained=true,RuntimeIdentifier=win-x64,PublishSingleFile=true,PublishReadyToRun=true,PublishTrimmed=true `
+      .\PasswordChanger1C\PasswordChanger1C.csproj
+    #
     7z a PasswordChanger1C.zip `
-      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.dll `
-      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.exe `
-      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.exe.config `
-      $env:APPVEYOR_BUILD_FOLDER\PasswordChanger1C\bin\$env:Configuration\*.pdb
+      $PublishDir\*.dll `
+      $PublishDir\*.exe `
+      $PublishDir\*.exe.config `
+      $PublishDir\*.pdb
 artifacts:
 - path: PasswordChanger1C.zip
   name: PasswordChanger1C
