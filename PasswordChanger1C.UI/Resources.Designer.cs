@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PasswordChanger1C.My.Resources {
+namespace PasswordChanger1C.UI.Resources {
     using System;
     
     

@@ -66,5 +66,5 @@ jobs:
       with:
         name: PasswordChanger1C
         path: |
-           PasswordChanger1C\bin\${{ matrix.configuration }}\
-           !PasswordChanger1C\bin\${{ matrix.configuration }}\*.xml
+           PasswordChanger1C.UI\bin\${{ matrix.configuration }}\
+           !PasswordChanger1C.UI\bin\${{ matrix.configuration }}\*.xml
