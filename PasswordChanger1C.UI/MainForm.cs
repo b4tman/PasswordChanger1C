@@ -28,8 +28,7 @@ namespace PasswordChanger1C.UI
         }
 
         private AccessFunctions.PageParams TableParams;
-
-        private List<SQLInfobase.SQLUser> SQLUsers = new();
+        private List<SQLInfobase.SQLUser> SQLUsers;
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
@@ -147,12 +146,12 @@ namespace PasswordChanger1C.UI
 
         private SQLInfobase.DBMSType Selected_DBMSType()
         {
-            return cbDBType.SelectedIndex switch
+            switch (cbDBType.SelectedIndex)
             {
-                0 => SQLInfobase.DBMSType.MSSQLServer,
-                1 => SQLInfobase.DBMSType.PostgreSQL,
-                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
-            };
+                case 0: return SQLInfobase.DBMSType.MSSQLServer;
+                case 1: return SQLInfobase.DBMSType.PostgreSQL;
+                default: throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type");
+            }
         }
 
         private void ButtonChangePassSQL_Click(object sender, EventArgs e)
@@ -258,7 +257,7 @@ namespace PasswordChanger1C.UI
         {
             bool is_Success = true;
             string NewPassword = NewPassSQL.Text.Trim();
-            List<string> Selected_ID = new();
+            var Selected_ID = new List<string>();
             foreach (ListViewItem item in SQLUserList.SelectedItems) Selected_ID.Add(item.Text);
 
             var SelectedUsers = SQLUsers.FindAll(user => Selected_ID.Contains(user.IDStr) && user.PassHash != "");
@@ -307,7 +306,7 @@ namespace PasswordChanger1C.UI
                                 MessageBoxIcon.Error);
             }
         }
-        
+
         private void ButtonSetRepoPassword_Click(object sender, EventArgs e)
         {
             if (RepoUserList.SelectedItems.Count == 0)
@@ -327,7 +326,7 @@ namespace PasswordChanger1C.UI
                 return;
             }
 
-            List<string> Selected_ID = new();
+            List<string> Selected_ID = new List<string>();
             foreach (ListViewItem item in RepoUserList.SelectedItems) Selected_ID.Add(item.Text);
 
             var SelectedRows = TableParams.Records.FindAll(Row => Selected_ID.Contains(Row["UserGuidStr"].ToString()));
@@ -375,7 +374,7 @@ namespace PasswordChanger1C.UI
                 return;
             }
 
-            List<string> Selected_ID = new();
+            List<string> Selected_ID = new List<string>();
             foreach (ListViewItem item in ListViewUsers.SelectedItems) Selected_ID.Add(item.Text);
 
             var SelectedRows = TableParams.Records.FindAll(Row => Selected_ID.Contains(Row["UserGuidStr"].ToString()));
@@ -417,12 +416,17 @@ namespace PasswordChanger1C.UI
 
         private void CbDBType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ConnectionString.Text = Selected_DBMSType() switch
+            switch (Selected_DBMSType())
             {
-                SQLInfobase.DBMSType.MSSQLServer => "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup",
-                SQLInfobase.DBMSType.PostgreSQL => "Host=localhost;Username=postgres;Password=password;Database=database",
-                _ => throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type"),
-            };
+                case SQLInfobase.DBMSType.MSSQLServer:
+                    ConnectionString.Text = "Data Source=MSSQL1;Server=localhost;Integrated Security=true;Database=zup";
+                    break;
+                case SQLInfobase.DBMSType.PostgreSQL:
+                    ConnectionString.Text = "Host=localhost;Username=postgres;Password=password;Database=database";
+                    break;
+                default:
+                    throw new SQLInfobase.WrongDBMSTypeException("unknown DBMS type");
+            }
         }
     }
 }
