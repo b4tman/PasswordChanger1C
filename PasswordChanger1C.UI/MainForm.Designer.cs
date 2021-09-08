@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
-namespace PasswordChanger1C
+namespace PasswordChanger1C.UI
 {
     public partial class MainForm : Form
     {
@@ -259,6 +259,7 @@ namespace PasswordChanger1C
             // 
             // TabControl1
             // 
+            this.TabControl1.AccessibleDescription = "";
             this.TabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));

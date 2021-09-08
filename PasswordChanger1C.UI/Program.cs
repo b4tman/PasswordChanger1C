@@ -16,7 +16,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using PasswordChanger1C;
 
-namespace PasswordChanger1C.My
+namespace PasswordChanger1C.UI
 {
     static class Program
     {

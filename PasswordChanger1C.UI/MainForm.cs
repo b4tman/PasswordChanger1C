@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace PasswordChanger1C
+namespace PasswordChanger1C.UI
 {
     public partial class MainForm
     {
