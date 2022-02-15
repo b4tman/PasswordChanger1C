@@ -55,5 +55,18 @@ namespace PasswordChanger1C.Tests
                 )
             );
         }
+
+        [Fact()]
+        public void ParseString_Test_QuotedStrings()
+        {
+            var result = ParsesClass.ParseString("{\"hello, world\",\"this is {just} a string\",\"1,2,\n\r3,4\"}");
+            Assert.Collection(result,
+                (Root) => Assert.Collection(Root,
+                    (Item) => Assert.Equal("\"hello, world\"", Item.ToString()),
+                    (Item) => Assert.Equal("\"this is {just} a string\"", Item.ToString()),
+                    (Item) => Assert.Equal("\"1,2,\n\r3,4\"", Item.ToString())
+                )
+            );
+        }
     }
 }
