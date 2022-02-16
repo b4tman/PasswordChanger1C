@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace PasswordChanger1C.ParserServices
 {
@@ -111,9 +112,22 @@ namespace PasswordChanger1C.ParserServices
         {
             var list = new ParserList();
             ParsingTokenType type;
-            var cur_value = "";
+            var cur_value = new StringBuilder();
             var has_value = false;
             var is_quoted = false;
+
+            // add value if needed and clear builder
+            void AddValue()
+            {
+                if (!has_value)
+                {
+                    return;
+                }
+
+                list.Add(cur_value.ToString());
+                cur_value.Clear();
+                has_value = false;
+            }
 
             foreach (var chunk in GetChars(str_reader))
             {
@@ -131,32 +145,27 @@ namespace PasswordChanger1C.ParserServices
                         list.Add(ParseStringInternal(str_reader));
                         has_value = false;
                         break;
+
                     case ParsingTokenType.Close:
-                        if (has_value)
-                        {
-                            list.Add(cur_value);
-                            cur_value = "";
-                            has_value = false;
-                        }
+                        AddValue();
                         return list;
+
                     case ParsingTokenType.Separator:
-                        if (has_value)
-                        {
-                            list.Add(cur_value);
-                            cur_value = "";
-                            has_value = false;
-                        }                      
+                        AddValue();
                         break;
+
                     case ParsingTokenType.Quote:
-                        cur_value += chunk;
+                        cur_value.Append(chunk);
                         is_quoted = !is_quoted;
                         break;
+
                     case ParsingTokenType.Value:
                         has_value = true;
-                        cur_value += chunk;
+                        cur_value.Append(chunk);
                         break;
-                    //case ParsingTokenType.Ignore: continue;
-                    default: continue;
+
+                    default: // Ignore
+                        continue;
                 }
             }
             return list;
