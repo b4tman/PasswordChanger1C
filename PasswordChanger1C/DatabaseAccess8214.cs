@@ -149,7 +149,7 @@ namespace PasswordChanger1C
                 "N" => (Field.Length + 2) / 2,
                 "NC" => Field.Length * 2,
                 "NVC" => Field.Length * 2 + 2,
-                "RV" => 18,
+                "RV" => 16,
                 "I" => 8,
                 "T" => 8,
                 "DT" => 7,
