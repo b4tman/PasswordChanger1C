@@ -9,8 +9,33 @@ namespace PasswordChanger1C
 {
     using static AccessFunctions;
 
-    internal static partial class DatabaseAccess838
+    public class FileModifiedException : Exception
     {
+        public FileModifiedException(string message) : base(message)
+        {
+        }
+
+        public FileModifiedException() : base("Информация в БД была изменена другим процессом! Прочитайте список пользователей заново.")
+        {
+        }
+    }
+
+    public class DataLengthNotMatchException : Exception
+    {
+        public DataLengthNotMatchException(string message) : base(message)
+        {
+        }
+
+        public DataLengthNotMatchException(long ExpectedSize, long ActualSize) : base(
+            $"Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины).{Environment.NewLine}" +
+            $"Ожидали {ExpectedSize} байт, получили: {ActualSize}.{Environment.NewLine}" +
+            "Сообщите пожалуйста об этой ошибке!")
+        {
+        }
+    }
+
+    internal static partial class DatabaseAccess838
+    {        
 
         internal class FieldReader838 : FieldReaderBase
         {
@@ -42,9 +67,6 @@ namespace PasswordChanger1C
 
         public static AccessFunctions.PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
         {
-            // второй блок пропускаем
-            //reader.BaseStream.Seek(reader.PageSize, SeekOrigin.Current);
-
             // корневой блок
             var RootPageBuffer = reader.ReadPage(2);
             var TargetPage = FindTableDefinition(reader, RootPageBuffer, TargetTableName);
@@ -81,19 +103,20 @@ namespace PasswordChanger1C
                 int Position = TablePageNumber * 256;
                 int NextBlock = BitConverter.ToInt32(BytesTableStructure, Position);
                 short StringLen = BitConverter.ToInt16(BytesTableStructure, Position + 4);
-                string StrDefinition = Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen);
+                var StrDefinition = new StringBuilder();
+                StrDefinition.Append(Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen));
                 while (NextBlock > 0)
                 {
                     Position = NextBlock * 256;
                     NextBlock = BitConverter.ToInt32(BytesTableStructure, Position);
                     StringLen = BitConverter.ToInt16(BytesTableStructure, Position + 4);
-                    StrDefinition += Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen);
+                    StrDefinition.Append(Encoding.UTF8.GetString(BytesTableStructure, Position + 6, StringLen));
                 }
 
-                var TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition);
+                var TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition.ToString());
                 if (TableDefinition[0][0].ToString().ToUpper() == TargetTable)
                 {
-                    Page.TableDefinition = StrDefinition;
+                    Page.TableDefinition = StrDefinition.ToString();
                     CommonModule.ParseTableDefinition(ref Page);
                     break;
                 }
@@ -107,7 +130,6 @@ namespace PasswordChanger1C
             if (PageHeader.Fields is null) return;
 
             long FirstPage = PageHeader.BlockData;
-            long BlockBlob = PageHeader.BlockBlob;
             PageHeader.Records = new List<Dictionary<string, object>>();
             var DataPageBuffer = reader.ReadPage(FirstPage);
 
@@ -192,15 +214,6 @@ namespace PasswordChanger1C
 
         private static AccessFunctions.PageParams ReadObjectPageDefinition(in byte[] Bytes, int PageSize)
         {
-            // struct {
-            // unsigned int object_type; //0xFD1C или 0x01FD1C
-            // unsigned Int version1;
-            // unsigned Int version2;
-            // unsigned Int version3;
-            // unsigned Long int length; //64-разрядное целое!
-            // unsigned Int pages[];
-            // }
-
             var Page = new AccessFunctions.PageParams() { PageSize = PageSize };
             Page.PageType = BitConverter.ToInt32(Bytes, 0);
             Page.version = BitConverter.ToInt32(Bytes, 4);
@@ -260,12 +273,12 @@ namespace PasswordChanger1C
             TargetData = GetCleanDataFromBlob(DataPos, DataSize, BlobPage.BinaryData, ref DataPositions);
             if (!TargetData.SequenceEqual(OldData))
             {
-                throw new Exception("Информация в БД была изменена другим процессом! Прочитайте список пользователей заново.");
+                throw new FileModifiedException();
             }
 
             if (OldData.Count() != NewData.Count())
             {
-                throw new Exception("Новый байтовый массив должен совпадать по размерам со старым массивом (т.к. мы только заменяем хэши одинаковой длины)." + Environment.NewLine + "Сообщите пожалуйста об этой ошибке!");
+                throw new DataLengthNotMatchException(OldData.Count(), NewData.Count());
             }
 
             int CurrentByte = 0;
