@@ -34,17 +34,13 @@ namespace PasswordChanger1C
             }
         }
 
-        public static AccessFunctions.PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
+        public static PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
         {
-            // второй блок пропускаем
-            //reader.BaseStream.Seek((long)PageSize, SeekOrigin.Current);
-
             // корневой блок
             var RootPageBuffer = reader.ReadPage(2);
 
             var RootPage = ReadPage(reader, RootPageBuffer);
             RootPage.PageSize = PageSize;
-            string Language;
             int NumberOfTables;
             var HeaderTables = new List<long>();
             int i = 0;
@@ -52,7 +48,6 @@ namespace PasswordChanger1C
             {
                 var bytesStorageTables = reader.ReadPages(ST.DataBlocks);
 
-                Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
                 NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32);
                 for (i = 0; i < NumberOfTables; i++)
                 {
@@ -66,7 +61,7 @@ namespace PasswordChanger1C
             {
                 var PageBuffer = reader.ReadPage(HT);
                 var PageHeader = ReadPage(reader, PageBuffer);
-                PageHeader.Fields = new List<AccessFunctions.TableFields>();
+                PageHeader.Fields = new List<TableFields>();
                 PageHeader.PageSize = PageSize;
                 foreach (var ST in PageHeader.StorageTables)
                 {
@@ -84,10 +79,10 @@ namespace PasswordChanger1C
             return default;
         }
 
-        public static AccessFunctions.PageParams ReadPage(InfobaseBinaryReader reader, in byte[] Bytes)
+        public static PageParams ReadPage(InfobaseBinaryReader reader, in byte[] Bytes)
         {
             int Index = 24;
-            var Page = new AccessFunctions.PageParams
+            var Page = new PageParams
             {
                 Sign = Encoding.UTF8.GetString(Bytes, 0, 8),
                 Length = BitConverter.ToInt32(Bytes, 8),
@@ -95,7 +90,7 @@ namespace PasswordChanger1C
                 version2 = BitConverter.ToInt32(Bytes, 16),
                 version = BitConverter.ToInt32(Bytes, 20),
                 PagesNum = new List<long>(),
-                StorageTables = new List<AccessFunctions.StorageTable>()
+                StorageTables = new List<StorageTable>()
             };
 
             // Получим номера страниц размещения
@@ -113,7 +108,7 @@ namespace PasswordChanger1C
 
             foreach (var blk in Page.PagesNum)
             {
-                var StorageTables = new AccessFunctions.StorageTable
+                var StorageTables = new StorageTable
                 {
                     Number = blk,
                     DataBlocks = new List<long>()
@@ -158,14 +153,13 @@ namespace PasswordChanger1C
             } + Field.CouldBeNull;
         }
 
-        public static void ReadDataFromTable(InfobaseBinaryReader reader, long DB, ref AccessFunctions.PageParams PageHeader, in string TargetTableName)
+        public static void ReadDataFromTable(InfobaseBinaryReader reader, long DB, ref PageParams PageHeader, in string TargetTableName)
         {
             var PageBuffer = reader.ReadPage(DB);
 
-            string TableDescr = "";
-            long descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
-            for (int i = 0; i < descrLength; i++)
-                TableDescr += Encoding.UTF8.GetString(PageBuffer, i * 2, 1);
+            String TableDescr;
+            int descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
+            TableDescr = Encoding.Unicode.GetString(PageBuffer, 0, descrLength);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
             long RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
@@ -182,7 +176,7 @@ namespace PasswordChanger1C
                     continue;
                 }
 
-                var Field = new AccessFunctions.TableFields
+                var Field = new TableFields
                 {
                     Name = a[0].ToString().Replace("\"", ""),
                     Type = a[1].ToString().Replace("\"", ""),
@@ -236,7 +230,7 @@ namespace PasswordChanger1C
             return ByteBlock;
         }
 
-        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, long block, long BlockBlob, InfobaseBinaryReader reader)
+        public static void ReadDataPage(ref PageParams PageHeader, long block, long BlockBlob, InfobaseBinaryReader reader)
         {
             var DataPageBuffer = reader.ReadPage(block);
             var DataPage = ReadPage(reader, DataPageBuffer);
