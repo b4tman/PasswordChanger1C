@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 
 namespace PasswordChanger1C.ParserServices
 {
@@ -50,51 +52,123 @@ namespace PasswordChanger1C.ParserServices
     {
         public static ParserList ParseString(in string Str)
         {
-            var Arr = Str.TrimStart('\uFEFF').Split(',');
-            int argPosition = 0;
-            var List = ParseStringInternal(Arr, ref argPosition, Arr.Length - 1);
+            using var str_reader = new StringReader(Str);
+            var List = ParseStringInternal(str_reader);
             return List;
         }
 
-        private static ParserList ParseStringInternal(string[] Arr, ref int Position, int ArrLength)
+        /// <summary>
+        /// characters iterator for text reader
+        /// </summary>
+        /// <param name="str_reader">text reader</param>
+        /// <returns></returns>
+        private static IEnumerable<char> GetChars(TextReader str_reader)
         {
-            // TODO - не обрабатываются ситуации с двойными кавычками и переносами строк в тексте
-
-            var List = new ParserList();
-            while (Position < ArrLength)
+            int chunk = str_reader.Read();
+            while (chunk != -1)
             {
-                string Val = Arr[Position].Trim();
-                if (Val.StartsWith("{"))
-                {
-                    Arr[Position] = Val.Substring(1);
-                    List.Add(ParseStringInternal(Arr, ref Position, ArrLength));
-                }
-                else if (string.IsNullOrEmpty(Val))
-                {
-                    Position++;
-                }
-                else
-                {
-                    int Pos = Val.IndexOf("}");
-                    if (Pos > -1)
-                    {
-                        string Vl2 = Val.Substring(0, Pos);
-                        if (!string.IsNullOrEmpty(Vl2))
-                        {
-                            List.Add(Vl2);
-                        }
+                yield return (char)chunk;
+                chunk = str_reader.Read();
+            }
+        }
 
-                        Arr[Position] = Val.Substring(Pos + 1);
+        private enum ParsingTokenType
+        {
+            Open,
+            Close,
+            Separator,
+            Quote,
+            Value,
+            Ignore
+        }
+
+
+        /// <summary>
+        /// token type by char
+        /// </summary>
+        /// <param name="chunk">char</param>
+        /// <returns></returns>
+        private static ParsingTokenType getTokenType(char chunk)
+        {
+            return chunk switch
+            {
+                '{' => ParsingTokenType.Open,
+                '}' => ParsingTokenType.Close,
+                ',' => ParsingTokenType.Separator,
+                '"' => ParsingTokenType.Quote,
+                '\r' => ParsingTokenType.Ignore,
+                '\n' => ParsingTokenType.Ignore,
+                '\uFEFF' => ParsingTokenType.Ignore,
+                _ => ParsingTokenType.Value
+            };
+        }
+
+        /// <summary>
+        /// brackets parser
+        /// </summary>
+        /// <param name="str_reader">text reader</param>
+        /// <returns></returns>
+        private static ParserList ParseStringInternal(TextReader str_reader)
+        {
+            var list = new ParserList();
+            ParsingTokenType type;
+            var cur_value = new StringBuilder();
+            var has_value = false;
+            var is_quoted = false;
+
+            // add value if needed and clear builder
+            void AddValue()
+            {
+                if (!has_value)
+                {
+                    return;
+                }
+
+                list.Add(cur_value.ToString());
+                cur_value.Clear();
+                has_value = false;
+            }
+
+            foreach (var chunk in GetChars(str_reader))
+            {
+                type = getTokenType(chunk);
+
+                // check if token is quoted (value)
+                if (is_quoted && ParsingTokenType.Quote != type)
+                {
+                    type = ParsingTokenType.Value;
+                }
+
+                switch (type)
+                {
+                    case ParsingTokenType.Open:
+                        list.Add(ParseStringInternal(str_reader));
+                        has_value = false;
                         break;
-                    }
-                    else
-                    {
-                        List.Add(Val);
-                        Position++;
-                    }
+
+                    case ParsingTokenType.Close:
+                        AddValue();
+                        return list;
+
+                    case ParsingTokenType.Separator:
+                        AddValue();
+                        break;
+
+                    case ParsingTokenType.Quote:
+                        cur_value.Append(chunk);
+                        is_quoted = !is_quoted;
+                        break;
+
+                    case ParsingTokenType.Value:
+                        has_value = true;
+                        cur_value.Append(chunk);
+                        break;
+
+                    default: // Ignore
+                        continue;
                 }
             }
-            return List;
+            return list;
         }
     }
 }

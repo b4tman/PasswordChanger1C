@@ -10,17 +10,37 @@ namespace PasswordChanger1C
     {
         private const int PageSize = PageSize82;
 
-        public static AccessFunctions.PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
+        internal class FieldReader8214 : FieldReaderBase
         {
-            // второй блок пропускаем
-            //reader.BaseStream.Seek((long)PageSize, SeekOrigin.Current);
+            protected long BlockBlob { get; set; }
 
+            public FieldReader8214(InfobaseBinaryReader reader, PageParams PageHeader, byte[] data, long BlockBlob) : base(reader, PageHeader, data)
+            {
+                this.BlockBlob = BlockBlob;
+            }
+
+            protected override byte[] Value_BlobData
+            {
+                get
+                {
+                    byte[] result = null;
+
+                    if (BlobDataSize > 0)
+                    {
+                        result = GetBlobData(BlockBlob, BlobDataPos, BlobDataSize, reader);
+                    }
+                    return result;
+                }
+            }
+        }
+
+        public static PageParams ReadInfoBase(InfobaseBinaryReader reader, in string TargetTableName)
+        {
             // корневой блок
             var RootPageBuffer = reader.ReadPage(2);
 
             var RootPage = ReadPage(reader, RootPageBuffer);
             RootPage.PageSize = PageSize;
-            string Language;
             int NumberOfTables;
             var HeaderTables = new List<long>();
             int i = 0;
@@ -28,7 +48,6 @@ namespace PasswordChanger1C
             {
                 var bytesStorageTables = reader.ReadPages(ST.DataBlocks);
 
-                Language = Encoding.UTF8.GetString(bytesStorageTables, 0, 32);
                 NumberOfTables = BitConverter.ToInt32(bytesStorageTables, 32);
                 for (i = 0; i < NumberOfTables; i++)
                 {
@@ -42,7 +61,7 @@ namespace PasswordChanger1C
             {
                 var PageBuffer = reader.ReadPage(HT);
                 var PageHeader = ReadPage(reader, PageBuffer);
-                PageHeader.Fields = new List<AccessFunctions.TableFields>();
+                PageHeader.Fields = new List<TableFields>();
                 PageHeader.PageSize = PageSize;
                 foreach (var ST in PageHeader.StorageTables)
                 {
@@ -60,10 +79,10 @@ namespace PasswordChanger1C
             return default;
         }
 
-        public static AccessFunctions.PageParams ReadPage(InfobaseBinaryReader reader, in byte[] Bytes)
+        public static PageParams ReadPage(InfobaseBinaryReader reader, in byte[] Bytes)
         {
             int Index = 24;
-            var Page = new AccessFunctions.PageParams
+            var Page = new PageParams
             {
                 Sign = Encoding.UTF8.GetString(Bytes, 0, 8),
                 Length = BitConverter.ToInt32(Bytes, 8),
@@ -71,7 +90,7 @@ namespace PasswordChanger1C
                 version2 = BitConverter.ToInt32(Bytes, 16),
                 version = BitConverter.ToInt32(Bytes, 20),
                 PagesNum = new List<long>(),
-                StorageTables = new List<AccessFunctions.StorageTable>()
+                StorageTables = new List<StorageTable>()
             };
 
             // Получим номера страниц размещения
@@ -89,7 +108,7 @@ namespace PasswordChanger1C
 
             foreach (var blk in Page.PagesNum)
             {
-                var StorageTables = new AccessFunctions.StorageTable
+                var StorageTables = new StorageTable
                 {
                     Number = blk,
                     DataBlocks = new List<long>()
@@ -116,16 +135,14 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        public static void ReadDataFromTable(InfobaseBinaryReader reader, long DB, ref AccessFunctions.PageParams PageHeader, in string TargetTableName)
+        public static void ReadDataFromTable(InfobaseBinaryReader reader, long DB, ref PageParams PageHeader, in string TargetTableName)
         {
             var PageBuffer = reader.ReadPage(DB);
 
-            string TableDescr = "";
-            long descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
-            for (int i = 0; i < descrLength; i++)
-                TableDescr += Encoding.UTF8.GetString(PageBuffer, i * 2, 1);
+            String TableDescr;
+            int descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
+            TableDescr = Encoding.Unicode.GetString(PageBuffer, 0, descrLength);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
-            long RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
             PageHeader.TableName = TableName;
             if (TableName != TargetTableName)
@@ -133,79 +150,9 @@ namespace PasswordChanger1C
                 return;
             }
 
-            foreach (var a in ParsedString[0][2])
-            {
-                if (!a.IsList)
-                {
-                    continue;
-                }
-
-                var Field = new AccessFunctions.TableFields
-                {
-                    Name = a[0].ToString().Replace("\"", ""),
-                    Type = a[1].ToString().Replace("\"", ""),
-                    CouldBeNull = Convert.ToInt32(a[2].ToString()),
-                    Length = Convert.ToInt32(a[3].ToString()),
-                    Precision = Convert.ToInt32(a[4].ToString())
-                };
-                int FieldSize = Field.CouldBeNull;
-                if (Field.Type == "B")
-                {
-                    FieldSize += Field.Length;
-                }
-                else if (Field.Type == "L")
-                {
-                    FieldSize++;
-                }
-                else if (Field.Type == "N")
-                {
-                    FieldSize += (Field.Length + 2) / 2;
-                }
-                else if (Field.Type == "NC")
-                {
-                    FieldSize += Field.Length * 2;
-                }
-                else if (Field.Type == "NVC")
-                {
-                    FieldSize += Field.Length * 2 + 2;
-                }
-                else if (Field.Type == "RV")
-                {
-                    FieldSize += 16;
-                }
-                else if (Field.Type == "I")
-                {
-                    FieldSize += 8;
-                }
-                else if (Field.Type == "T")
-                {
-                    FieldSize += 8;
-                }
-                else if (Field.Type == "DT")
-                {
-                    FieldSize += 7;
-                }
-                else if (Field.Type == "NT")
-                {
-                    FieldSize += 8;
-                }
-
-                Field.Size = FieldSize;
-                Field.Offset = RowSize;
-                RowSize += FieldSize;
-                PageHeader.Fields.Add(Field);
-            }
-
-            PageHeader.RowSize = RowSize;
-
-            // {"Files",118,119,96}
-            // Данные, BLOB, индексы
-
-            int BlockData = Convert.ToInt32(ParsedString[0][5][1].ToString());
-            int BlockBlob = Convert.ToInt32(ParsedString[0][5][2].ToString());
-            PageHeader.BlockData = BlockData;
-            PageHeader.BlockBlob = BlockBlob;
-            ReadDataPage(ref PageHeader, BlockData, BlockBlob, reader);
+            PageHeader.TableDefinition = TableDescr;
+            CommonModule.ParseTableDefinition(ref PageHeader);
+            ReadDataPage(ref PageHeader, PageHeader.BlockData, PageHeader.BlockBlob, reader);
         }
 
         public static byte[] GetBlobData(long BlockBlob, int Dataindex, int Datasize, InfobaseBinaryReader reader)
@@ -233,133 +180,52 @@ namespace PasswordChanger1C
             return ByteBlock;
         }
 
-        public static void ReadDataPage(ref AccessFunctions.PageParams PageHeader, long block, long BlockBlob, InfobaseBinaryReader reader)
+        public static void ReadDataPage(ref PageParams PageHeader, long block, long BlockBlob, InfobaseBinaryReader reader)
         {
             var DataPageBuffer = reader.ReadPage(block);
             var DataPage = ReadPage(reader, DataPageBuffer);
 
             PageHeader.Records = new List<Dictionary<string, object>>();
             var bytesBlock = reader.ReadPages(DataPage.StorageTables);
+            
+            var field_reader = new FieldReader8214(reader, PageHeader, bytesBlock, BlockBlob);
 
-            int i;
-            long Size = DataPage.Length / PageHeader.RowSize;
-            for (i = 1; i < Size; i++)
+            long RowsCount = DataPage.Length / PageHeader.RowSize;
+            for (int Row = 1; Row < RowsCount; Row++)
             {
-                int Pos = (int)PageHeader.RowSize * i;
+                int RowOffset = (int)PageHeader.RowSize * Row;
                 int FieldStartPos = 0;
-                bool IsDeleted = BitConverter.ToBoolean(bytesBlock, Pos);
+                bool IsDeleted = BitConverter.ToBoolean(bytesBlock, RowOffset);
                 var Dict = new Dictionary<string, object>
                 {
                     { "IsDeleted", IsDeleted }
                 };
                 foreach (var Field in PageHeader.Fields)
                 {
-                    int Pos1 = Pos + 1 + FieldStartPos;
+                    int FieldOffset = RowOffset + 1 + FieldStartPos;
+                    field_reader.SetField(Field, FieldOffset);
+
                     if (Field.Name == "PASSWORD")
                     {
-                        Dict.Add("OFFSET_PASSWORD", Pos1);
-                    }
-                    else if (Field.Name == "DATA")
-                    {
-                        Dict.Add("DATA_POS", BitConverter.ToInt32(bytesBlock, Pos1));
-                        Dict.Add("DATA_SIZE", BitConverter.ToInt32(bytesBlock, Pos1 + 4));
+                        Dict.Add("OFFSET_PASSWORD", FieldOffset);
                     }
 
-                    object BytesVal = null;
-                    if (Field.Type == "B")
-                    {
-                        string Strguid = Convert.ToBase64String(bytesBlock, Pos1 + Field.CouldBeNull, Field.Size - Field.CouldBeNull);
-                        BytesVal = Convert.FromBase64String(Strguid);
-                    }
-                    else if (Field.Type == "L")
-                    {
-                        BytesVal = BitConverter.ToBoolean(bytesBlock, Pos1 + Field.CouldBeNull);
-                    }
-                    else if (Field.Type == "DT")
-                    {
-                        var BytesDate = new byte[7]; // 7 байт
-                        for (int AA = 0; AA <= 6; AA++)
-                            BytesDate[AA] = Convert.ToByte(Convert.ToString(bytesBlock[Pos1 + AA], 16));
-                        try
-                        {
-                            BytesVal = new DateTime(BytesDate[0] * 100 + BytesDate[1],
-                                                    BytesDate[2],
-                                                    BytesDate[3],
-                                                    BytesDate[4],
-                                                    BytesDate[5],
-                                                    BytesDate[6]);
-                        }
-                        catch (Exception)
-                        {
-                            BytesVal = "";
-                        }
-                    }
-                    else if (Field.Type == "I")
-                    {
-                        // двоичные данные неограниченной длины
-                        // в рамках хранилища 8.3.6 их быть не должно
+                    object FieldValue = field_reader.Value;
 
-                        int DataPos = BitConverter.ToInt32(bytesBlock, Pos1);
-                        int DataSize = BitConverter.ToInt32(bytesBlock, Pos1 + 4);
+                    if (Field.Name == "DATA" && Field.Type == "I" && FieldValue is not null)
+                    {
+                        Dict.Add("DATA_POS", field_reader.BlobDataPos);
+                        Dict.Add("DATA_SIZE", field_reader.BlobDataSize);
+                        Dict.Add("DATA_BINARY", FieldValue);
 
-                        if (DataSize > 0)
-                        {
-                            var BytesValTemp = GetBlobData(BlockBlob, DataPos, DataSize, reader);
-                            var DataKey = new byte[1];
-                            int DataKeySize = 0;
-                            BytesVal = CommonModule.DecodePasswordStructure(BytesValTemp, ref DataKeySize, ref DataKey);
-                            Dict.Add("DATA_KEYSIZE", DataKeySize);
-                            Dict.Add("DATA_KEY", DataKey);
-                            Dict.Add("DATA_BINARY", BytesValTemp);
-                        }
-                    }
-                    else if (Field.Type == "NT")
-                    {
-                        // Строка неограниченной длины
-                        BytesVal = ""; // TODO
-                    }
-                    else if (Field.Type == "N")
-                    {
-                        // число
-                        BytesVal = 0;
-                        string StrNumber = "";
-                        for (int AA = 0; AA < Field.Size; AA++)
-                        {
-                            string character = Convert.ToString(bytesBlock[Pos1 + AA], 16);
-                            StrNumber = StrNumber + (character.Length == 1 ? "0" : "") + character;
-                        }
-
-                        string FirstSimbol = StrNumber.Substring(0, 1);
-                        StrNumber = StrNumber.Substring(1, Field.Length);
-                        if (string.IsNullOrEmpty(StrNumber))
-                        {
-                            BytesVal = 0;
-                        }
-                        else
-                        {
-                            BytesVal = Convert.ToInt32(StrNumber) / (Field.Precision > 0 ? Field.Precision * 10 : 1);
-                            if (FirstSimbol == "0")
-                            {
-                                BytesVal = (int)BytesVal * -1;
-                            }
-                        }
-                    }
-                    else if (Field.Type == "NVC")
-                    {
-                        // Строка переменной длины
-                        var BytesStr = new byte[2];
-                        for (int AA = 0; AA <= 1; AA++)
-                            BytesStr[AA] = bytesBlock[Pos1 + AA + Field.CouldBeNull];
-                        var L = Math.Min(Field.Size, (BytesStr[0] + (BytesStr[1] * 256)) * 2);
-                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1 + 2 + Field.CouldBeNull, Convert.ToInt32(L)).Trim(); // was L- 2
-                    }
-                    else if (Field.Type == "NC")
-                    {
-                        // строка фиксированной длины
-                        BytesVal = Encoding.Unicode.GetString(bytesBlock, Pos1, Field.Size);
+                        byte[] DataKey = new byte[1]; // value will be replaced
+                        int DataKeySize = 0;
+                        FieldValue = CommonModule.DecodePasswordStructure((byte[])FieldValue, ref DataKeySize, ref DataKey);
+                        Dict.Add("DATA_KEYSIZE", DataKeySize);
+                        Dict.Add("DATA_KEY", DataKey);
                     }
 
-                    Dict.Add(Field.Name, BytesVal);
+                    Dict.Add(Field.Name, FieldValue);
                     FieldStartPos += Field.Size;
                 }
 
