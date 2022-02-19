@@ -112,5 +112,27 @@ namespace PasswordChanger1C.Tests
 
             Assert.Equal(Expected, ReplaceHashes(Test_DataStr, OldHashes, NewHashes));
         }
+
+        [Theory()]
+        [InlineData("B", 222, 1, 223)]
+        [InlineData("B", 222, 0, 222)]
+        [InlineData("N", 222, 1, 113)]
+        [InlineData("NC", 222, 1, 445)]
+        [InlineData("NVC", 222, 1, 447)]
+        [InlineData("RV", 222, 1, 17)]
+        [InlineData("I", 222, 1, 9)]
+        [InlineData("T", 222, 1, 9)]
+        [InlineData("DT", 222, 1, 8)]
+        [InlineData("NT", 222, 1, 9)]
+        public void GetFieldSize_Test(string FieldType, int FieldLength, int CouldBeNull, int ExpectedResult)
+        {
+            var Field = new AccessFunctions.TableFields
+            {
+                Type = FieldType,
+                Length = FieldLength,
+                CouldBeNull = CouldBeNull
+            };
+            Assert.Equal(ExpectedResult, GetFieldSize(Field));
+        }
     }
 }
