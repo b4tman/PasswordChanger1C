@@ -171,19 +171,21 @@ namespace PasswordChanger1C
             int RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
             PageHeader.TableName = TableName;
-            foreach (var a in ParsedString[0][2])
+            foreach (var FieldDescriptor in ParsedString[0][2])
             {
-                if (!a.IsList)
+                if (!FieldDescriptor.IsList)
                 {
                     continue;
                 }
 
-                var Field = new AccessFunctions.TableFields();
-                Field.Name = a[0].ToString().Replace("\"", "");
-                Field.Type = a[1].ToString().Replace("\"", "");
-                Field.CouldBeNull = Convert.ToInt32(a[2].ToString());
-                Field.Length = Convert.ToInt32(a[3].ToString());
-                Field.Precision = Convert.ToInt32(a[4].ToString());
+                var Field = new AccessFunctions.TableFields
+                {
+                    Name = FieldDescriptor[0].ToString().Replace("\"", ""),
+                    Type = FieldDescriptor[1].ToString().Replace("\"", ""),
+                    CouldBeNull = Convert.ToInt32(FieldDescriptor[2].ToString()),
+                    Length = Convert.ToInt32(FieldDescriptor[3].ToString()),
+                    Precision = Convert.ToInt32(FieldDescriptor[4].ToString())
+                };
                 int FieldSize = GetFieldSize(Field);              
 
                 Field.Size = FieldSize;
