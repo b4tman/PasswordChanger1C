@@ -143,7 +143,6 @@ namespace PasswordChanger1C
             int descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
             TableDescr = Encoding.Unicode.GetString(PageBuffer, 0, descrLength);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
-            long RowSize = 1;
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
             PageHeader.TableName = TableName;
             if (TableName != TargetTableName)
@@ -151,40 +150,9 @@ namespace PasswordChanger1C
                 return;
             }
 
-            foreach (var a in ParsedString[0][2])
-            {
-                if (!a.IsList)
-                {
-                    continue;
-                }
-
-                var Field = new TableFields
-                {
-                    Name = a[0].ToString().Replace("\"", ""),
-                    Type = a[1].ToString().Replace("\"", ""),
-                    CouldBeNull = Convert.ToInt32(a[2].ToString()),
-                    Length = Convert.ToInt32(a[3].ToString()),
-                    Precision = Convert.ToInt32(a[4].ToString())
-                };
-
-                int FieldSize = CommonModule.GetFieldSize(Field);                
-
-                Field.Size = FieldSize;
-                Field.Offset = RowSize;
-                RowSize += FieldSize;
-                PageHeader.Fields.Add(Field);
-            }
-
-            PageHeader.RowSize = RowSize;
-
-            // {"Files",118,119,96}
-            // Данные, BLOB, индексы
-
-            int BlockData = Convert.ToInt32(ParsedString[0][5][1].ToString());
-            int BlockBlob = Convert.ToInt32(ParsedString[0][5][2].ToString());
-            PageHeader.BlockData = BlockData;
-            PageHeader.BlockBlob = BlockBlob;
-            ReadDataPage(ref PageHeader, BlockData, BlockBlob, reader);
+            PageHeader.TableDefinition = TableDescr;
+            CommonModule.ParseTableDefinition(ref PageHeader);
+            ReadDataPage(ref PageHeader, PageHeader.BlockData, PageHeader.BlockBlob, reader);
         }
 
         public static byte[] GetBlobData(long BlockBlob, int Dataindex, int Datasize, InfobaseBinaryReader reader)
