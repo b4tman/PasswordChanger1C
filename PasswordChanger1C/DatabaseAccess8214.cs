@@ -135,24 +135,6 @@ namespace PasswordChanger1C
             return Page;
         }
 
-        private static int GetFieldSize(TableFields Field)
-        {
-            return Field.Type switch
-            {
-                "B" => Field.Length,
-                "L" => 1,
-                "N" => (Field.Length + 2) / 2,
-                "NC" => Field.Length * 2,
-                "NVC" => Field.Length * 2 + 2,
-                "RV" => 16,
-                "I" => 8,
-                "T" => 8,
-                "DT" => 7,
-                "NT" => 8,
-                _ => 0,
-            } + Field.CouldBeNull;
-        }
-
         public static void ReadDataFromTable(InfobaseBinaryReader reader, long DB, ref PageParams PageHeader, in string TargetTableName)
         {
             var PageBuffer = reader.ReadPage(DB);
@@ -185,7 +167,7 @@ namespace PasswordChanger1C
                     Precision = Convert.ToInt32(a[4].ToString())
                 };
 
-                int FieldSize = GetFieldSize(Field);                
+                int FieldSize = CommonModule.GetFieldSize(Field);                
 
                 Field.Size = FieldSize;
                 Field.Offset = RowSize;

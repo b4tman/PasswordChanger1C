@@ -141,6 +141,29 @@ namespace PasswordChanger1C
             return Tuple.Create(EncryptStringSHA1(password), EncryptStringSHA1(password.ToUpper()));
         }
 
+        private static int GetFieldSize(in string FieldType, int FieldLength, int CouldBeNull)
+        {
+            return FieldType switch
+            {
+                "B" => FieldLength,
+                "L" => 1,
+                "N" => (FieldLength + 2) / 2,
+                "NC" => FieldLength * 2,
+                "NVC" => FieldLength * 2 + 2,
+                "RV" => 16,
+                "I" => 8,
+                "T" => 8,
+                "DT" => 7,
+                "NT" => 8,
+                _ => 0,
+            } + CouldBeNull;
+        }
+
+        public static int GetFieldSize(in AccessFunctions.TableFields Field)
+        {
+            return GetFieldSize(Field.Type, Field.Length, Field.CouldBeNull);
+        }
+
         public static void ParseTableDefinition(ref AccessFunctions.PageParams PageHeader)
         {
             var ParsedString = ParserServices.ParsesClass.ParseString(PageHeader.TableDefinition);
@@ -161,47 +184,7 @@ namespace PasswordChanger1C
                 Field.CouldBeNull = Convert.ToInt32(a[2].ToString());
                 Field.Length = Convert.ToInt32(a[3].ToString());
                 Field.Precision = Convert.ToInt32(a[4].ToString());
-                int FieldSize = Field.CouldBeNull;
-                if (Field.Type == "B")
-                {
-                    FieldSize += Field.Length;
-                }
-                else if (Field.Type == "L")
-                {
-                    FieldSize++;
-                }
-                else if (Field.Type == "N")
-                {
-                    FieldSize = (int)Math.Round(FieldSize + Math.Truncate((Field.Length + 2) / 2d));
-                }
-                else if (Field.Type == "NC")
-                {
-                    FieldSize += Field.Length * 2;
-                }
-                else if (Field.Type == "NVC")
-                {
-                    FieldSize = FieldSize + Field.Length * 2 + 2;
-                }
-                else if (Field.Type == "RV")
-                {
-                    FieldSize += 16;
-                }
-                else if (Field.Type == "I")
-                {
-                    FieldSize += 8;
-                }
-                else if (Field.Type == "T")
-                {
-                    FieldSize += 8;
-                }
-                else if (Field.Type == "DT")
-                {
-                    FieldSize += 7;
-                }
-                else if (Field.Type == "NT")
-                {
-                    FieldSize += 8;
-                }
+                int FieldSize = GetFieldSize(Field);              
 
                 Field.Size = FieldSize;
                 Field.Offset = RowSize;
