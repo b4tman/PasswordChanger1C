@@ -143,6 +143,11 @@ namespace PasswordChanger1C
             int descrLength = Math.Min((int)PageHeader.Length, PageSize / 2);
             TableDescr = Encoding.Unicode.GetString(PageBuffer, 0, descrLength);
             var ParsedString = ParserServices.ParsesClass.ParseString(TableDescr);
+            if (0 == ParsedString.Count || 0 == ParsedString[0].Count)
+            {
+                return;
+            }
+
             string TableName = ParsedString[0][0].ToString().Replace("\"", "").ToUpper();
             PageHeader.TableName = TableName;
             if (TableName != TargetTableName)
