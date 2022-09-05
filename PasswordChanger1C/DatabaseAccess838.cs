@@ -114,6 +114,11 @@ namespace PasswordChanger1C
                 }
 
                 var TableDefinition = ParserServices.ParsesClass.ParseString(StrDefinition.ToString());
+                if (0 == TableDefinition.Count || 0 == TableDefinition[0].Count)
+                {
+                    continue;
+                }
+
                 if (TableDefinition[0][0].ToString().ToUpper() == TargetTable)
                 {
                     Page.TableDefinition = StrDefinition.ToString();
